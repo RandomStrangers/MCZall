@@ -12,22 +12,25 @@
 	or implied. See the License for the specific language governing
 	permissions and limitations under the License.
 */
-using System;
-
-namespace MCZall {
-	public class CmdEmote : Command {
-        public override string name { get { return "emote"; } }
-        public override string shortcut { get { return "<3"; } }
-        public override string type { get { return "other"; } }
+namespace MCZall
+{
+    public class CmdEmote : Command
+    {
+        public override string Name { get { return "emote"; } }
+        public override string Shortcut { get { return "<3"; } }
+        public override string Type { get { return "other"; } }
         public CmdEmote() { }
-		public override void Use(Player p,string message)  {
+        public override void Use(Player p, string message)
+        {
             p.parseSmiley = !p.parseSmiley;
             p.smileySaved = false;
 
             if (p.parseSmiley) p.SendMessage("Emote parsing is enabled.");
             else p.SendMessage("Emote parsing is disabled.");
-		} public override void Help(Player p)  {
-			p.SendMessage("/emote - Enables or disables emoticon parsing");
-		}
-	}
+        }
+        public override void Help(Player p)
+        {
+            p.SendMessage("/emote - Enables or disables emoticon parsing");
+        }
+    }
 }

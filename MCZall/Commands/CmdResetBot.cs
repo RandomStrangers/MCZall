@@ -12,20 +12,17 @@
 	or implied. See the License for the specific language governing
 	permissions and limitations under the License.
 */
-using System;
-using System.Collections.Generic;
-using System.Text;
-
 namespace MCZall
 {
     class CmdResetBot : Command
     {
-        public override string name { get { return "resetbot"; } }
-        public override string shortcut { get { return ""; } }
-        public override string type { get { return "mod"; } }
+        public override string Name { get { return "resetbot"; } }
+        public override string Shortcut { get { return ""; } }
+        public override string Type { get { return "mod"; } }
         public CmdResetBot() { }
 
-        public override void Use(Player p, string message) {
+        public override void Use(Player p, string message)
+        {
             IRCBot.Reset();
         }
         public override void Help(Player p)

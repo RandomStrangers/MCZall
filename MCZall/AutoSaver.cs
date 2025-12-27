@@ -13,28 +13,24 @@
 	permissions and limitations under the License.
 */
 using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading;
-using System.IO;
-using System.ComponentModel;
 
 
 namespace MCZall
 {
-	class AutoSaver
-	{
-		static int _interval;
-		const string backupPath = "levels/backups";
+    class AutoSaver
+    {
+        static int _interval;
+        const string backupPath = "levels/backups";
 
-		static int count = 1;
-		public AutoSaver(int interval)
-		{
-			_interval = interval * 1000;
+        static int count = 1;
+        public AutoSaver(int interval)
+        {
+            _interval = interval * 1000;
 
-			System.Timers.Timer runner = new System.Timers.Timer(_interval);
-			runner.Elapsed += delegate {
-				Exec();
+            System.Timers.Timer runner = new System.Timers.Timer(_interval);
+            runner.Elapsed += delegate
+            {
+                Exec();
 
                 string allCount = "";
                 foreach (Player pl in Player.players) allCount += ", " + pl.name;
@@ -43,51 +39,65 @@ namespace MCZall
                 allCount = "";
                 foreach (Level l in Server.levels) allCount += ", " + l.name;
                 try { Server.s.Log("!LEVELS ONLINE: " + allCount.Remove(0, 2)); } catch { }
-			};
-			//Exec();
-			runner.Start();
-		}
+            };
+            //Exec();
+            runner.Start();
+        }
 
-		static void Exec() {
-			Server.ml.Queue(delegate {
-				Run();
-			});
-		}
+        static void Exec()
+        {
+            Server.ml.Queue(delegate
+            {
+                Run();
+            });
+        }
 
-		static void Run() {
-			try {
-				count--;
+        static void Run()
+        {
+            try
+            {
+                count--;
 
-				Server.levels.ForEach(delegate(Level l) {
-					try {
+                Server.levels.ForEach(delegate (Level l)
+                {
+                    try
+                    {
                         if (!l.changed) return;
 
                         l.Save();
-						if (count == 0) {
+                        if (count == 0)
+                        {
                             int backupNumber = l.Backup();
 
-							if (backupNumber != -1) {
-								foreach (Player p in Player.players) {
-									if (p.level == l) p.SendMessage("Backup " + backupNumber + " saved.");
-								}
-								Server.s.Log("Backup " + backupNumber + " saved for " + l.name);
-							}
-						}
-					} catch {
-						Server.s.Log("Backup for " + l.name + " has caused an error.");
-					}
-				});
+                            if (backupNumber != -1)
+                            {
+                                foreach (Player p in Player.players)
+                                {
+                                    if (p.level == l) p.SendMessage("Backup " + backupNumber + " saved.");
+                                }
+                                Server.s.Log("Backup " + backupNumber + " saved for " + l.name);
+                            }
+                        }
+                    }
+                    catch
+                    {
+                        Server.s.Log("Backup for " + l.name + " has caused an error.");
+                    }
+                });
 
-				if (count <= 0) {
-					count = 15;
-				}
-			}
-			catch (Exception e) { Server.ErrorLog(e); }
+                if (count <= 0)
+                {
+                    count = 15;
+                }
+            }
+            catch (Exception e) { Server.ErrorLog(e); }
 
-            try {
-                foreach (Player p in Player.players) { p.save(); }
+            try
+            {
+                foreach (Player p in Player.players) { p.Save(); }
                 Server.s.Log("Saved player database");
-            } catch(Exception e) { Server.s.Log("Error saving player databases"); Server.s.Log(e.Message); }
-		}
-	}
+            }
+            catch (Exception e) { Server.s.Log("Error saving player databases"); Server.s.Log(e.Message); }
+        }
+    }
 }

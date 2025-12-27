@@ -12,22 +12,25 @@
 	or implied. See the License for the specific language governing
 	permissions and limitations under the License.
 */
-using System;
-using System.IO;
-
-namespace MCZall {
-    public class CmdBotRemove : Command {
-        public override string name { get { return "botremove"; } }
-        public override string shortcut { get { return ""; } }
-        public override string type { get { return "mod"; } }
+namespace MCZall
+{
+    public class CmdBotRemove : Command
+    {
+        public override string Name { get { return "botremove"; } }
+        public override string Shortcut { get { return ""; } }
+        public override string Type { get { return "mod"; } }
         public CmdBotRemove() { }
-        public override void Use(Player p, string message) {
+        public override void Use(Player p, string message)
+        {
             if (message == "") { Help(p); return; }
-            if (message.ToLower() == "all") {
+            if (message.ToLower() == "all")
+            {
                 bool oneRemove = false;
-                foreach (PlayerBot Pb in PlayerBot.playerbots) {
-                    if (Pb.level == p.level) {
-                        Pb.removeBot();
+                foreach (PlayerBot Pb in PlayerBot.playerbots)
+                {
+                    if (Pb.level == p.level)
+                    {
+                        Pb.RemoveBot();
                         p.SendMessage("Removed " + Pb.name);
                         oneRemove = true;
                     }
@@ -39,7 +42,7 @@ namespace MCZall {
             PlayerBot who = PlayerBot.Find(message);
             if (who == null) { p.SendMessage("There is no bot " + who + "!"); return; }
             if (p.level != who.level) { p.SendMessage(who.name + " is in a different level."); return; }
-            who.removeBot();
+            who.RemoveBot();
             p.SendMessage("Removed bot.");
         }
         public override void Help(Player p)

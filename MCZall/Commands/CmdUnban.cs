@@ -12,33 +12,34 @@
 	or implied. See the License for the specific language governing
 	permissions and limitations under the License.
 */
-using System;
-
 namespace MCZall
 {
     public class CmdUnban : Command
     {
-        public override string name { get { return "unban"; } }
-        public override string shortcut { get { return ""; } }
-        public override string type { get { return "mod"; } }
+        public override string Name { get { return "unban"; } }
+        public override string Shortcut { get { return ""; } }
+        public override string Type { get { return "mod"; } }
         public CmdUnban() { }
         public override void Use(Player p, string message)
         {
             if (message == "") { Help(p); return; }
             Player who = Player.Find(message);
 
-            if (who == null) {
-                if (!Server.banned.Contains(message)) { p.SendMessage("Player is not banned."); return; } 
-                Player.GlobalMessage(message + " &8(banned)" + Server.DefaultColor + " is now " + Group.standard.color + Group.standard.name + Server.DefaultColor + "!");
-                Server.banned.Remove(message); 
-            } else {
-                if (!Server.banned.Contains(who.name)) { p.SendMessage("Player is not banned."); return; } 
-                Player.GlobalChat(who, who.color + who.name + Server.DefaultColor + " is now " + Group.standard.color + Group.standard.name + Server.DefaultColor + "!", false);
-                who.group = Group.standard; who.color = who.group.color; Player.GlobalDie(who, false);
+            if (who == null)
+            {
+                if (!Server.banned.Contains(message)) { p.SendMessage("Player is not banned."); return; }
+                Player.GlobalMessage(message + " &8(banned)" + Server.DefaultColor + " is now " + Group.standard.Color + Group.standard.Name + Server.DefaultColor + "!");
+                Server.banned.Remove(message);
+            }
+            else
+            {
+                if (!Server.banned.Contains(who.name)) { p.SendMessage("Player is not banned."); return; }
+                Player.GlobalChat(who, who.color + who.name + Server.DefaultColor + " is now " + Group.standard.Color + Group.standard.Name + Server.DefaultColor + "!", false);
+                who.group = Group.standard; who.color = who.group.Color; Player.GlobalDie(who, false);
                 Player.GlobalSpawn(who, who.pos[0], who.pos[1], who.pos[2], who.rot[0], who.rot[1], false);
-                Server.banned.Remove(who.name); 
-            } 
-            
+                Server.banned.Remove(who.name);
+            }
+
             Server.banned.Save("banned.txt", false);
         }
         public override void Help(Player p)

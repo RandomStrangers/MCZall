@@ -12,20 +12,18 @@
 	or implied. See the License for the specific language governing
 	permissions and limitations under the License.
 */
-using System;
-using System.Collections.Generic;
-using System.Text;
 using Meebey.SmartIrc4net;
+using System;
 using System.Threading;
 
 namespace MCZall
 {
     class IRCBot
     {
-        static IrcClient irc = new IrcClient();
-        static string server = Server.ircServer;
-        static string channel = Server.ircChannel;
-        static string nick = Server.ircNick;
+        static readonly IrcClient irc = new IrcClient();
+        static readonly string server = Server.ircServer;
+        static readonly string channel = Server.ircChannel;
+        static readonly string nick = Server.ircNick;
         static Thread ircThread;
 
         static string[] names;
@@ -67,7 +65,7 @@ namespace MCZall
             irc.Login(nick, nick, 0, nick);
 
             // Check to see if we want to register our bot with nickserv
-            
+
             if (Server.ircIdentify && Server.ircPassword != string.Empty)
             {
                 Server.s.Log("Identifying with Nickserv");
@@ -76,8 +74,8 @@ namespace MCZall
 
             Server.s.Log("Joining channel");
             irc.RfcJoin(channel);
-           
-            
+
+
             irc.Listen();
         }
 
@@ -85,7 +83,8 @@ namespace MCZall
         {
             names = e.UserList;
         }
-        void OnDisconnected(object sender, EventArgs e) {
+        void OnDisconnected(object sender, EventArgs e)
+        {
             try { irc.Connect(server, 6667); }
             catch { Console.WriteLine("Failed to reconnect to IRC"); }
         }
@@ -94,7 +93,7 @@ namespace MCZall
         void OnChanMessage(object sender, IrcEventArgs e)
         {
             string temp = e.Data.Message; string storedNick = e.Data.Nick;
-            
+
             string allowedchars = "1234567890-=qwertyuiop[]\\asdfghjkl;'zxcvbnm,./!@#$%^*()_+QWERTYUIOPASDFGHJKL:\"ZXCVBNM<>? ";
 
             foreach (char ch in temp)
@@ -202,8 +201,8 @@ namespace MCZall
         {
             Player.GlobalMessage("* " + e.Data.Nick + " " + e.ActionMessage);
         }
-        
-        
+
+
         /// <summary>
         /// A simple say method for use outside the bot class
         /// </summary>
@@ -242,7 +241,8 @@ namespace MCZall
             return names;
         }
 
-        public static void ShutDown() {
+        public static void ShutDown()
+        {
             irc.Disconnect();
             ircThread.Abort();
         }

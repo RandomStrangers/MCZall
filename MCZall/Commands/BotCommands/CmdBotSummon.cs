@@ -12,16 +12,13 @@
 	or implied. See the License for the specific language governing
 	permissions and limitations under the License.
 */
-using System;
-using System.IO;
-
 namespace MCZall
 {
     public class CmdBotSummon : Command
     {
-        public override string name { get { return "botsummon"; } }
-        public override string shortcut { get { return ""; } }
-        public override string type { get { return "mod"; } }
+        public override string Name { get { return "botsummon"; } }
+        public override string Shortcut { get { return ""; } }
+        public override string Type { get { return "mod"; } }
         public CmdBotSummon() { }
         public override void Use(Player p, string message)
         {
@@ -29,7 +26,7 @@ namespace MCZall
             PlayerBot who = PlayerBot.Find(message);
             if (who == null) { p.SendMessage("There is no bot " + message + "!"); return; }
             if (p.level != who.level) { p.SendMessage(who.name + " is in a different level."); return; }
-            who.SetPos( p.pos[0], p.pos[1], p.pos[2], p.rot[0], 0);
+            who.SetPos(p.pos[0], p.pos[1], p.pos[2], p.rot[0], 0);
             //who.SendMessage("You were summoned by " + p.color + p.name + "&e.");
         }
         public override void Help(Player p)

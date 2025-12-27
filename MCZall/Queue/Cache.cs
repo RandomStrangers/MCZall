@@ -27,9 +27,7 @@
 //
 
 
-using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace MonoTorrent.Common
 {
@@ -43,8 +41,8 @@ namespace MonoTorrent.Common
     class Cache<T> : ICache<T>
         where T : class, ICacheable, new()
     {
-        bool autoCreate;
-        Queue<T> cache;
+        readonly bool autoCreate;
+        readonly Queue<T> cache;
 
         public int Count
         {
@@ -60,7 +58,7 @@ namespace MonoTorrent.Common
         public Cache(bool autoCreate)
         {
             this.autoCreate = autoCreate;
-            this.cache = new Queue<T>();
+            cache = new Queue<T>();
         }
 
         public T Dequeue()
@@ -83,7 +81,7 @@ namespace MonoTorrent.Common
 
     class SynchronizedCache<T> : ICache<T>
     {
-        ICache<T> cache;
+        readonly ICache<T> cache;
 
         public int Count
         {

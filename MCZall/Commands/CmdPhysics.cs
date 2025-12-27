@@ -18,32 +18,40 @@ namespace MCZall
 {
     public class CmdPhysics : Command
     {
-        public override string name { get { return "physics"; } }
-        public override string shortcut { get { return ""; } }
-        public override string type { get { return "information"; } }
+        public override string Name { get { return "physics"; } }
+        public override string Shortcut { get { return ""; } }
+        public override string Type { get { return "information"; } }
         public CmdPhysics() { }
         public override void Use(Player p, string message)
         {
-            if (message == "") {
-                foreach (Level l in Server.levels) {
+            if (message == "")
+            {
+                foreach (Level l in Server.levels)
+                {
                     if (l.physics > 0)
                         p.SendMessage("&5" + l.name + Server.DefaultColor + " has physics at &b" + l.physics + Server.DefaultColor + ". &cChecks: " + l.lastCheck + "; Updates: " + l.lastUpdate);
                 }
                 return;
             }
-            try {
+            try
+            {
                 int temp = 0; Level level = null;
-                if (message.Split(' ').Length == 1) {
+                if (message.Split(' ').Length == 1)
+                {
                     temp = int.Parse(message);
                     level = p.level;
-                } else {
-                    temp = System.Convert.ToInt16(message.Split(' ')[1]);
+                }
+                else
+                {
+                    temp = Convert.ToInt16(message.Split(' ')[1]);
                     string nameStore = message.Split(' ')[0];
                     level = Level.Find(nameStore);
                 }
-                if (temp >= 0 && temp <= 4) {
-                    level.setPhysics(temp);
-                    switch (temp) {
+                if (temp >= 0 && temp <= 4)
+                {
+                    level.SetPhysics(temp);
+                    switch (temp)
+                    {
                         case 0:
                             level.ClearPhysics();
                             Player.GlobalMessage("Physics are now &cOFF" + Server.DefaultColor + " on &b" + level.name + Server.DefaultColor + ".");
@@ -75,16 +83,21 @@ namespace MCZall
                             IRCBot.Say("Physics are now INSTANT on " + level.name + ".");
                             break;
                     }
-                } else {
-                    if (p != null) { p.SendMessage("Not a valid setting"); }
                 }
-            } catch {
-                if (p != null) { p.SendMessage("INVALID INPUT"); }
+                else
+                {
+                    p?.SendMessage("Not a valid setting");
+                }
+            }
+            catch
+            {
+                p?.SendMessage("INVALID INPUT");
             }
 
         }
 
-        public override void Help(Player p) {
+        public override void Help(Player p)
+        {
             p.SendMessage("/physics [map] <0/1/2/3/4> - Set the [map]'s physics, 0-Off 1-On 2-Advanced 3-Hardcore 4-Instant");
             p.SendMessage("If [map] is blank, uses Current level");
         }

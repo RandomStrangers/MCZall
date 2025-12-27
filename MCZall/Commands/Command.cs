@@ -12,21 +12,21 @@
 	or implied. See the License for the specific language governing
 	permissions and limitations under the License.
 */
-using System;
 using MCZall.Commands;
 
 namespace MCZall
 {
     public abstract class Command
     {
-        public abstract string name { get; }
-        public abstract string shortcut { get; }
-        public abstract string type { get; }
+        public abstract string Name { get; }
+        public abstract string Shortcut { get; }
+        public abstract string Type { get; }
         public abstract void Use(Player p, string message);
         public abstract void Help(Player p);
 
         public static CommandList all = new CommandList();
-        public static void InitAll() { 
+        public static void InitAll()
+        {
             all.Add(new CmdAbort());
             all.Add(new CmdAbout());
             all.Add(new CmdAdmins());

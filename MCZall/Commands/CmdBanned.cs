@@ -12,23 +12,27 @@
 	or implied. See the License for the specific language governing
 	permissions and limitations under the License.
 */
-using System;
-using System.IO;
-
-namespace MCZall {
-	public class CmdBanned : Command {
-        public override string name { get { return "banned"; } }
-        public override string shortcut { get { return ""; } }
-        public override string type { get { return "information"; } }
-		public CmdBanned() {  }
-		public override void Use(Player p,string message)  {
-			if (message != "") { Help(p); return; }
-			if (Server.banned.All().Count > 0) {
-				Server.banned.All().ForEach(delegate(string name) { message += ", "+name; } );
-				p.SendMessage(Server.banned.All().Count+" player"+((Server.banned.All().Count!=1) ? "s" : "")+" &8banned" + Server.DefaultColor + ": "+message.Remove(0,2)+".");
-			} else { p.SendMessage("Nobody is banned."); }
-		} public override void Help(Player p)  {
-			p.SendMessage("/banned - Lists all banned names.");
-		}
-	}
+namespace MCZall
+{
+    public class CmdBanned : Command
+    {
+        public override string Name { get { return "banned"; } }
+        public override string Shortcut { get { return ""; } }
+        public override string Type { get { return "information"; } }
+        public CmdBanned() { }
+        public override void Use(Player p, string message)
+        {
+            if (message != "") { Help(p); return; }
+            if (Server.banned.All().Count > 0)
+            {
+                Server.banned.All().ForEach(delegate (string name) { message += ", " + name; });
+                p.SendMessage(Server.banned.All().Count + " player" + ((Server.banned.All().Count != 1) ? "s" : "") + " &8banned" + Server.DefaultColor + ": " + message.Remove(0, 2) + ".");
+            }
+            else { p.SendMessage("Nobody is banned."); }
+        }
+        public override void Help(Player p)
+        {
+            p.SendMessage("/banned - Lists all banned names.");
+        }
+    }
 }

@@ -12,16 +12,19 @@
 	or implied. See the License for the specific language governing
 	permissions and limitations under the License.
 */
-using System;
-
-namespace MCZall {
-	public class CmdMe : Command {
-        public override string name { get { return "me"; } }
-        public override string shortcut { get { return ""; } }
-        public override string type { get { return "other"; } }
-		public CmdMe() {  }
-		public override void Use(Player p,string message)  {
-			if (message == "") { p.SendMessage("You"); return; } else {
+namespace MCZall
+{
+    public class CmdMe : Command
+    {
+        public override string Name { get { return "me"; } }
+        public override string Shortcut { get { return ""; } }
+        public override string Type { get { return "other"; } }
+        public CmdMe() { }
+        public override void Use(Player p, string message)
+        {
+            if (message == "") { p.SendMessage("You"); return; }
+            else
+            {
                 if (Server.worldChat)
                 {
                     Player.GlobalChat(p, p.color + "*" + p.name + " " + message, false);
@@ -30,9 +33,11 @@ namespace MCZall {
                 {
                     Player.GlobalChatLevel(p, p.color + "*" + p.name + " " + message, false);
                 }
-			}
-		} public override void Help(Player p)  {
-			p.SendMessage("What do you need help with, m'boy?! Are you stuck down a well?!");
-		}
-	}
+            }
+        }
+        public override void Help(Player p)
+        {
+            p.SendMessage("What do you need help with, m'boy?! Are you stuck down a well?!");
+        }
+    }
 }

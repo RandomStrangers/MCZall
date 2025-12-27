@@ -12,18 +12,17 @@
 	or implied. See the License for the specific language governing
 	permissions and limitations under the License.
 */
-using System;
 using System.Text.RegularExpressions;
 
 namespace MCZall
 {
     public class CmdUnbanip : Command
     {
-        Regex regex = new Regex(@"^([1-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])(\." +
+        readonly Regex regex = new Regex(@"^([1-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])(\." +
                                 "([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])){3}$");
-        public override string name { get { return "unbanip"; } }
-        public override string shortcut { get { return ""; } }
-        public override string type { get { return "mod"; } }
+        public override string Name { get { return "unbanip"; } }
+        public override string Shortcut { get { return ""; } }
+        public override string Type { get { return "mod"; } }
         public CmdUnbanip() { }
         public override void Use(Player p, string message)
         {

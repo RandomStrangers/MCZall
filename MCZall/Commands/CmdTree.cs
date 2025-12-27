@@ -1,23 +1,27 @@
 using System;
-using System.IO;
 
-namespace MCZall {
-    public class CmdTree : Command {
-        public override string name { get { return "tree"; } }
-        public override string shortcut { get { return ""; } }
-        public override string type { get { return "build"; } }
+namespace MCZall
+{
+    public class CmdTree : Command
+    {
+        public override string Name { get { return "tree"; } }
+        public override string Shortcut { get { return ""; } }
+        public override string Type { get { return "build"; } }
         public CmdTree() { }
-        public override void Use(Player p, string message) {
+        public override void Use(Player p, string message)
+        {
             p.ClearBlockchange();
-            switch (message.ToLower()) {
+            switch (message.ToLower())
+            {
                 case "2": case "cactus": p.Blockchange += new Player.BlockchangeEventHandler(AddCactus); break;
                 default: p.Blockchange += new Player.BlockchangeEventHandler(AddTree); break;
             }
             p.SendMessage("Select where you wish your tree to grow");
             p.painting = false;
         }
-            
-        void AddTree(Player p, ushort x, ushort y, ushort z, byte type) {
+
+        void AddTree(Player p, ushort x, ushort y, ushort z, byte type)
+        {
             Random Rand = new Random();
 
             byte height = (byte)Rand.Next(5, 8);
@@ -25,15 +29,22 @@ namespace MCZall {
 
             short top = (short)(height - Rand.Next(2, 4));
 
-            for (short xx = (short)-top; xx <= top; ++xx) {
-                for (short yy = (short)-top; yy <= top; ++yy) {
-                    for (short zz = (short)-top; zz <= top; ++zz) {
-                        short Dist = (short)(Math.Sqrt(xx * xx + yy * yy + zz * zz));
-                        if (Dist < top + 1) {
-                            if (Rand.Next((int)(Dist)) < 2) {
-                                try {
+            for (short xx = (short)-top; xx <= top; ++xx)
+            {
+                for (short yy = (short)-top; yy <= top; ++yy)
+                {
+                    for (short zz = (short)-top; zz <= top; ++zz)
+                    {
+                        short Dist = (short)Math.Sqrt(xx * xx + yy * yy + zz * zz);
+                        if (Dist < top + 1)
+                        {
+                            if (Rand.Next(Dist) < 2)
+                            {
+                                try
+                                {
                                     p.level.Blockchange(p, (ushort)(x + xx), (ushort)(y + yy + height), (ushort)(z + zz), Block.leaf);
-                                } catch { }
+                                }
+                                catch { }
                             }
                         }
                     }
@@ -41,7 +52,8 @@ namespace MCZall {
             }
             if (!p.staticCommands) p.ClearBlockchange();
         }
-        void AddCactus(Player p, ushort x, ushort y, ushort z, byte type) {
+        void AddCactus(Player p, ushort x, ushort y, ushort z, byte type)
+        {
             Random Rand = new Random();
 
             byte height = (byte)Rand.Next(3, 6);
@@ -51,9 +63,10 @@ namespace MCZall {
 
             int inX = 0, inZ = 0;
 
-            switch (Rand.Next(1, 3)) {
+            switch (Rand.Next(1, 3))
+            {
                 case 1: inX = -1; break;
-                case 2: 
+                case 2:
                 default: inZ = -1; break;
             }
 
@@ -63,7 +76,8 @@ namespace MCZall {
             if (!p.staticCommands) p.ClearBlockchange();
         }
 
-        public override void Help(Player p) {
+        public override void Help(Player p)
+        {
             p.SendMessage("/tree [type] - Turns tree mode on or off.");
             p.SendMessage("Types - (Fern | 1), (Cactus | 2)");
         }

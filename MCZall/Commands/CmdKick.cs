@@ -12,17 +12,16 @@
 	or implied. See the License for the specific language governing
 	permissions and limitations under the License.
 */
-using System;
-
 namespace MCZall
 {
     public class CmdKick : Command
     {
-        public override string name { get { return "kick"; } }
-        public override string shortcut { get { return "k"; } }
-        public override string type { get { return "mod"; } }
+        public override string Name { get { return "kick"; } }
+        public override string Shortcut { get { return "k"; } }
+        public override string Type { get { return "mod"; } }
         public CmdKick() { }
-        public override void Use(Player p, string message) {
+        public override void Use(Player p, string message)
+        {
             if (message == "") { Help(p); return; }
             Player who = Player.Find(message.Split(' ')[0]);
             if (who == null) { p.SendMessage("Could not find player specified."); return; }
@@ -35,7 +34,7 @@ namespace MCZall
                 if (who == p) { p.SendMessage("You cannot kick yourself!"); return; }
                 else if (who.group.Permission >= p.group.Permission && p != null) { Player.GlobalChat(p, p.color + p.name + Server.DefaultColor + " tried to kick " + who.color + who.name + " but failed.", false); return; }
 
-            who.Kick(message);          
+            who.Kick(message);
         }
         public override void Help(Player p)
         {

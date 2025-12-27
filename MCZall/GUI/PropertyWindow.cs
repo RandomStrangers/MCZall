@@ -1,28 +1,26 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Windows.Forms;
 using System.IO;
+using System.Windows.Forms;
 
 namespace MCZall.Gui
 {
     public partial class PropertyWindow : Form
     {
-        public PropertyWindow() {
+        public PropertyWindow()
+        {
             InitializeComponent();
         }
 
-        private void PropertyWindow_Load(object sender, EventArgs e) {
-            Icon = Gui.Window.ActiveForm.Icon;
-            
-            foreach (Control ctrl in tabPage1.Controls) {
-                if (ctrl is ComboBox) {
-                    ComboBox cmb = (ComboBox)ctrl;
-		            cmb.Items.Add("black");
+        private void PropertyWindow_Load(object sender, EventArgs e)
+        {
+            Icon = ActiveForm.Icon;
+
+            foreach (Control ctrl in tabPage1.Controls)
+            {
+                if (ctrl is ComboBox cmb)
+                {
+                    cmb.Items.Add("black");
                     cmb.Items.Add("navy");
                     cmb.Items.Add("green");
                     cmb.Items.Add("teal");
@@ -40,10 +38,11 @@ namespace MCZall.Gui
                     cmb.Items.Add("white");
                 }
             }
-            foreach (Control ctrl in groupBox2.Controls) {
-                if (ctrl is ComboBox) {
-                    ComboBox cmb = (ComboBox)ctrl;
-		            cmb.Items.Add("black");
+            foreach (Control ctrl in groupBox2.Controls)
+            {
+                if (ctrl is ComboBox cmb)
+                {
+                    cmb.Items.Add("black");
                     cmb.Items.Add("navy");
                     cmb.Items.Add("green");
                     cmb.Items.Add("teal");
@@ -69,24 +68,27 @@ namespace MCZall.Gui
             cmbDefaultRank.Items.Add("operator");
             cmbDefaultRank.Items.Add("superop");
             cmbDefaultRank.SelectedIndex = 1;
-            
+
             //Load server stuff
             LoadProp("properties/server.properties");
             LoadProp("properties/rank.properties");
-            try { fillComm(); } catch { Server.s.Log("Commands cannot be edited until the server is started properly"); }
+            try { FillComm(); } catch { Server.s.Log("Commands cannot be edited until the server is started properly"); }
         }
 
-        private void PropertyWindow_Unload(object sender, EventArgs e) {
+        private void PropertyWindow_Unload(object sender, EventArgs e)
+        {
             Window.prevLoaded = false;
         }
 
-        public void fillComm() {
+        public void FillComm()
+        {
             int prevY = 8;
 
             ComboBox newCombo = new ComboBox();
             Label newLabel = new Label();
 
-            foreach (GrpCommands.rankAllowance aV in GrpCommands.allowedCommands) {
+            foreach (GrpCommands.RankAllowance aV in GrpCommands.allowedCommands)
+            {
                 newCombo = new ComboBox();
                 newLabel = new Label();
 
@@ -118,21 +120,23 @@ namespace MCZall.Gui
 
                 prevY += 25;
             }
-            
+
             newCombo.Dispose();
             newLabel.Dispose();
         }
 
-        public void saveComm() {
+        public void SaveComm()
+        {
             StreamWriter w = new StreamWriter(File.Create("properties/command.properties"));
             w.WriteLine("#   This file contains a reference to every command found in the server software");
             w.WriteLine("#   Use this file to specify which ranks get which commands");
             w.WriteLine("#   Current ranks: Banned, Guest, Builder, AdvBuilder, Operator, Admin (SuperOP)");
             w.WriteLine("");
 
-            foreach (Control ctrl in tabPage3.Controls) {
-                if (ctrl is ComboBox) {
-                    ComboBox cmb = (ComboBox)ctrl;
+            foreach (Control ctrl in tabPage3.Controls)
+            {
+                if (ctrl is ComboBox cmb)
+                {
                     w.WriteLine(cmb.Name.Substring(3) + " = " + cmb.Items[cmb.SelectedIndex].ToString());
                 }
             }
@@ -144,18 +148,22 @@ namespace MCZall.Gui
             Server.s.Log("SAVED: command.properties");
         }
 
-        public void LoadProp(string givenPath) {
-            if (File.Exists(givenPath)) {
+        public void LoadProp(string givenPath)
+        {
+            if (File.Exists(givenPath))
+            {
                 string[] lines = File.ReadAllLines(givenPath);
 
-                foreach (string line in lines) {
-                    if (line != "" && line[0] != '#') {
+                foreach (string line in lines)
+                {
+                    if (line != "" && line[0] != '#')
+                    {
                         //int index = line.IndexOf('=') + 1; // not needed if we use Split('=')
                         string key = line.Split('=')[0].Trim();
                         string value = line.Split('=')[1].Trim();
-                        string color = "";
+                        string color;
 
-                        int foundLimit = 0;
+                        int foundLimit;
 
                         switch (key.ToLower())
                         {
@@ -172,42 +180,54 @@ namespace MCZall.Gui
                                 catch { txtPort.Text = "25565"; }
                                 break;
                             case "verify-names":
-                                chkVerify.Checked = (value.ToLower() == "true") ? true : false;
+                                chkVerify.Checked = value.ToLower() == "true";
                                 break;
                             case "public":
-                                chkPublic.Checked = (value.ToLower() == "true") ? true : false;
+                                chkPublic.Checked = value.ToLower() == "true";
                                 break;
                             case "world-chat":
-                                chkWorld.Checked = (value.ToLower() == "true") ? true : false;
+                                chkWorld.Checked = value.ToLower() == "true";
                                 break;
                             case "max-players":
-                                try {
-                                    if (Convert.ToByte(value) > 64) {
+                                try
+                                {
+                                    if (Convert.ToByte(value) > 64)
+                                    {
                                         value = "64";
-                                    } else if (Convert.ToByte(value) < 1) {
+                                    }
+                                    else if (Convert.ToByte(value) < 1)
+                                    {
                                         value = "1";
                                     }
                                     txtPlayers.Text = value;
-                                } catch { 
+                                }
+                                catch
+                                {
                                     Server.s.Log("max-players invalid! setting to default.");
                                     txtPlayers.Text = "12";
                                 }
                                 break;
                             case "max-maps":
-                                try {
-                                    if (Convert.ToByte(value) > 35) {
+                                try
+                                {
+                                    if (Convert.ToByte(value) > 35)
+                                    {
                                         value = "35";
-                                    } else if (Convert.ToByte(value) < 1) {
+                                    }
+                                    else if (Convert.ToByte(value) < 1)
+                                    {
                                         value = "1";
                                     }
                                     txtMaps.Text = value;
-                                } catch {
+                                }
+                                catch
+                                {
                                     Server.s.Log("max-maps invalid! setting to default.");
                                     txtMaps.Text = "5";
                                 }
                                 break;
                             case "irc":
-                                chkIRC.Checked = (value.ToLower() == "true") ? true : false;
+                                chkIRC.Checked = value.ToLower() == "true";
                                 break;
                             case "irc-server":
                                 txtIRCServer.Text = value;
@@ -219,23 +239,29 @@ namespace MCZall.Gui
                                 txtChannel.Text = value;
                                 break;
                             case "anti-tunnels":
-                                ChkTunnels.Checked = (value.ToLower() == "true") ? true : false;
+                                ChkTunnels.Checked = value.ToLower() == "true";
                                 break;
                             case "max-depth":
-                                txtDepth.Text= value;
+                                txtDepth.Text = value;
                                 break;
 
                             case "overload":
-                                try {
-                                    if (Convert.ToInt16(value) > 5000) {
+                                try
+                                {
+                                    if (Convert.ToInt16(value) > 5000)
+                                    {
                                         value = "4000";
                                         Server.s.Log("Max overload is 5000.");
-                                    } else if (Convert.ToInt16(value) < 500) {
+                                    }
+                                    else if (Convert.ToInt16(value) < 500)
+                                    {
                                         value = "500";
                                         Server.s.Log("Min overload is 500");
                                     }
                                     txtOverload.Text = value;
-                                } catch {
+                                }
+                                catch
+                                {
                                     txtOverload.Text = "1500";
                                 }
                                 break;
@@ -252,25 +278,35 @@ namespace MCZall.Gui
                                 break;
 
                             case "physicsrestart":
-                                chkPhysicsRest.Checked = (value.ToLower() == "true") ? true : false;
+                                chkPhysicsRest.Checked = value.ToLower() == "true";
                                 break;
                             case "deathcount":
-                                chkDeath.Checked = (value.ToLower() == "true") ? true : false;
+                                chkDeath.Checked = value.ToLower() == "true";
                                 break;
 
                             case "defaultcolor":
-                                color = c.Parse(value);
-                                if (color == "") {
-                                    color = c.Name(value); if (color != "") color = value; else { Server.s.Log("Could not find " + value); return; }
+                                color = C.Parse(value);
+                                if (color == "")
+                                {
+                                    color = C.Name(value);
+                                    if (color != "")
+                                    {
+                                    }
+                                    else
+                                    {
+                                        Server.s.Log("Could not find " + value);
+                                        return;
+                                    }
                                 }
-                                cmbDefaultColour.SelectedIndex = cmbDefaultColour.Items.IndexOf(c.Name(value)); break;
+                                cmbDefaultColour.SelectedIndex = cmbDefaultColour.Items.IndexOf(C.Name(value)); break;
 
                             case "irc-color":
-                                color = c.Parse(value);
-                                if (color == "") {
-                                    color = c.Name(value); if (color != "") color = value; else { Server.s.Log("Could not find " + value); return; }
+                                color = C.Parse(value);
+                                if (color == "")
+                                {
+                                    color = C.Name(value); if (color != "") { } else { Server.s.Log("Could not find " + value); return; }
                                 }
-                                cmbIRCColour.SelectedIndex = cmbIRCColour.Items.IndexOf(c.Name(value)); break;
+                                cmbIRCColour.SelectedIndex = cmbIRCColour.Items.IndexOf(C.Name(value)); break;
 
                             case "super-limit":
                                 try { foundLimit = int.Parse(value); }
@@ -293,41 +329,47 @@ namespace MCZall.Gui
                                 txtBuilderLimit.Text = foundLimit.ToString();
                                 break;
                             case "super-color":
-                                color = c.Parse(value);
-                                if (color == "") {
-                                    color = c.Name(value); if (color != "") color = value; else { Server.s.Log("Could not find " + value); return; }
+                                color = C.Parse(value);
+                                if (color == "")
+                                {
+                                    color = C.Name(value); if (color != "") { } else { Server.s.Log("Could not find " + value); return; }
                                 }
-                                cmbSuperColour.SelectedIndex = cmbSuperColour.Items.IndexOf(c.Name(value)); break;
+                                cmbSuperColour.SelectedIndex = cmbSuperColour.Items.IndexOf(C.Name(value)); break;
                             case "op-color":
-                                color = c.Parse(value);
-                                if (color == "") {
-                                    color = c.Name(value); if (color != "") color = value; else { Server.s.Log("Could not find " + value); return; }
+                                color = C.Parse(value);
+                                if (color == "")
+                                {
+                                    color = C.Name(value); if (color != "") { } else { Server.s.Log("Could not find " + value); return; }
                                 }
-                                cmbOpColour.SelectedIndex = cmbOpColour.Items.IndexOf(c.Name(value)); break;
+                                cmbOpColour.SelectedIndex = cmbOpColour.Items.IndexOf(C.Name(value)); break;
                             case "adv-color":
-                                color = c.Parse(value);
-                                if (color == "") {
-                                    color = c.Name(value); if (color != "") color = value; else { Server.s.Log("Could not find " + value); return; }
+                                color = C.Parse(value);
+                                if (color == "")
+                                {
+                                    color = C.Name(value); if (color != "") { } else { Server.s.Log("Could not find " + value); return; }
                                 }
-                                cmbAdvColour.SelectedIndex = cmbAdvColour.Items.IndexOf(c.Name(value)); break;
+                                cmbAdvColour.SelectedIndex = cmbAdvColour.Items.IndexOf(C.Name(value)); break;
                             case "builder-color":
-                                color = c.Parse(value);
-                                if (color == "") {
-                                    color = c.Name(value); if (color != "") color = value; else { Server.s.Log("Could not find " + value); return; }
+                                color = C.Parse(value);
+                                if (color == "")
+                                {
+                                    color = C.Name(value); if (color != "") { } else { Server.s.Log("Could not find " + value); return; }
                                 }
-                                cmbBuilderColour.SelectedIndex = cmbBuilderColour.Items.IndexOf(c.Name(value)); break;
+                                cmbBuilderColour.SelectedIndex = cmbBuilderColour.Items.IndexOf(C.Name(value)); break;
                             case "guest-color":
-                                color = c.Parse(value);
-                                if (color == "") {
-                                    color = c.Name(value); if (color != "") color = value; else { Server.s.Log("Could not find " + value); return; }
+                                color = C.Parse(value);
+                                if (color == "")
+                                {
+                                    color = C.Name(value); if (color != "") { } else { Server.s.Log("Could not find " + value); return; }
                                 }
-                                cmbGuestColour.SelectedIndex = cmbGuestColour.Items.IndexOf(c.Name(value)); break;
+                                cmbGuestColour.SelectedIndex = cmbGuestColour.Items.IndexOf(C.Name(value)); break;
                             case "banned-color":
-                                color = c.Parse(value);
-                                if (color == "") {
-                                    color = c.Name(value); if (color != "") color = value; else { Server.s.Log("Could not find " + value); return; }
+                                color = C.Parse(value);
+                                if (color == "")
+                                {
+                                    color = C.Name(value); if (color != "") { } else { Server.s.Log("Could not find " + value); return; }
                                 }
-                                cmbBannedColour.SelectedIndex = cmbBannedColour.Items.IndexOf(c.Name(value)); break;
+                                cmbBannedColour.SelectedIndex = cmbBannedColour.Items.IndexOf(C.Name(value)); break;
                             /*case "default-rank":
                                 try {
                                     if (cmbDefaultRank.Items.IndexOf(value) != -1) {
@@ -340,14 +382,14 @@ namespace MCZall.Gui
                                 break;*/
 
                             case "old-help":
-                                chkHelp.Checked = (value.ToLower() == "true") ? true : false;                                
+                                chkHelp.Checked = value.ToLower() == "true";
                                 break;
 
                             case "cheapmessage":
-                                chkCheap.Checked = (value.ToLower() == "true") ? true : false;
+                                chkCheap.Checked = value.ToLower() == "true";
                                 break;
                             case "rank-super":
-                                chkrankSuper.Checked = (value.ToLower() == "true") ? true : false;
+                                chkrankSuper.Checked = value.ToLower() == "true";
                                 break;
 
                             case "afk-minutes":
@@ -359,13 +401,13 @@ namespace MCZall.Gui
                                 break;
 
                             case "check-updates":
-                                chkUpdates.Checked = (value.ToLower() == "true") ? true : false;
+                                chkUpdates.Checked = value.ToLower() == "true";
                                 break;
                             case "autoload":
-                                chkAutoload.Checked = (value.ToLower() == "true") ? true : false;
+                                chkAutoload.Checked = value.ToLower() == "true";
                                 break;
                             case "parse-emotes":
-                                chkSmile.Checked = (value.ToLower() == "true") ? true : false;
+                                chkSmile.Checked = value.ToLower() == "true";
                                 break;
                             case "main-name":
                                 txtMain.Text = value;
@@ -377,19 +419,26 @@ namespace MCZall.Gui
             }
             //else Save(givenPath);
         }
-        public bool ValidString(string str, string allowed) {
+        public bool ValidString(string str, string allowed)
+        {
             string allowedchars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz01234567890" + allowed;
-            foreach (char ch in str) {
-                if (allowedchars.IndexOf(ch) == -1) {
+            foreach (char ch in str)
+            {
+                if (allowedchars.IndexOf(ch) == -1)
+                {
                     return false;
                 }
-            } return true;
+            }
+            return true;
         }
 
-        public void Save(string givenPath) {
-            try {
+        public void Save(string givenPath)
+        {
+            try
+            {
                 StreamWriter w = new StreamWriter(File.Create(givenPath));
-                if (givenPath.IndexOf("server") != -1) {
+                if (givenPath.IndexOf("server") != -1)
+                {
                     w.WriteLine("# Edit the settings below to modify how your server operates. This is an explanation of what each setting does.");
                     w.WriteLine("#   server-name\t=\tThe name which displays on minecraft.net");
                     w.WriteLine("#   motd\t=\tThe message which displays when a player connects");
@@ -471,7 +520,9 @@ namespace MCZall.Gui
                     w.WriteLine("#Colors");
                     w.WriteLine("defaultColor = " + cmbDefaultColour.Items[cmbDefaultColour.SelectedIndex].ToString());
                     w.WriteLine("irc-color = " + cmbIRCColour.Items[cmbIRCColour.SelectedIndex].ToString());
-                } else if (givenPath.IndexOf("rank") != -1) {
+                }
+                else if (givenPath.IndexOf("rank") != -1)
+                {
                     w.WriteLine("#Building command limits");
                     w.WriteLine("super-limit = " + txtSuperLimit.Text);
                     w.WriteLine("op-limit = " + txtOpLimit.Text);
@@ -507,122 +558,144 @@ namespace MCZall.Gui
             }
         }
 
-        private void cmbDefaultColour_SelectedIndexChanged(object sender, EventArgs e) {
+        private void CmbDefaultColour_SelectedIndexChanged(object sender, EventArgs e)
+        {
             lblDefault.BackColor = Color.FromName(cmbDefaultColour.Items[cmbDefaultColour.SelectedIndex].ToString());
         }
 
-        private void cmbIRCColour_SelectedIndexChanged(object sender, EventArgs e) {
+        private void CmbIRCColour_SelectedIndexChanged(object sender, EventArgs e)
+        {
             lblIRC.BackColor = Color.FromName(cmbIRCColour.Items[cmbIRCColour.SelectedIndex].ToString());
         }
 
-        private void cmbSuperColour_SelectedIndexChanged(object sender, EventArgs e) {
+        private void CmbSuperColour_SelectedIndexChanged(object sender, EventArgs e)
+        {
             lblSuper.BackColor = Color.FromName(cmbSuperColour.Items[cmbSuperColour.SelectedIndex].ToString());
         }
-        private void cmbOpColour_SelectedIndexChanged(object sender, EventArgs e) {
+        private void CmbOpColour_SelectedIndexChanged(object sender, EventArgs e)
+        {
             lblOp.BackColor = Color.FromName(cmbOpColour.Items[cmbOpColour.SelectedIndex].ToString());
         }
-        private void cmbAdvColour_SelectedIndexChanged(object sender, EventArgs e) {
+        private void CmbAdvColour_SelectedIndexChanged(object sender, EventArgs e)
+        {
             lblAdv.BackColor = Color.FromName(cmbAdvColour.Items[cmbAdvColour.SelectedIndex].ToString());
         }
-        private void cmbBuilderColour_SelectedIndexChanged(object sender, EventArgs e) {
+        private void CmbBuilderColour_SelectedIndexChanged(object sender, EventArgs e)
+        {
             lblBuilder.BackColor = Color.FromName(cmbBuilderColour.Items[cmbBuilderColour.SelectedIndex].ToString());
         }
-        private void cmbGuestColour_SelectedIndexChanged(object sender, EventArgs e) {
+        private void CmbGuestColour_SelectedIndexChanged(object sender, EventArgs e)
+        {
             try { lblGuest.BackColor = Color.FromName(cmbGuestColour.Items[cmbGuestColour.SelectedIndex].ToString()); } catch { }
         }
-        private void cmbBannedColour_SelectedIndexChanged(object sender, EventArgs e) {
+        private void CmbBannedColour_SelectedIndexChanged(object sender, EventArgs e)
+        {
             lblBanned.BackColor = Color.FromName(cmbBannedColour.Items[cmbBannedColour.SelectedIndex].ToString());
         }
 
-        void removeDigit(TextBox foundTxt) {
-            try {
+        void RemoveDigit(TextBox foundTxt)
+        {
+            try
+            {
                 int lastChar = int.Parse(foundTxt.Text[foundTxt.Text.Length - 1].ToString());
-            } catch {
+            }
+            catch
+            {
                 foundTxt.Text = "";
             }
         }
 
-        private void txtPort_TextChanged(object sender, EventArgs e) { removeDigit(txtPort); }
-        private void txtPlayers_TextChanged(object sender, EventArgs e) { removeDigit(txtPlayers); }
-        private void txtMaps_TextChanged(object sender, EventArgs e) { removeDigit(txtMaps); }
-        private void txtBackup_TextChanged(object sender, EventArgs e) { removeDigit(txtBackup); }
-        private void txtOverload_TextChanged(object sender, EventArgs e) { removeDigit(txtOverload); }
-        private void txtDepth_TextChanged(object sender, EventArgs e) { removeDigit(txtDepth); }
-        private void txtSuperLimit_TextChanged(object sender, EventArgs e) { removeDigit(txtSuperLimit); }
-        private void txtOpLimit_TextChanged(object sender, EventArgs e) { removeDigit(txtOpLimit); }
-        private void txtBuilderLimit_TextChanged(object sender, EventArgs e) { removeDigit(txtBuilderLimit); }
-        private void txtAdvLimit_TextChanged(object sender, EventArgs e) { removeDigit(txtAdvLimit); }
+        private void TxtPort_TextChanged(object sender, EventArgs e) { RemoveDigit(txtPort); }
+        private void TxtPlayers_TextChanged(object sender, EventArgs e) { RemoveDigit(txtPlayers); }
+        private void TxtMaps_TextChanged(object sender, EventArgs e) { RemoveDigit(txtMaps); }
+        private void TxtBackup_TextChanged(object sender, EventArgs e) { RemoveDigit(txtBackup); }
+        private void TxtOverload_TextChanged(object sender, EventArgs e) { RemoveDigit(txtOverload); }
+        private void TxtDepth_TextChanged(object sender, EventArgs e) { RemoveDigit(txtDepth); }
+        private void TxtSuperLimit_TextChanged(object sender, EventArgs e) { RemoveDigit(txtSuperLimit); }
+        private void TxtOpLimit_TextChanged(object sender, EventArgs e) { RemoveDigit(txtOpLimit); }
+        private void TxtBuilderLimit_TextChanged(object sender, EventArgs e) { RemoveDigit(txtBuilderLimit); }
+        private void TxtAdvLimit_TextChanged(object sender, EventArgs e) { RemoveDigit(txtAdvLimit); }
 
-        private void btnSave_Click(object sender, EventArgs e) {
+        private void BtnSave_Click(object sender, EventArgs e)
+        {
             foreach (Control tP in tabControl.Controls)
                 if (tP is TabPage) foreach (Control ctrl in tP.Controls)
-                        if (ctrl is TextBox) if (ctrl.Text == "") {
-                            MessageBox.Show("A textbox has been left empty. It must be filled.\n" + ctrl.Name);
-                            return; }
+                        if (ctrl is TextBox) if (ctrl.Text == "")
+                            {
+                                MessageBox.Show("A textbox has been left empty. It must be filled.\n" + ctrl.Name);
+                                return;
+                            }
 
             Save("properties/server.properties");
             Save("properties/rank.properties");
-            saveComm();
+            SaveComm();
 
             //MessageBox.Show("New properties saved.\nRestart the server for them to take effect.");
 
             Properties.Load("properties/server.properties", true);
             Properties.Load("properties/rank.properties", true);
-            GrpCommands.fillRanks();
+            GrpCommands.FillRanks();
             Group.InitAll();
-            this.Dispose();
+            Dispose();
         }
 
-        private void btnDiscard_Click(object sender, EventArgs e) {
-            this.Dispose();
+        private void BtnDiscard_Click(object sender, EventArgs e)
+        {
+            Dispose();
         }
 
-        private void btnApply_Click(object sender, EventArgs e) {
+        private void BtnApply_Click(object sender, EventArgs e)
+        {
             foreach (Control tP in tabControl.Controls)
                 if (tP is TabPage) foreach (Control ctrl in tP.Controls)
-                        if (ctrl is TextBox) if (ctrl.Text == "") {
-                            MessageBox.Show("A textbox has been left empty. It must be filled.\n" + ctrl.Name);
-                            return; }
+                        if (ctrl is TextBox) if (ctrl.Text == "")
+                            {
+                                MessageBox.Show("A textbox has been left empty. It must be filled.\n" + ctrl.Name);
+                                return;
+                            }
 
             Save("properties/server.properties");
             Save("properties/rank.properties");
-            saveComm();
+            SaveComm();
 
             Properties.Load("properties/server.properties", true);
             Properties.Load("properties/rank.properties", true);
-            GrpCommands.fillRanks();
+            GrpCommands.FillRanks();
             Group.InitAll();
         }
 
-        private void toolTip_Popup(object sender, PopupEventArgs e)
+        private void ToolTip_Popup(object sender, PopupEventArgs e)
         {
 
         }
 
-        private void chkBoxes_CheckedChanged(object sender, EventArgs e) {
+        private void ChkBoxes_CheckedChanged(object sender, EventArgs e)
+        {
             foreach (Control tP in tabControl.Controls)
                 if (tP is TabPage) foreach (Control ctrl in tP.Controls)
-                        if (ctrl is CheckBox) { CheckBox cBox = (CheckBox)ctrl;
-                        if (chkBoxes.Checked) cBox.Appearance = Appearance.Normal;
-                            else cBox.Appearance = Appearance.Button; }
+                        if (ctrl is CheckBox cBox)
+                        {
+                            if (chkBoxes.Checked) cBox.Appearance = Appearance.Normal;
+                            else cBox.Appearance = Appearance.Button;
+                        }
         }
 
-        private void tabPage2_Click(object sender, EventArgs e)
+        private void TabPage2_Click(object sender, EventArgs e)
         {
 
         }
 
-        private void tabPage1_Click(object sender, EventArgs e)
+        private void TabPage1_Click(object sender, EventArgs e)
         {
 
         }
 
-        private void chkPhysicsRest_CheckedChanged(object sender, EventArgs e)
+        private void ChkPhysicsRest_CheckedChanged(object sender, EventArgs e)
         {
 
         }
 
-        private void chkGC_CheckedChanged(object sender, EventArgs e)
+        private void ChkGC_CheckedChanged(object sender, EventArgs e)
         {
 
         }

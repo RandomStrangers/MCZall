@@ -5,9 +5,9 @@ namespace MCZall
 {
     public class CmdMegaboid : Command
     {
-        public override string name { get { return "megaboid"; } }
-        public override string shortcut { get { return "zm"; } }
-        public override string type { get { return "build"; } }
+        public override string Name { get { return "megaboid"; } }
+        public override string Shortcut { get { return "zm"; } }
+        public override string Type { get { return "build"; } }
         public CmdMegaboid() { }
         public override void Use(Player p, string message)
         {
@@ -15,14 +15,15 @@ namespace MCZall
 
             int number = message.Split(' ').Length;
             if (number > 2) { Help(p); return; }
-            if (number == 2) {
+            if (number == 2)
+            {
                 int pos = message.IndexOf(' ');
                 string t = message.Substring(0, pos).ToLower();
                 string s = message.Substring(pos + 1).ToLower();
                 byte type = Block.Byte(t);
                 if (type == 255) { p.SendMessage("There is no block \"" + t + "\"."); return; }
 
-                if (Block.allowPlace(type) > p.group.Permission) { p.SendMessage("Cannot place that."); return; }
+                if (Block.AllowPlace(type) > p.group.Permission) { p.SendMessage("Cannot place that."); return; }
 
                 SolidType solid;
                 if (s == "solid") { solid = SolidType.solid; }
@@ -44,10 +45,11 @@ namespace MCZall
                 {
                     byte t = Block.Byte(message);
                     if (t == 255) { p.SendMessage("There is no block \"" + message + "\"."); return; }
-                    if (Block.allowPlace(t) > p.group.Permission) { p.SendMessage("Cannot place that."); return; }
+                    if (Block.AllowPlace(t) > p.group.Permission) { p.SendMessage("Cannot place that."); return; }
 
                     type = t;
-                } CatchPos cpos; cpos.solid = solid; cpos.type = type;
+                }
+                CatchPos cpos; cpos.solid = solid; cpos.type = type;
                 cpos.x = 0; cpos.y = 0; cpos.z = 0; p.blockchangeObject = cpos;
             }
             else
@@ -72,7 +74,8 @@ namespace MCZall
             bp.x = x; bp.y = y; bp.z = z; p.blockchangeObject = bp;
             p.Blockchange += new Player.BlockchangeEventHandler(Blockchange2);
         }
-        public void Blockchange2(Player p, ushort x, ushort y, ushort z, byte type) {
+        public void Blockchange2(Player p, ushort x, ushort y, ushort z, byte type)
+        {
             System.Timers.Timer megaTimer = new System.Timers.Timer(1);
 
             p.ClearBlockchange();
@@ -84,13 +87,15 @@ namespace MCZall
 
             ushort xx; ushort yy; ushort zz;
 
-            switch (cpos.solid) {
+            switch (cpos.solid)
+            {
                 case SolidType.solid:
                     buffer.Capacity = Math.Abs(cpos.x - x) * Math.Abs(cpos.y - y) * Math.Abs(cpos.z - z);
                     for (xx = Math.Min(cpos.x, x); xx <= Math.Max(cpos.x, x); ++xx)
                         for (yy = Math.Min(cpos.y, y); yy <= Math.Max(cpos.y, y); ++yy)
-                            for (zz = Math.Min(cpos.z, z); zz <= Math.Max(cpos.z, z); ++zz) {
-                                if (p.level.GetTile(xx, yy, zz) != type){ BufferAdd(buffer, xx, yy, zz); }
+                            for (zz = Math.Min(cpos.z, z); zz <= Math.Max(cpos.z, z); ++zz)
+                            {
+                                if (p.level.GetTile(xx, yy, zz) != type) { BufferAdd(buffer, xx, yy, zz); }
                             }
                     break;
                 case SolidType.hollow:
@@ -132,7 +137,7 @@ namespace MCZall
                         if (Math.Abs(cpos.z - z) >= 2)
                         {
                             for (xx = (ushort)(Math.Min(cpos.x, x) + 1); xx <= Math.Max(cpos.x, x) - 1; ++xx)
-                                for (yy = (ushort)(Math.Min(cpos.y, y)); yy <= Math.Max(cpos.y, y); ++yy)
+                                for (yy = Math.Min(cpos.y, y); yy <= Math.Max(cpos.y, y); ++yy)
                                 {
                                     if (p.level.GetTile(xx, yy, cpos.z) != type) { BufferAdd(buffer, xx, yy, cpos.z); }
                                     if (cpos.z != z) { if (p.level.GetTile(xx, yy, z) != type) { BufferAdd(buffer, xx, yy, z); } }
@@ -143,14 +148,19 @@ namespace MCZall
             }
 
 
-            if (Server.superOps.Contains(p.name) || Server.operators.Contains(p.name)) {
-                if (buffer.Count > 450000) {
+            if (Server.superOps.Contains(p.name) || Server.operators.Contains(p.name))
+            {
+                if (buffer.Count > 450000)
+                {
                     p.SendMessage("You cannot megaboid more than 450000 blocks.");
                     p.SendMessage("You tried to megaboid " + buffer.Count + " blocks.");
                     return;
                 }
-            } else {
-                if (buffer.Count > 1) {
+            }
+            else
+            {
+                if (buffer.Count > 1)
+                {
                     p.SendMessage("You cannot megaboid any blocks while your name is changed. Please re-log.");
                     p.SendMessage("You tried to megaboid " + buffer.Count + " blocks.");
                     return;
@@ -163,21 +173,26 @@ namespace MCZall
             Pos pos; int CurrentLoop = 0;
             Level currentLevel = p.level;
             megaTimer.Start();
-            megaTimer.Elapsed += delegate {
-                if (p.megaBoid == true) {
+            megaTimer.Elapsed += delegate
+            {
+                if (p.megaBoid == true)
+                {
                     pos = buffer[CurrentLoop];
                     try { currentLevel.Blockchange(pos.x, pos.y, pos.z, type); } catch { }
                     CurrentLoop++;
                     if (CurrentLoop % 1000 == 0) p.SendMessage(CurrentLoop + " blocks down, " + (buffer.Count - CurrentLoop) + " to go.");
                     if (CurrentLoop >= buffer.Count) { p.SendMessage("Completed megaboid"); buffer.Clear(); p.megaBoid = false; megaTimer.Stop(); }
-                } else {
+                }
+                else
+                {
                     megaTimer.Stop();
                 }
             };
 
             if (p.staticCommands) p.Blockchange += new Player.BlockchangeEventHandler(Blockchange1);
         }
-        void BufferAdd(List<Pos> list, ushort x, ushort y, ushort z) {
+        void BufferAdd(List<Pos> list, ushort x, ushort y, ushort z)
+        {
             Pos pos; pos.x = x; pos.y = y; pos.z = z; list.Add(pos);
         }
         struct Pos

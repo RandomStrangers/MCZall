@@ -196,7 +196,7 @@
             this.tabPage1.Size = new System.Drawing.Size(337, 404);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "Server";
-            this.tabPage1.Click += new System.EventHandler(this.tabPage1_Click);
+            this.tabPage1.Click += new System.EventHandler(this.TabPage1_Click);
             // 
             // lblIRC
             // 
@@ -221,7 +221,7 @@
             this.cmbIRCColour.Size = new System.Drawing.Size(57, 21);
             this.cmbIRCColour.TabIndex = 9;
             this.toolTip.SetToolTip(this.cmbIRCColour, "The colour of the IRC nicks used in the IRC.");
-            this.cmbIRCColour.SelectedIndexChanged += new System.EventHandler(this.cmbIRCColour_SelectedIndexChanged);
+            this.cmbIRCColour.SelectedIndexChanged += new System.EventHandler(this.CmbIRCColour_SelectedIndexChanged);
             // 
             // cmbDefaultColour
             // 
@@ -233,7 +233,7 @@
             this.cmbDefaultColour.TabIndex = 9;
             this.toolTip.SetToolTip(this.cmbDefaultColour, "The colour of the default chat used in the server.\nFor example, when you are aske" +
                     "d to select two corners in a cuboid.");
-            this.cmbDefaultColour.SelectedIndexChanged += new System.EventHandler(this.cmbDefaultColour_SelectedIndexChanged);
+            this.cmbDefaultColour.SelectedIndexChanged += new System.EventHandler(this.CmbDefaultColour_SelectedIndexChanged);
             // 
             // chkIRC
             // 
@@ -283,7 +283,7 @@
             this.chkPhysicsRest.Text = "Restart physics";
             this.toolTip.SetToolTip(this.chkPhysicsRest, "Restart physics on shutdown, clearing all physics blocks.");
             this.chkPhysicsRest.UseVisualStyleBackColor = true;
-            this.chkPhysicsRest.CheckedChanged += new System.EventHandler(this.chkPhysicsRest_CheckedChanged);
+            this.chkPhysicsRest.CheckedChanged += new System.EventHandler(this.ChkPhysicsRest_CheckedChanged);
             // 
             // chkSmile
             // 
@@ -457,7 +457,7 @@
             this.txtAFKKick.Size = new System.Drawing.Size(41, 21);
             this.txtAFKKick.TabIndex = 2;
             this.toolTip.SetToolTip(this.txtAFKKick, "Kick the user after they have been afk for this many minutes (0 = No kick)");
-            this.txtAFKKick.TextChanged += new System.EventHandler(this.txtBackup_TextChanged);
+            this.txtAFKKick.TextChanged += new System.EventHandler(this.TxtBackup_TextChanged);
             // 
             // txtafk
             // 
@@ -467,7 +467,7 @@
             this.txtafk.TabIndex = 2;
             this.toolTip.SetToolTip(this.txtafk, "How long the server should wait before declaring someone ask afk. (0 = No timer a" +
                     "t all)");
-            this.txtafk.TextChanged += new System.EventHandler(this.txtBackup_TextChanged);
+            this.txtafk.TextChanged += new System.EventHandler(this.TxtBackup_TextChanged);
             // 
             // txtBackup
             // 
@@ -476,7 +476,7 @@
             this.txtBackup.Size = new System.Drawing.Size(41, 21);
             this.txtBackup.TabIndex = 2;
             this.toolTip.SetToolTip(this.txtBackup, "How often should backups be taken, in seconds.\nDefault = 300");
-            this.txtBackup.TextChanged += new System.EventHandler(this.txtBackup_TextChanged);
+            this.txtBackup.TextChanged += new System.EventHandler(this.TxtBackup_TextChanged);
             // 
             // label27
             // 
@@ -520,7 +520,7 @@
             this.txtNormRp.Name = "txtNormRp";
             this.txtNormRp.Size = new System.Drawing.Size(41, 21);
             this.txtNormRp.TabIndex = 2;
-            this.txtNormRp.TextChanged += new System.EventHandler(this.txtOverload_TextChanged);
+            this.txtNormRp.TextChanged += new System.EventHandler(this.TxtOverload_TextChanged);
             // 
             // txtRP
             // 
@@ -528,7 +528,7 @@
             this.txtRP.Name = "txtRP";
             this.txtRP.Size = new System.Drawing.Size(41, 21);
             this.txtRP.TabIndex = 2;
-            this.txtRP.TextChanged += new System.EventHandler(this.txtOverload_TextChanged);
+            this.txtRP.TextChanged += new System.EventHandler(this.TxtOverload_TextChanged);
             // 
             // txtOverload
             // 
@@ -538,7 +538,7 @@
             this.txtOverload.TabIndex = 2;
             this.toolTip.SetToolTip(this.txtOverload, "Higher numbers = Physics shutdowns never occur.\nLower numbers = Physics shutdowns" +
                     " always occur.\nDefault = 1500");
-            this.txtOverload.TextChanged += new System.EventHandler(this.txtOverload_TextChanged);
+            this.txtOverload.TextChanged += new System.EventHandler(this.TxtOverload_TextChanged);
             // 
             // txtDepth
             // 
@@ -547,7 +547,7 @@
             this.txtDepth.Size = new System.Drawing.Size(41, 21);
             this.txtDepth.TabIndex = 2;
             this.toolTip.SetToolTip(this.txtDepth, "Depth which guests can dig.\nDefault = 4");
-            this.txtDepth.TextChanged += new System.EventHandler(this.txtDepth_TextChanged);
+            this.txtDepth.TextChanged += new System.EventHandler(this.TxtDepth_TextChanged);
             // 
             // txtMain
             // 
@@ -555,7 +555,7 @@
             this.txtMain.Name = "txtMain";
             this.txtMain.Size = new System.Drawing.Size(60, 21);
             this.txtMain.TabIndex = 2;
-            this.txtMain.TextChanged += new System.EventHandler(this.txtMaps_TextChanged);
+            this.txtMain.TextChanged += new System.EventHandler(this.TxtMaps_TextChanged);
             // 
             // txtMaps
             // 
@@ -564,7 +564,7 @@
             this.txtMaps.Size = new System.Drawing.Size(60, 21);
             this.txtMaps.TabIndex = 2;
             this.toolTip.SetToolTip(this.txtMaps, "The total number of maps which can be loaded at once.\nDefault = 5");
-            this.txtMaps.TextChanged += new System.EventHandler(this.txtMaps_TextChanged);
+            this.txtMaps.TextChanged += new System.EventHandler(this.TxtMaps_TextChanged);
             // 
             // txtPlayers
             // 
@@ -573,7 +573,7 @@
             this.txtPlayers.Size = new System.Drawing.Size(60, 21);
             this.txtPlayers.TabIndex = 2;
             this.toolTip.SetToolTip(this.txtPlayers, "The total number of players which can login.\nDefault = 12");
-            this.txtPlayers.TextChanged += new System.EventHandler(this.txtPlayers_TextChanged);
+            this.txtPlayers.TextChanged += new System.EventHandler(this.TxtPlayers_TextChanged);
             // 
             // txtPort
             // 
@@ -583,7 +583,7 @@
             this.txtPort.TabIndex = 2;
             this.toolTip.SetToolTip(this.txtPort, "The port that the server will output on.\nDefault = 25565\n\nChanging will reset you" +
                     "r ExternalURL.");
-            this.txtPort.TextChanged += new System.EventHandler(this.txtPort_TextChanged);
+            this.txtPort.TextChanged += new System.EventHandler(this.TxtPort_TextChanged);
             // 
             // label2
             // 
@@ -687,7 +687,7 @@
             this.tabPage2.Size = new System.Drawing.Size(337, 404);
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "Ranks";
-            this.tabPage2.Click += new System.EventHandler(this.tabPage2_Click);
+            this.tabPage2.Click += new System.EventHandler(this.TabPage2_Click);
             // 
             // chkrankSuper
             // 
@@ -756,7 +756,7 @@
             this.cmbBannedColour.Name = "cmbBannedColour";
             this.cmbBannedColour.Size = new System.Drawing.Size(57, 21);
             this.cmbBannedColour.TabIndex = 21;
-            this.cmbBannedColour.SelectedIndexChanged += new System.EventHandler(this.cmbBannedColour_SelectedIndexChanged);
+            this.cmbBannedColour.SelectedIndexChanged += new System.EventHandler(this.CmbBannedColour_SelectedIndexChanged);
             // 
             // lblGuest
             // 
@@ -773,7 +773,7 @@
             this.cmbGuestColour.Name = "cmbGuestColour";
             this.cmbGuestColour.Size = new System.Drawing.Size(57, 21);
             this.cmbGuestColour.TabIndex = 19;
-            this.cmbGuestColour.SelectedIndexChanged += new System.EventHandler(this.cmbGuestColour_SelectedIndexChanged);
+            this.cmbGuestColour.SelectedIndexChanged += new System.EventHandler(this.CmbGuestColour_SelectedIndexChanged);
             // 
             // lblBuilder
             // 
@@ -790,7 +790,7 @@
             this.cmbBuilderColour.Name = "cmbBuilderColour";
             this.cmbBuilderColour.Size = new System.Drawing.Size(57, 21);
             this.cmbBuilderColour.TabIndex = 17;
-            this.cmbBuilderColour.SelectedIndexChanged += new System.EventHandler(this.cmbBuilderColour_SelectedIndexChanged);
+            this.cmbBuilderColour.SelectedIndexChanged += new System.EventHandler(this.CmbBuilderColour_SelectedIndexChanged);
             // 
             // lblAdv
             // 
@@ -807,7 +807,7 @@
             this.cmbAdvColour.Name = "cmbAdvColour";
             this.cmbAdvColour.Size = new System.Drawing.Size(57, 21);
             this.cmbAdvColour.TabIndex = 15;
-            this.cmbAdvColour.SelectedIndexChanged += new System.EventHandler(this.cmbAdvColour_SelectedIndexChanged);
+            this.cmbAdvColour.SelectedIndexChanged += new System.EventHandler(this.CmbAdvColour_SelectedIndexChanged);
             // 
             // lblOp
             // 
@@ -824,7 +824,7 @@
             this.cmbOpColour.Name = "cmbOpColour";
             this.cmbOpColour.Size = new System.Drawing.Size(57, 21);
             this.cmbOpColour.TabIndex = 13;
-            this.cmbOpColour.SelectedIndexChanged += new System.EventHandler(this.cmbOpColour_SelectedIndexChanged);
+            this.cmbOpColour.SelectedIndexChanged += new System.EventHandler(this.CmbOpColour_SelectedIndexChanged);
             // 
             // lblSuper
             // 
@@ -841,7 +841,7 @@
             this.cmbSuperColour.Name = "cmbSuperColour";
             this.cmbSuperColour.Size = new System.Drawing.Size(57, 21);
             this.cmbSuperColour.TabIndex = 11;
-            this.cmbSuperColour.SelectedIndexChanged += new System.EventHandler(this.cmbSuperColour_SelectedIndexChanged);
+            this.cmbSuperColour.SelectedIndexChanged += new System.EventHandler(this.CmbSuperColour_SelectedIndexChanged);
             // 
             // label20
             // 
@@ -905,7 +905,7 @@
             this.cmbDefaultRank.Name = "cmbDefaultRank";
             this.cmbDefaultRank.Size = new System.Drawing.Size(89, 21);
             this.cmbDefaultRank.TabIndex = 19;
-            this.cmbDefaultRank.SelectedIndexChanged += new System.EventHandler(this.cmbGuestColour_SelectedIndexChanged);
+            this.cmbDefaultRank.SelectedIndexChanged += new System.EventHandler(this.CmbGuestColour_SelectedIndexChanged);
             // 
             // groupBox1
             // 
@@ -967,7 +967,7 @@
             this.txtBuilderLimit.Name = "txtBuilderLimit";
             this.txtBuilderLimit.Size = new System.Drawing.Size(84, 21);
             this.txtBuilderLimit.TabIndex = 6;
-            this.txtBuilderLimit.TextChanged += new System.EventHandler(this.txtBuilderLimit_TextChanged);
+            this.txtBuilderLimit.TextChanged += new System.EventHandler(this.TxtBuilderLimit_TextChanged);
             // 
             // txtAdvLimit
             // 
@@ -975,7 +975,7 @@
             this.txtAdvLimit.Name = "txtAdvLimit";
             this.txtAdvLimit.Size = new System.Drawing.Size(84, 21);
             this.txtAdvLimit.TabIndex = 6;
-            this.txtAdvLimit.TextChanged += new System.EventHandler(this.txtAdvLimit_TextChanged);
+            this.txtAdvLimit.TextChanged += new System.EventHandler(this.TxtAdvLimit_TextChanged);
             // 
             // txtOpLimit
             // 
@@ -983,7 +983,7 @@
             this.txtOpLimit.Name = "txtOpLimit";
             this.txtOpLimit.Size = new System.Drawing.Size(84, 21);
             this.txtOpLimit.TabIndex = 6;
-            this.txtOpLimit.TextChanged += new System.EventHandler(this.txtOpLimit_TextChanged);
+            this.txtOpLimit.TextChanged += new System.EventHandler(this.TxtOpLimit_TextChanged);
             // 
             // txtSuperLimit
             // 
@@ -991,7 +991,7 @@
             this.txtSuperLimit.Name = "txtSuperLimit";
             this.txtSuperLimit.Size = new System.Drawing.Size(84, 21);
             this.txtSuperLimit.TabIndex = 6;
-            this.txtSuperLimit.TextChanged += new System.EventHandler(this.txtSuperLimit_TextChanged);
+            this.txtSuperLimit.TextChanged += new System.EventHandler(this.TxtSuperLimit_TextChanged);
             // 
             // label29
             // 
@@ -1021,7 +1021,7 @@
             this.btnSave.TabIndex = 1;
             this.btnSave.Text = "Save";
             this.btnSave.UseVisualStyleBackColor = true;
-            this.btnSave.Click += new System.EventHandler(this.btnSave_Click);
+            this.btnSave.Click += new System.EventHandler(this.BtnSave_Click);
             // 
             // btnDiscard
             // 
@@ -1032,7 +1032,7 @@
             this.btnDiscard.TabIndex = 1;
             this.btnDiscard.Text = "Discard";
             this.btnDiscard.UseVisualStyleBackColor = true;
-            this.btnDiscard.Click += new System.EventHandler(this.btnDiscard_Click);
+            this.btnDiscard.Click += new System.EventHandler(this.BtnDiscard_Click);
             // 
             // btnApply
             // 
@@ -1043,7 +1043,7 @@
             this.btnApply.TabIndex = 1;
             this.btnApply.Text = "Apply";
             this.btnApply.UseVisualStyleBackColor = true;
-            this.btnApply.Click += new System.EventHandler(this.btnApply_Click);
+            this.btnApply.Click += new System.EventHandler(this.BtnApply_Click);
             // 
             // toolTip
             // 
@@ -1053,7 +1053,7 @@
             this.toolTip.ReshowDelay = 100;
             this.toolTip.ToolTipIcon = System.Windows.Forms.ToolTipIcon.Info;
             this.toolTip.ToolTipTitle = "Information";
-            this.toolTip.Popup += new System.Windows.Forms.PopupEventHandler(this.toolTip_Popup);
+            this.toolTip.Popup += new System.Windows.Forms.PopupEventHandler(this.ToolTip_Popup);
             // 
             // chkBoxes
             // 
@@ -1065,7 +1065,7 @@
             this.chkBoxes.TabIndex = 11;
             this.chkBoxes.Text = "Check boxes";
             this.chkBoxes.UseVisualStyleBackColor = true;
-            this.chkBoxes.CheckedChanged += new System.EventHandler(this.chkBoxes_CheckedChanged);
+            this.chkBoxes.CheckedChanged += new System.EventHandler(this.ChkBoxes_CheckedChanged);
             // 
             // PropertyWindow
             // 

@@ -44,8 +44,9 @@ namespace MCZall
         {
             Server.s.Log("Attempting map gen");
             if (Inuse) { Server.s.Log("Generator in use"); return false; }
-            Random rand = new System.Random();
-            try {
+            Random rand = new Random();
+            try
+            {
                 Inuse = true;
                 terrain = new float[Lvl.width * Lvl.height];
                 overlay = new float[Lvl.width * Lvl.height];
@@ -70,11 +71,12 @@ namespace MCZall
                 //CREATE OVERLAY
                 //GenerateFault(overlay, Lvl, "overlay", rand);
                 Server.s.Log("Creating overlay");
-                GeneratePerlinNoise(overlay, Lvl, "", rand);
+                GeneratePerlinNoise(overlay, Lvl, rand);
 
-                if (!type.Equals("ocean") && type != "desert") {
+                if (!type.Equals("ocean") && type != "desert")
+                {
                     Server.s.Log("Planning trees");
-                    GeneratePerlinNoise(overlay2, Lvl, "", rand);
+                    GeneratePerlinNoise(overlay2, Lvl, rand);
                 }
 
                 Server.s.Log("Converting height map");
@@ -84,7 +86,7 @@ namespace MCZall
                 float TreeDens = 0.35f;
                 short TreeDist = 3;
                 //changes the terrain range based on type, also tree threshold
-                switch(type)
+                switch (type)
                 {
                     case "island":
                         RangeLow = 0.4f;
@@ -116,43 +118,56 @@ namespace MCZall
                 }
 
                 //loops though evey X/Z coordinate
-                for ( int bb = 0; bb < terrain.Length; bb++)
+                for (int bb = 0; bb < terrain.Length; bb++)
                 {
                     ushort x = (ushort)(bb % Lvl.width);
                     ushort y = (ushort)(bb / Lvl.width);
                     ushort z;
-                    if (type.Equals("island")) {
+                    if (type.Equals("island"))
+                    {
                         z = Evaluate(Lvl, Range(terrain[bb], RangeLow - NegateEdge(x, y, Lvl), RangeHigh - NegateEdge(x, y, Lvl)));
-                    } else {
+                    }
+                    else
+                    {
                         z = Evaluate(Lvl, Range(terrain[bb], RangeLow, RangeHigh));
                     }
-                    if (z > WaterLevel) {
-                        for (ushort zz = 0; z - zz >= 0; zz++) {
-                            if (type == "desert") {
-                                Lvl.skipChange(x, (ushort)(z - zz), y, Block.sand);
-                            } else if (overlay[bb] < 0.72f)    //If not zoned for rocks or gravel
+                    if (z > WaterLevel)
+                    {
+                        for (ushort zz = 0; z - zz >= 0; zz++)
+                        {
+                            if (type == "desert")
+                            {
+                                Lvl.SkipChange(x, (ushort)(z - zz), y, Block.sand);
+                            }
+                            else if (overlay[bb] < 0.72f)    //If not zoned for rocks or gravel
                             {
                                 if (type.Equals("island"))      //increase sand height for island
                                 {
                                     if (z > WaterLevel + 2)
                                     {
-                                        if (zz == 0) { Lvl.skipChange(x, (ushort)(z - zz), y, Block.grass); }      //top layer
-                                        else if (zz < 3) { Lvl.skipChange(x, (ushort)(z - zz), y, Block.dirt); }   //next few
-                                        else { Lvl.skipChange(x, (ushort)(z - zz), y, Block.rock); }               //ten rock it
+                                        if (zz == 0) { Lvl.SkipChange(x, (ushort)(z - zz), y, Block.grass); }      //top layer
+                                        else if (zz < 3) { Lvl.SkipChange(x, (ushort)(z - zz), y, Block.dirt); }   //next few
+                                        else { Lvl.SkipChange(x, (ushort)(z - zz), y, Block.rock); }               //ten rock it
                                     }
                                     else
                                     {
-                                        Lvl.skipChange(x, (ushort)(z - zz), y, Block.sand);                        //SAAAND extra for islands
+                                        Lvl.SkipChange(x, (ushort)(z - zz), y, Block.sand);                        //SAAAND extra for islands
                                     }
-                                } else if (type == "desert") {
-                                    Lvl.skipChange(x, (ushort)(z - zz), y, Block.sand);
-                                } else {
-                                    if (zz == 0) { Lvl.skipChange(x, (ushort)(z - zz), y, Block.grass); }
-                                    else if (zz < 3) { Lvl.skipChange(x, (ushort)(z - zz), y, Block.dirt); }
-                                    else { Lvl.skipChange(x, (ushort)(z - zz), y, Block.rock); }
                                 }
-                            } else {
-                                Lvl.skipChange(x, (ushort)(z - zz), y, Block.rock);    //zoned for above sea level rock floor
+                                else if (type == "desert")
+                                {
+                                    Lvl.SkipChange(x, (ushort)(z - zz), y, Block.sand);
+                                }
+                                else
+                                {
+                                    if (zz == 0) { Lvl.SkipChange(x, (ushort)(z - zz), y, Block.grass); }
+                                    else if (zz < 3) { Lvl.SkipChange(x, (ushort)(z - zz), y, Block.dirt); }
+                                    else { Lvl.SkipChange(x, (ushort)(z - zz), y, Block.rock); }
+                                }
+                            }
+                            else
+                            {
+                                Lvl.SkipChange(x, (ushort)(z - zz), y, Block.rock);    //zoned for above sea level rock floor
                             }
                         }
 
@@ -163,26 +178,32 @@ namespace MCZall
                             switch (temprand)
                             {
                                 case 10:
-                                    Lvl.skipChange(x, (ushort)(z + 1), y, Block.redflower);
+                                    Lvl.SkipChange(x, (ushort)(z + 1), y, Block.redflower);
                                     break;
                                 case 11:
-                                    Lvl.skipChange(x, (ushort)(z + 1), y, Block.yellowflower);
+                                    Lvl.SkipChange(x, (ushort)(z + 1), y, Block.yellowflower);
                                     break;
                                 default:
                                     break;
                             }
                         }
 
-                        if (!type.Equals("ocean")) {
-                            if (overlay[bb] < 0.65f && overlay2[bb] < TreeDens) {
-                                if (Lvl.GetTile(x, (ushort)(z + 1), y) == Block.air) {
-                                    if (Lvl.GetTile(x, z, y) == Block.grass || type == "desert") {
-                                        if (rand.Next(13) == 0) {
-                                            if (!TreeCheck(Lvl, x, z, y, TreeDist)) {
+                        if (!type.Equals("ocean"))
+                        {
+                            if (overlay[bb] < 0.65f && overlay2[bb] < TreeDens)
+                            {
+                                if (Lvl.GetTile(x, (ushort)(z + 1), y) == Block.air)
+                                {
+                                    if (Lvl.GetTile(x, z, y) == Block.grass || type == "desert")
+                                    {
+                                        if (rand.Next(13) == 0)
+                                        {
+                                            if (!TreeCheck(Lvl, x, z, y, TreeDist))
+                                            {
                                                 if (type == "desert")
                                                     AddCactus(Lvl, x, (ushort)(z + 1), y, rand);
                                                 else
-                                                    AddTree(Lvl, x, (ushort)(z + 1), y, rand); 
+                                                    AddTree(Lvl, x, (ushort)(z + 1), y, rand);
                                             }
                                         }
                                     }
@@ -196,20 +217,20 @@ namespace MCZall
                         for (ushort zz = 0; WaterLevel - zz >= 0; zz++)
                         {
                             if (WaterLevel - zz > z)
-                            {Lvl.skipChange(x, (ushort)(WaterLevel - zz), y, Block.water);}    //better fill the water aboce me
-                            else if (WaterLevel - zz > z-3)
+                            { Lvl.SkipChange(x, (ushort)(WaterLevel - zz), y, Block.water); }    //better fill the water aboce me
+                            else if (WaterLevel - zz > z - 3)
                             {
                                 if (overlay[bb] < 0.75f)
                                 {
-                                    Lvl.skipChange(x, (ushort)(WaterLevel - zz), y, Block.sand);   //sand top
+                                    Lvl.SkipChange(x, (ushort)(WaterLevel - zz), y, Block.sand);   //sand top
                                 }
                                 else
                                 {
-                                    Lvl.skipChange(x, (ushort)(WaterLevel - zz), y, Block.gravel);  //zoned for gravel
+                                    Lvl.SkipChange(x, (ushort)(WaterLevel - zz), y, Block.gravel);  //zoned for gravel
                                 }
                             }
                             else
-                            {Lvl.skipChange(x, (ushort)(WaterLevel - zz), y, Block.rock);}
+                            { Lvl.SkipChange(x, (ushort)(WaterLevel - zz), y, Block.rock); }
                         }
                     }
                 }
@@ -233,7 +254,7 @@ namespace MCZall
 
         //condensed fault generator
         #region ==FaultGen==
-        void GenerateFault(float[] array,Level Lvl, string type, Random rand)
+        void GenerateFault(float[] array, Level Lvl, string type, Random rand)
         {
             float startheight = 0.5f;
             float dispAux;
@@ -267,7 +288,7 @@ namespace MCZall
 
             halfX = (ushort)(Lvl.width / 2);
             halfZ = (ushort)(Lvl.height / 2);
-            int numIterations = (int)((Lvl.width + Lvl.height));
+            int numIterations = Lvl.width + Lvl.height;
             Server.s.Log("Iterations = " + numIterations.ToString());
             for (k = 0; k < numIterations; k++)
             {
@@ -325,47 +346,47 @@ namespace MCZall
 
         //hur hur, more copy pasted code :/
         #region ==PerlinGen==
-        void GeneratePerlinNoise(float[] array, Level Lvl, string type, Random rand)
+        void GeneratePerlinNoise(float[] array, Level Lvl, Random rand)
         {
             GenerateNormalized(array, 0.7f, 8, Lvl.width, Lvl.height, rand.Next(), 64);
         }
 
         void GenerateNormalized(float[] array, float persistence, int octaves, int width, int height, int seed, float zoom)
-        {	
-	        float min = 0;
-	        float max = 0;
-	        //float * pDataFloat = new float[width * height];
+        {
+            float min = 0;
+            float max = 0;
+            //float * pDataFloat = new float[width * height];
 
-	        //Generate raw float data
-	        for (int y = 0; y < height; ++y)
-	        {
-		        for (int x = 0; x < width; ++x)
-		        {
-			        float total = 0;
-			        float frequency = 1;
-			        float amplitude = 1;
+            //Generate raw float data
+            for (int y = 0; y < height; ++y)
+            {
+                for (int x = 0; x < width; ++x)
+                {
+                    float total = 0;
+                    float frequency = 1;
+                    float amplitude = 1;
 
-			        for (int i = 0; i < octaves; ++i)
-			        {
-				        total = total + InterpolatedNoise(x * frequency / zoom, y * frequency / zoom, seed) * amplitude;
-				        frequency *= 2;
-				        amplitude *= persistence;
-			        }
+                    for (int i = 0; i < octaves; ++i)
+                    {
+                        total += InterpolatedNoise(x * frequency / zoom, y * frequency / zoom, seed) * amplitude;
+                        frequency *= 2;
+                        amplitude *= persistence;
+                    }
 
                     array[y * width + x] = total;
 
-			        min = total < min ? total : min;
-			        max = total > max ? total : max;
-		        }
-	        }
+                    min = total < min ? total : min;
+                    max = total > max ? total : max;
+                }
+            }
 
-	        //Normalize
-	        for (int i = 0; i < width * height; ++i)
-	        {
+            //Normalize
+            for (int i = 0; i < width * height; ++i)
+            {
                 array[i] = (array[i] - min) / (max - min);
-			    //array[i] = (255 << 24) | ((unsigned char) (red * ((pDataFloat[i] - min) / (max - min)) * 255) << 16) | 
-				//((unsigned char) (green * ((pDataFloat[i] - min) / (max - min)) * 255) << 8) | (unsigned char) (blue * ((pDataFloat[i] - min) / (max - min)) * 255);
-	        }
+                //array[i] = (255 << 24) | ((unsigned char) (red * ((pDataFloat[i] - min) / (max - min)) * 255) << 16) | 
+                //((unsigned char) (green * ((pDataFloat[i] - min) / (max - min)) * 255) << 8) | (unsigned char) (blue * ((pDataFloat[i] - min) / (max - min)) * 255);
+            }
         }
 
         float Noise(int x, int y, int seed)
@@ -379,17 +400,17 @@ namespace MCZall
         float SmoothNoise(int x, int y, int seed)
         {
             float corners = (Noise(x - 1, y - 1, seed) + Noise(x + 1, y - 1, seed) + Noise(x - 1, y + 1, seed) + Noise(x + 1, y + 1, seed)) / 16;
-            float sides = (Noise(x - 1, y, seed) + Noise(x + 1, y, seed) + Noise(x, y - 1, seed) + Noise(x, y + 1, seed) / 8);
+            float sides = Noise(x - 1, y, seed) + Noise(x + 1, y, seed) + Noise(x, y - 1, seed) + Noise(x, y + 1, seed) / 8;
             float center = Noise(x, y, seed) / 4;
             return corners + sides + center;
         }
 
         float Interpolate(float a, float b, float x)
         {
-	        float ft = x * 3.1415927f;
-	        float f = (float)(1 - Math.Cos(ft)) * .5f;
+            float ft = x * 3.1415927f;
+            float f = (float)(1 - Math.Cos(ft)) * .5f;
 
-	        return  a*(1-f) + b*f;
+            return a * (1 - f) + b * f;
         }
 
         float InterpolatedNoise(float x, float y, int seed)
@@ -414,52 +435,66 @@ namespace MCZall
         #endregion
 
         //
-        void AddTree(Level Lvl, ushort x, ushort y, ushort z, Random Rand) {
+        void AddTree(Level Lvl, ushort x, ushort y, ushort z, Random Rand)
+        {
             byte height = (byte)Rand.Next(5, 8);
-            for (ushort yy = 0; yy < height; yy++) Lvl.skipChange(x, (ushort)(y + yy), z, Block.trunk);
+            for (ushort yy = 0; yy < height; yy++) Lvl.SkipChange(x, (ushort)(y + yy), z, Block.trunk);
 
             short top = (short)(height - Rand.Next(2, 4));
 
-            for (short xx = (short)-top; xx <= top; ++xx) {
-                for (short yy = (short)-top; yy <= top; ++yy) {
-                    for (short zz = (short)-top; zz <= top; ++zz) {
-                        short Dist = (short)(Math.Sqrt(xx * xx + yy * yy + zz * zz));
-                        if (Dist < top + 1) {
-                            if (Rand.Next((int)(Dist)) < 2) {
-                                try {
-                                    Lvl.skipChange((ushort)(x + xx), (ushort)(y + yy + height), (ushort)(z + zz), Block.leaf);
-                                } catch { }
+            for (short xx = (short)-top; xx <= top; ++xx)
+            {
+                for (short yy = (short)-top; yy <= top; ++yy)
+                {
+                    for (short zz = (short)-top; zz <= top; ++zz)
+                    {
+                        short Dist = (short)Math.Sqrt(xx * xx + yy * yy + zz * zz);
+                        if (Dist < top + 1)
+                        {
+                            if (Rand.Next(Dist) < 2)
+                            {
+                                try
+                                {
+                                    Lvl.SkipChange((ushort)(x + xx), (ushort)(y + yy + height), (ushort)(z + zz), Block.leaf);
+                                }
+                                catch { }
                             }
                         }
                     }
                 }
             }
         }
-        void AddCactus(Level Lvl, ushort x, ushort y, ushort z, Random Rand) {
+        void AddCactus(Level Lvl, ushort x, ushort y, ushort z, Random Rand)
+        {
             byte height = (byte)Rand.Next(3, 6);
             ushort yy;
 
-            for (yy = 0; yy <= height; yy++) Lvl.skipChange(x, (ushort)(y + yy), z, Block.green);
+            for (yy = 0; yy <= height; yy++) Lvl.SkipChange(x, (ushort)(y + yy), z, Block.green);
 
             int inX = 0, inZ = 0;
 
-            switch (Rand.Next(1, 3)) {
+            switch (Rand.Next(1, 3))
+            {
                 case 1: inX = -1; break;
                 case 2:
                 default: inZ = -1; break;
             }
-            
-            for (yy = height; yy <= Rand.Next(height + 2, height + 5); yy++) Lvl.skipChange((ushort)(x + inX), (ushort)(y + yy), (ushort)(z + inZ), Block.green);
-            for (yy = height; yy <= Rand.Next(height + 2, height + 5); yy++) Lvl.skipChange((ushort)(x - inX), (ushort)(y + yy), (ushort)(z - inZ), Block.green);
+
+            for (yy = height; yy <= Rand.Next(height + 2, height + 5); yy++) Lvl.SkipChange((ushort)(x + inX), (ushort)(y + yy), (ushort)(z + inZ), Block.green);
+            for (yy = height; yy <= Rand.Next(height + 2, height + 5); yy++) Lvl.SkipChange((ushort)(x - inX), (ushort)(y + yy), (ushort)(z - inZ), Block.green);
         }
 
         private bool TreeCheck(Level Lvl, ushort x, ushort z, ushort y, short dist)         //return true if tree is near
         {
-            for (short xx = (short)-dist; xx <= +dist; ++xx) {
-                for (short yy = (short)-dist; yy <= +dist; ++yy) {
-                    for (short zz = (short)-dist; zz <= +dist; ++zz) {
-                        byte foundTile = Lvl.GetTile((ushort)(x + xx), (ushort)(z + zz ), (ushort)(y + yy));
-                        if (foundTile == Block.trunk || foundTile == Block.green) {
+            for (short xx = (short)-dist; xx <= +dist; ++xx)
+            {
+                for (short yy = (short)-dist; yy <= +dist; ++yy)
+                {
+                    for (short zz = (short)-dist; zz <= +dist; ++zz)
+                    {
+                        byte foundTile = Lvl.GetTile((ushort)(x + xx), (ushort)(z + zz), (ushort)(y + yy));
+                        if (foundTile == Block.trunk || foundTile == Block.green)
+                        {
                             return true;
                         }
                     }
@@ -545,7 +580,7 @@ namespace MCZall
             if (x < 0) { return 0.0f; }
             if (x >= Lvl.width) { return 0.0f; }
             if (y < 0) { return 0.0f; }
-            if (y >= Lvl.height) { return 0.0f;}
+            if (y >= Lvl.height) { return 0.0f; }
             divide += 1.0f;
             return terrain[x + y * Lvl.width];
         }
@@ -562,8 +597,8 @@ namespace MCZall
         {
             float tempx = 0.0f, tempy = 0.0f;
             float temp;
-            if (x != 0) { tempx = ((float)x / (float)Lvl.width) * 0.5f; }
-            if (y != 0) { tempy = ((float)y / (float)Lvl.height) * 0.5f; }
+            if (x != 0) { tempx = x / (float)Lvl.width * 0.5f; }
+            if (y != 0) { tempy = y / (float)Lvl.height * 0.5f; }
             tempx = Math.Abs(tempx - 0.25f);
             tempy = Math.Abs(tempy - 0.25f);
             if (tempx > tempy)

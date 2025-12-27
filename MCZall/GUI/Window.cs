@@ -14,22 +14,16 @@
 */
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.IO;
-using System.Text;
-using System.Windows.Forms;
 using System.Threading;
-using System.Text.RegularExpressions;
-using MCZall;
+using System.Windows.Forms;
 
 namespace MCZall.Gui
 {
     public partial class Window : Form
     {
-        Regex regex = new Regex(@"^([1-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])(\." +
-                                "([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])){3}$");
+        //readonly Regex regex = new Regex(@"^([1-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])(\." +
+        //"([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])){3}$");
         // for cross thread use
         delegate void StringCallback(string s);
         delegate void PlayerListCallback(List<Player> players);
@@ -38,16 +32,18 @@ namespace MCZall.Gui
 
         public static event EventHandler Minimize;
         public static bool Minimized = false;
-        static NotifyIcon ntf = new NotifyIcon();
+        //static readonly NotifyIcon ntf = new NotifyIcon();
 
         internal static Server s;
-        
-        bool shuttingDown = false;
-        public Window() {
+
+        readonly bool shuttingDown = false;
+        public Window()
+        {
             InitializeComponent();
         }
 
-        private void Window_Minimize(object sender, EventArgs e) {
+        private void Window_Minimize(object sender, EventArgs e)
+        {
             /*
             if (!Minimized) {
                 Minimized = true;
@@ -67,15 +63,16 @@ namespace MCZall.Gui
              */
         }
 
-        private void Window_Load(object sender, EventArgs e) {
-            this.Text = "<server name here>";
+        private void Window_Load(object sender, EventArgs e)
+        {
+            Text = "<server name here>";
             Icon theIcon = new Icon(System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream("MCZall.Zallist.ico"));
 
-            this.Icon = theIcon;
+            Icon = theIcon;
 
             s = new Server();
             s.OnLog += WriteLine;
-            s.OnCommand += newCommand;
+            s.OnCommand += NewCommand;
             s.HeartBeatFail += HeartBeatFail;
             s.OnURLChange += UpdateUrl;
             s.OnPlayerListChange += UpdateClientList;
@@ -83,7 +80,8 @@ namespace MCZall.Gui
             s.Start();
 
             System.Timers.Timer MapTimer = new System.Timers.Timer(10000);
-            MapTimer.Elapsed += delegate {
+            MapTimer.Elapsed += delegate
+            {
                 UpdateMapList();
             }; MapTimer.Start();
         }
@@ -94,13 +92,16 @@ namespace MCZall.Gui
             if (txtLog.InvokeRequired)
             {
                 VoidDelegate d = new VoidDelegate(SettingsUpdate);
-                this.Invoke(d);
-            }  else {
-                this.Text = Server.name + " MCZall Version: " + Server.Version;
+                Invoke(d);
+            }
+            else
+            {
+                Text = Server.name + " MCZall Version: " + Server.Version;
             }
         }
 
-        void HeartBeatFail() {
+        void HeartBeatFail()
+        {
             WriteLine("Recent Heartbeat Failed");
         }
 
@@ -110,12 +111,16 @@ namespace MCZall.Gui
         /// Does the same as Console.Write() only in the form
         /// </summary>
         /// <param name="s">The string to write</param>
-        public void Write(string s) {
+        public void Write(string s)
+        {
             if (shuttingDown) return;
-            if (txtLog.InvokeRequired) {
+            if (txtLog.InvokeRequired)
+            {
                 LogDelegate d = new LogDelegate(Write);
-                this.Invoke(d, new object[] { s });
-            } else {
+                Invoke(d, new object[] { s });
+            }
+            else
+            {
                 txtLog.AppendText(s);
             }
         }
@@ -126,10 +131,13 @@ namespace MCZall.Gui
         public void WriteLine(string s)
         {
             if (shuttingDown) return;
-            if (this.InvokeRequired) {
+            if (InvokeRequired)
+            {
                 LogDelegate d = new LogDelegate(WriteLine);
-                this.Invoke(d, new object[] { s });
-            } else {
+                Invoke(d, new object[] { s });
+            }
+            else
+            {
                 txtLog.AppendText("\r\n" + s);
             }
         }
@@ -137,23 +145,32 @@ namespace MCZall.Gui
         /// Updates the list of client names in the window
         /// </summary>
         /// <param name="players">The list of players to add</param>
-        public void UpdateClientList(List<Player> players) {
-            if (this.InvokeRequired) {
+        public void UpdateClientList(List<Player> players)
+        {
+            if (InvokeRequired)
+            {
                 PlayerListCallback d = new PlayerListCallback(UpdateClientList);
-                this.Invoke(d, new object[] { players });
-            } else {
+                Invoke(d, new object[] { players });
+            }
+            else
+            {
                 liClients.Items.Clear();
-                Player.players.ForEach(delegate(Player p) { liClients.Items.Add(p.name); });
+                Player.players.ForEach(delegate (Player p) { liClients.Items.Add(p.name); });
             }
         }
 
-        public void UpdateMapList(string s = "") {            
-            if (this.InvokeRequired) {
+        public void UpdateMapList(string s = "")
+        {
+            if (InvokeRequired)
+            {
                 LogDelegate d = new LogDelegate(UpdateMapList);
-                this.Invoke(d, new object[] { s });
-            } else {
+                Invoke(d, new object[] { s });
+            }
+            else
+            {
                 liMaps.Items.Clear();
-                foreach (Level level in Server.levels) {
+                foreach (Level level in Server.levels)
+                {
                     liMaps.Items.Add(level.name + " - " + level.physics);
                 }
             }
@@ -165,21 +182,22 @@ namespace MCZall.Gui
         /// <param name="s">The URL to display</param>
         public void UpdateUrl(string s)
         {
-            if (this.InvokeRequired)
+            if (InvokeRequired)
             {
                 StringCallback d = new StringCallback(UpdateUrl);
-                this.Invoke(d, new object[] { s });
+                Invoke(d, new object[] { s });
             }
             else
                 txtUrl.Text = s;
         }
-        
-        
-        private void Window_FormClosing(object sender, FormClosingEventArgs e) {
+
+
+        private void Window_FormClosing(object sender, FormClosingEventArgs e)
+        {
             Program.ExitProgram(false);
         }
 
-        private void txtInput_KeyDown(object sender, KeyEventArgs e)
+        private void TxtInput_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Enter)
             {
@@ -190,51 +208,66 @@ namespace MCZall.Gui
             }
         }
 
-        private void txtCommands_KeyDown(object sender, KeyEventArgs e) {
-            if (e.KeyCode == Keys.Enter) {
-                string sentCmd = "", sentMsg = "";
+        private void TxtCommands_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                string sentCmd, sentMsg = "";
 
-                if (txtCommands.Text.IndexOf(' ') != -1) {
+                if (txtCommands.Text.IndexOf(' ') != -1)
+                {
                     sentCmd = txtCommands.Text.Split(' ')[0];
                     sentMsg = txtCommands.Text.Substring(txtCommands.Text.IndexOf(' ') + 1);
-                } else if (txtCommands.Text != "") {
+                }
+                else if (txtCommands.Text != "")
+                {
                     sentCmd = txtCommands.Text;
-                } else {
+                }
+                else
+                {
                     return;
                 }
 
-                try { 
+                try
+                {
                     Command.all.Find(sentCmd).Use(null, sentMsg);
-                    newCommand("CONSOLE: USED /" + sentCmd + " " + sentMsg);
-                } catch {
-                    newCommand("CONSOLE: Failed command."); 
+                    NewCommand("CONSOLE: USED /" + sentCmd + " " + sentMsg);
+                }
+                catch
+                {
+                    NewCommand("CONSOLE: Failed command.");
                 }
 
                 txtCommands.Clear();
             }
         }
 
-        private void btnClose_Click(object sender, EventArgs e) { Program.ExitProgram(false); }
-        private void btnRestart_Click(object sender, EventArgs e) { Program.ExitProgram(true); }
+        private void BtnClose_Click(object sender, EventArgs e) { Program.ExitProgram(false); }
+        private void BtnRestart_Click(object sender, EventArgs e) { Program.ExitProgram(true); }
 
-        public void newCommand(string p) { txtCommandsUsed.AppendText("\r\n" + p); }
+        public void NewCommand(string p) { txtCommandsUsed.AppendText("\r\n" + p); }
 
         void ChangeCheck(string newCheck) { Server.ZallState = newCheck; }
 
-        private void txtBoxHost_TextChanged(object sender, EventArgs e) {
+        private void TxtBoxHost_TextChanged(object sender, EventArgs e)
+        {
             ChangeCheck(txtBoxHost.Text);
         }
 
-        private void btnProperties_Click(object sender, EventArgs e) {
+        private void BtnProperties_Click(object sender, EventArgs e)
+        {
             if (!prevLoaded) { PropertyForm = new PropertyWindow(); prevLoaded = true; }
             PropertyForm.Show();
         }
 
-        private void btnUpdate_Click(object sender, EventArgs e) {
-            if (!Program.CurrentUpdate) 
+        private void BtnUpdate_Click(object sender, EventArgs e)
+        {
+            if (!Program.CurrentUpdate)
                 Program.UpdateCheck();
-            else {
-                Thread messageThread = new Thread(new ThreadStart(delegate {
+            else
+            {
+                Thread messageThread = new Thread(new ThreadStart(delegate
+                {
                     MessageBox.Show("Already checking for updates.");
                 })); messageThread.Start();
             }
@@ -243,16 +276,17 @@ namespace MCZall.Gui
         public static bool prevLoaded = false;
         Form PropertyForm;
 
-        private void gBChat_Enter(object sender, EventArgs e)
+        private void GBChat_Enter(object sender, EventArgs e)
         {
 
         }
 
-        private void btnExtra_Click(object sender, EventArgs e) {
+        private void BtnExtra_Click(object sender, EventArgs e)
+        {
             if (!prevLoaded) { PropertyForm = new PropertyWindow(); prevLoaded = true; }
             PropertyForm.Show();
-            PropertyForm.Top = this.Top + this.Height - txtCommandsUsed.Height;
-            PropertyForm.Left = this.Left;
+            PropertyForm.Top = Top + Height - txtCommandsUsed.Height;
+            PropertyForm.Left = Left;
         }
     }
 }

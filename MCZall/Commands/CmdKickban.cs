@@ -12,23 +12,21 @@
 	or implied. See the License for the specific language governing
 	permissions and limitations under the License.
 */
-using System;
-
 namespace MCZall
 {
     public class CmdKickban : Command
     {
-        public override string name { get { return "kickban"; } }
-        public override string shortcut { get { return "kb"; } }
-        public override string type { get { return "mod"; } }
+        public override string Name { get { return "kickban"; } }
+        public override string Shortcut { get { return "kb"; } }
+        public override string Type { get { return "mod"; } }
         public CmdKickban() { }
         public override void Use(Player p, string message)
         {
             if (message == "") { Help(p); return; }
-            string who = message.Split(' ')[0];
+            //string who = message.Split(' ')[0];
 
-            Command.all.Find("ban").Use(p, message);
-            Command.all.Find("kick").Use(p, message);
+            all.Find("ban").Use(p, message);
+            all.Find("kick").Use(p, message);
         }
         public override void Help(Player p)
         {

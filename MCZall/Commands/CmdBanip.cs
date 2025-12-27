@@ -12,28 +12,28 @@
 	or implied. See the License for the specific language governing
 	permissions and limitations under the License.
 */
-using System;
 using System.Text.RegularExpressions;
 
 namespace MCZall
 {
     public class CmdBanip : Command
     {
-        Regex regex = new Regex(@"^([1-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])(\." +
+        readonly Regex regex = new Regex(@"^([1-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])(\." +
                                 "([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])){3}$");
-        public override string name { get { return "banip"; } }
-        public override string shortcut { get { return "bi"; } }
-        public override string type { get { return "mod"; } }
+        public override string Name { get { return "banip"; } }
+        public override string Shortcut { get { return "bi"; } }
+        public override string Type { get { return "mod"; } }
         public CmdBanip() { }
-        public override void Use(Player p, string message) {
+        public override void Use(Player p, string message)
+        {
             if (message == "") { Help(p); return; }
             Player who = Player.Find(message);
 
             if (who != null) { message = who.ip; }
-            if (message.Equals("127.0.0.1")) { if (p != null) { p.SendMessage("You can't ip-ban the server!"); } return; }
-            if (!regex.IsMatch(message)) { if (p != null)p.SendMessage("Not a valid ip!"); return; }
+            if (message.Equals("127.0.0.1")) { p?.SendMessage("You can't ip-ban the server!"); return; }
+            if (!regex.IsMatch(message)) { p?.SendMessage("Not a valid ip!"); return; }
             if (p != null) { if (p.ip == message) { p.SendMessage("You can't ip-ban yourself.!"); return; } }
-            if (Server.bannedIP.Contains(message)) { if (p != null)p.SendMessage(message + " is already ip-banned."); return; }
+            if (Server.bannedIP.Contains(message)) { p?.SendMessage(message + " is already ip-banned."); return; }
             Player.GlobalMessage(message + " got &8ip-banned" + Server.DefaultColor + "!");
             if (p != null)
             { IRCBot.Say("IP-BANNED: " + message.ToLower() + " by " + p.name); }

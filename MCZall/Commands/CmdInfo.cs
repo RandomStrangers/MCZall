@@ -14,21 +14,28 @@
 */
 using System;
 
-namespace MCZall {
-	public class CmdInfo : Command {
-        public override string name { get { return "info"; } }
-        public override string shortcut { get { return ""; } }
-        public override string type { get { return "information"; } }
-		public CmdInfo() {  }
-		public override void Use(Player p,string message)  {
-			if (message != "") { Help(p); } else {
+namespace MCZall
+{
+    public class CmdInfo : Command
+    {
+        public override string Name { get { return "info"; } }
+        public override string Shortcut { get { return ""; } }
+        public override string Type { get { return "information"; } }
+        public CmdInfo() { }
+        public override void Use(Player p, string message)
+        {
+            if (message != "") { Help(p); }
+            else
+            {
                 p.SendMessage("This server runs on &bMCZall" + Server.DefaultColor + ", which started as MCSharp, and was made much more feature-packed by Zallist.");
                 p.SendMessage("This server's version: &a" + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString());
-			    p.SendMessage("This server has been online for &b" + Convert.ToDateTime(DateTime.Now.Subtract(Server.timeOnline).ToString()).ToString("HH:mm:ss"));
+                p.SendMessage("This server has been online for &b" + Convert.ToDateTime(DateTime.Now.Subtract(Server.timeOnline).ToString()).ToString("HH:mm:ss"));
                 if (Server.updateTimer.Interval > 1000) p.SendMessage("Server is currently in &5Low Lag" + Server.DefaultColor + " mode.");
             }
-		} public override void Help(Player p)  {
-			p.SendMessage("/info - Displays the server information.");
-		}
-	}
+        }
+        public override void Help(Player p)
+        {
+            p.SendMessage("/info - Displays the server information.");
+        }
+    }
 }

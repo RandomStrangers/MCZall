@@ -14,28 +14,33 @@
 */
 using System;
 
-namespace MCZall {
-	public class CmdGoto : Command {
-        public override string name { get { return "goto"; } }
-        public override string shortcut { get { return "g"; } }
-        public override string type { get { return "other"; } }
-		public CmdGoto() {  }
-		public override void Use(Player p,string message)  {
-			if (message == "") { Help(p); return; }
+namespace MCZall
+{
+    public class CmdGoto : Command
+    {
+        public override string Name { get { return "goto"; } }
+        public override string Shortcut { get { return "g"; } }
+        public override string Type { get { return "other"; } }
+        public CmdGoto() { }
+        public override void Use(Player p, string message)
+        {
+            if (message == "") { Help(p); return; }
 
-            try {
+            try
+            {
                 Level foundLevel = Level.Find(message);
-                if (foundLevel != null) {
+                if (foundLevel != null)
+                {
                     Level startLevel = p.level;
                     if (p.level == foundLevel) { p.SendMessage("You are already in \"" + foundLevel.name + "\"."); return; }
                     if (!p.ignorePermission)
                         if (p.group.Permission < foundLevel.permissionvisit) { p.SendMessage("Your not allowed to goto " + foundLevel.name + "."); return; }
-                
+
                     p.Loading = true;
-				    foreach (Player pl in Player.players) if (p.level == pl.level && p != pl) p.SendDie(pl.id); 
+                    foreach (Player pl in Player.players) if (p.level == pl.level && p != pl) p.SendDie(pl.id);
                     foreach (PlayerBot b in PlayerBot.playerbots) if (p.level == b.level) p.SendDie(b.id);
 
-                    Player.GlobalDie(p,true);
+                    Player.GlobalDie(p, true);
                     p.level = foundLevel; p.SendUserMOTD(); p.SendMap();
 
                     ushort x = (ushort)((0.5 + foundLevel.spawnx) * 32);
@@ -45,34 +50,40 @@ namespace MCZall {
                     if (!p.hidden) Player.GlobalSpawn(p, x, y, z, foundLevel.rotx, foundLevel.roty, true);
                     else unchecked { p.SendPos((byte)-1, x, y, z, foundLevel.rotx, foundLevel.roty); }
 
-				    foreach (Player pl in Player.players) 
-                        if (pl.level == p.level && p != pl && !pl.hidden) 
-						    p.SendSpawn(pl.id,pl.color+pl.name,pl.pos[0],pl.pos[1],pl.pos[2],pl.rot[0],pl.rot[1]); 
-					
-                    foreach (PlayerBot b in PlayerBot.playerbots) 
-                        if (b.level == p.level)  
-						    p.SendSpawn(b.id, b.color + b.name, b.pos[0], b.pos[1], b.pos[2], b.rot[0], b.rot[1]);
+                    foreach (Player pl in Player.players)
+                        if (pl.level == p.level && p != pl && !pl.hidden)
+                            p.SendSpawn(pl.id, pl.color + pl.name, pl.pos[0], pl.pos[1], pl.pos[2], pl.rot[0], pl.rot[1]);
 
-                    if (!p.hidden) Player.GlobalChat(p, p.color + "*" + p.name + Server.DefaultColor + " went to \"" + foundLevel.name + "\".", false); 
-					
+                    foreach (PlayerBot b in PlayerBot.playerbots)
+                        if (b.level == p.level)
+                            p.SendSpawn(b.id, b.color + b.name, b.pos[0], b.pos[1], b.pos[2], b.rot[0], b.rot[1]);
+
+                    if (!p.hidden) Player.GlobalChat(p, p.color + "*" + p.name + Server.DefaultColor + " went to \"" + foundLevel.name + "\".", false);
+
                     p.Loading = false;
                     GC.Collect();
                     GC.WaitForPendingFinalizers();
 
                     bool skipUnload = false;
-                    if (startLevel.unload) { 
+                    if (startLevel.unload)
+                    {
                         foreach (Player pl in Player.players) if (pl.level == startLevel) skipUnload = true;
-                        if (!skipUnload && Server.AutoLoad) Command.all.Find("unload").Use(p, startLevel.name);
+                        if (!skipUnload && Server.AutoLoad) all.Find("unload").Use(p, startLevel.name);
                     }
-                } else if (Server.AutoLoad) {
-                    Command.all.Find("load").Use(p, message);
+                }
+                else if (Server.AutoLoad)
+                {
+                    all.Find("load").Use(p, message);
                     foundLevel = Level.Find(message);
                     if (foundLevel != null) Use(p, message);
-                } else p.SendMessage("There is no level \"" + message + "\" loaded.");
-		    } catch (Exception e) { Server.ErrorLog(e); }
+                }
+                else p.SendMessage("There is no level \"" + message + "\" loaded.");
+            }
+            catch (Exception e) { Server.ErrorLog(e); }
         }
-        public override void Help(Player p) {
-			p.SendMessage("/goto <mapname> - Teleports yourself to a different level.");
-		}
-	}
+        public override void Help(Player p)
+        {
+            p.SendMessage("/goto <mapname> - Teleports yourself to a different level.");
+        }
+    }
 }

@@ -19,9 +19,9 @@ namespace MCZall
 {
     public class CmdCuboid : Command
     {
-        public override string name { get { return "cuboid"; } }
-        public override string shortcut { get { return "z"; } }
-        public override string type { get { return "build"; } }
+        public override string Name { get { return "cuboid"; } }
+        public override string Shortcut { get { return "z"; } }
+        public override string Type { get { return "build"; } }
         public CmdCuboid() { }
         public override void Use(Player p, string message)
         {
@@ -35,7 +35,7 @@ namespace MCZall
                 byte type = Block.Byte(t);
                 if (type == 255) { p.SendMessage("There is no block \"" + t + "\"."); return; }
 
-                if (Block.allowPlace(type) > p.group.Permission) { p.SendMessage("Cannot place that."); return; }
+                if (Block.AllowPlace(type) > p.group.Permission) { p.SendMessage("Cannot place that."); return; }
 
                 SolidType solid;
                 if (s == "solid") { solid = SolidType.solid; }
@@ -47,7 +47,9 @@ namespace MCZall
                 else { Help(p); return; }
                 CatchPos cpos; cpos.solid = solid; cpos.type = type;
                 cpos.x = 0; cpos.y = 0; cpos.z = 0; p.blockchangeObject = cpos;
-            } else if (message != "") {
+            }
+            else if (message != "")
+            {
                 SolidType solid = SolidType.solid;
                 message = message.ToLower();
                 byte type; unchecked { type = (byte)-1; }
@@ -62,12 +64,15 @@ namespace MCZall
                     byte t = Block.Byte(message);
                     if (t == 255) { p.SendMessage("There is no block \"" + message + "\"."); return; }
 
-                    if (Block.allowPlace(t) > p.group.Permission) { p.SendMessage("Cannot place that."); return; }
+                    if (Block.AllowPlace(t) > p.group.Permission) { p.SendMessage("Cannot place that."); return; }
 
                     type = t;
-                } CatchPos cpos; cpos.solid = solid; cpos.type = type;
+                }
+                CatchPos cpos; cpos.solid = solid; cpos.type = type;
                 cpos.x = 0; cpos.y = 0; cpos.z = 0; p.blockchangeObject = cpos;
-            } else {
+            }
+            else
+            {
                 CatchPos cpos; cpos.solid = SolidType.solid; unchecked { cpos.type = (byte)-1; }
                 cpos.x = 0; cpos.y = 0; cpos.z = 0; p.blockchangeObject = cpos;
             }
@@ -75,10 +80,12 @@ namespace MCZall
             p.ClearBlockchange();
             p.Blockchange += new Player.BlockchangeEventHandler(Blockchange1);
         }
-        public override void Help(Player p) {
+        public override void Help(Player p)
+        {
             p.SendMessage("/cuboid [type] <solid/hollow/walls/holes/wire/random> - create a cuboid of blocks.");
         }
-        public void Blockchange1(Player p, ushort x, ushort y, ushort z, byte type) {
+        public void Blockchange1(Player p, ushort x, ushort y, ushort z, byte type)
+        {
             p.ClearBlockchange();
             byte b = p.level.GetTile(x, y, z);
             p.SendBlockchange(x, y, z, b);
@@ -86,7 +93,8 @@ namespace MCZall
             bp.x = x; bp.y = y; bp.z = z; p.blockchangeObject = bp;
             p.Blockchange += new Player.BlockchangeEventHandler(Blockchange2);
         }
-        public void Blockchange2(Player p, ushort x, ushort y, ushort z, byte type) {
+        public void Blockchange2(Player p, ushort x, ushort y, ushort z, byte type)
+        {
             p.ClearBlockchange();
             byte b = p.level.GetTile(x, y, z);
             p.SendBlockchange(x, y, z, b);
@@ -102,8 +110,9 @@ namespace MCZall
                     buffer.Capacity = Math.Abs(cpos.x - x) * Math.Abs(cpos.y - y) * Math.Abs(cpos.z - z);
                     for (xx = Math.Min(cpos.x, x); xx <= Math.Max(cpos.x, x); ++xx)
                         for (yy = Math.Min(cpos.y, y); yy <= Math.Max(cpos.y, y); ++yy)
-                            for (zz = Math.Min(cpos.z, z); zz <= Math.Max(cpos.z, z); ++zz) {
-                                if (p.level.GetTile(xx, yy, zz) != type){ BufferAdd(buffer, xx, yy, zz); }
+                            for (zz = Math.Min(cpos.z, z); zz <= Math.Max(cpos.z, z); ++zz)
+                            {
+                                if (p.level.GetTile(xx, yy, zz) != type) { BufferAdd(buffer, xx, yy, zz); }
                             }
                     break;
                 case SolidType.hollow:
@@ -145,7 +154,7 @@ namespace MCZall
                         if (Math.Abs(cpos.z - z) >= 2)
                         {
                             for (xx = (ushort)(Math.Min(cpos.x, x) + 1); xx <= Math.Max(cpos.x, x) - 1; ++xx)
-                                for (yy = (ushort)(Math.Min(cpos.y, y)); yy <= Math.Max(cpos.y, y); ++yy)
+                                for (yy = Math.Min(cpos.y, y); yy <= Math.Max(cpos.y, y); ++yy)
                                 {
                                     if (p.level.GetTile(xx, yy, cpos.z) != type) { BufferAdd(buffer, xx, yy, cpos.z); }
                                     if (cpos.z != z) { if (p.level.GetTile(xx, yy, z) != type) { BufferAdd(buffer, xx, yy, z); } }
@@ -156,31 +165,39 @@ namespace MCZall
                 case SolidType.holes:
                     bool Checked = true, startZ, startY;
 
-                    for (xx = Math.Min(cpos.x, x); xx <= Math.Max(cpos.x, x); ++xx) {
+                    for (xx = Math.Min(cpos.x, x); xx <= Math.Max(cpos.x, x); ++xx)
+                    {
                         startY = Checked;
-                        for (yy = Math.Min(cpos.y, y); yy <= Math.Max(cpos.y, y); ++yy) {
+                        for (yy = Math.Min(cpos.y, y); yy <= Math.Max(cpos.y, y); ++yy)
+                        {
                             startZ = Checked;
-                            for (zz = Math.Min(cpos.z, z); zz <= Math.Max(cpos.z, z); ++zz) {
+                            for (zz = Math.Min(cpos.z, z); zz <= Math.Max(cpos.z, z); ++zz)
+                            {
                                 Checked = !Checked;
                                 if (Checked && p.level.GetTile(xx, yy, zz) != type) BufferAdd(buffer, xx, yy, zz);
-                            } Checked = !startZ;
-                        } Checked = !startY;
+                            }
+                            Checked = !startZ;
+                        }
+                        Checked = !startY;
                     }
                     break;
                 case SolidType.wire:
-                    for (xx = Math.Min(cpos.x, x); xx <= Math.Max(cpos.x, x); ++xx) {
+                    for (xx = Math.Min(cpos.x, x); xx <= Math.Max(cpos.x, x); ++xx)
+                    {
                         BufferAdd(buffer, xx, y, z);
                         BufferAdd(buffer, xx, y, cpos.z);
                         BufferAdd(buffer, xx, cpos.y, z);
                         BufferAdd(buffer, xx, cpos.y, cpos.z);
                     }
-                    for (yy = Math.Min(cpos.y, y); yy <= Math.Max(cpos.y, y); ++yy) {
+                    for (yy = Math.Min(cpos.y, y); yy <= Math.Max(cpos.y, y); ++yy)
+                    {
                         BufferAdd(buffer, x, yy, z);
                         BufferAdd(buffer, x, yy, cpos.z);
                         BufferAdd(buffer, cpos.x, yy, z);
                         BufferAdd(buffer, cpos.x, yy, cpos.z);
                     }
-                    for (zz = Math.Min(cpos.z, z); zz <= Math.Max(cpos.z, z); ++zz) {
+                    for (zz = Math.Min(cpos.z, z); zz <= Math.Max(cpos.z, z); ++zz)
+                    {
                         BufferAdd(buffer, x, y, zz);
                         BufferAdd(buffer, x, cpos.y, zz);
                         BufferAdd(buffer, cpos.x, y, zz);
@@ -191,33 +208,39 @@ namespace MCZall
                     Random rand = new Random();
                     for (xx = Math.Min(cpos.x, x); xx <= Math.Max(cpos.x, x); ++xx)
                         for (yy = Math.Min(cpos.y, y); yy <= Math.Max(cpos.y, y); ++yy)
-                            for (zz = Math.Min(cpos.z, z); zz <= Math.Max(cpos.z, z); ++zz) {
+                            for (zz = Math.Min(cpos.z, z); zz <= Math.Max(cpos.z, z); ++zz)
+                            {
                                 if (rand.Next(1, 11) <= 5 && p.level.GetTile(xx, yy, zz) != type) { BufferAdd(buffer, xx, yy, zz); }
                             }
                     break;
             }
-            
-            if (buffer.Count > p.group.maxBlocks) {
+
+            if (buffer.Count > p.group.MaxBlocks)
+            {
                 p.SendMessage("You tried to cuboid " + buffer.Count + " blocks.");
-                p.SendMessage("You cannot cuboid more than " + p.group.maxBlocks + ".");
+                p.SendMessage("You cannot cuboid more than " + p.group.MaxBlocks + ".");
                 return;
             }
 
             p.SendMessage(buffer.Count.ToString() + " blocks.");
 
-            buffer.ForEach(delegate(Pos pos) {
+            buffer.ForEach(delegate (Pos pos)
+            {
                 p.level.Blockchange(p, pos.x, pos.y, pos.z, type);
             });
 
             if (p.staticCommands) p.Blockchange += new Player.BlockchangeEventHandler(Blockchange1);
         }
-        void BufferAdd(List<Pos> list, ushort x, ushort y, ushort z) {
+        void BufferAdd(List<Pos> list, ushort x, ushort y, ushort z)
+        {
             Pos pos; pos.x = x; pos.y = y; pos.z = z; list.Add(pos);
         }
-        struct Pos {
+        struct Pos
+        {
             public ushort x, y, z;
         }
-        struct CatchPos {
+        struct CatchPos
+        {
             public SolidType solid;
             public byte type;
             public ushort x, y, z;

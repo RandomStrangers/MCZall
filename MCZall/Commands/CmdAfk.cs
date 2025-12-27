@@ -13,33 +13,38 @@
 	permissions and limitations under the License.
 */
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace MCZall
 {
     class CmdAfk : Command
     {
-        public override string name { get { return "afk"; } }
-        public override string shortcut { get { return ""; } }
-        public override string type { get { return "information"; } }
+        public override string Name { get { return "afk"; } }
+        public override string Shortcut { get { return ""; } }
+        public override string Type { get { return "information"; } }
         public CmdAfk() { }
 
-        public override void Use(Player p, string message) {
-            if (message != "list") {
-                if (Server.afkset.Contains(p.name)) {
+        public override void Use(Player p, string message)
+        {
+            if (message != "list")
+            {
+                if (Server.afkset.Contains(p.name))
+                {
                     Server.afkset.Remove(p.name);
                     Player.GlobalMessage("-" + p.color + p.name + Server.DefaultColor + "- is no longer AFK");
                     IRCBot.Say(p.name + " is no longer AFK");
-                } else {
+                }
+                else
+                {
                     Server.afkset.Add(p.name);
                     p.afkStart = DateTime.Now;
-                    if (p.name == "") return; 
+                    if (p.name == "") return;
                     Player.GlobalMessage("-" + p.color + p.name + Server.DefaultColor + "- is AFK " + message);
                     IRCBot.Say(p.name + " is AFK " + message);
                 }
-            } else {
-                foreach (string s in Server.afkset) p.SendMessage(s); 
+            }
+            else
+            {
+                foreach (string s in Server.afkset) p.SendMessage(s);
             }
         }
         public override void Help(Player p)

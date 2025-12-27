@@ -122,7 +122,7 @@ namespace MCZall.Gui {
             this.txtInput.Name = "txtInput";
             this.txtInput.Size = new System.Drawing.Size(321, 21);
             this.txtInput.TabIndex = 12;
-            this.txtInput.KeyDown += new System.Windows.Forms.KeyEventHandler(this.txtInput_KeyDown);
+            this.txtInput.KeyDown += new System.Windows.Forms.KeyEventHandler(this.TxtInput_KeyDown);
             // 
             // label2
             // 
@@ -141,7 +141,7 @@ namespace MCZall.Gui {
             this.txtCommands.Name = "txtCommands";
             this.txtCommands.Size = new System.Drawing.Size(86, 21);
             this.txtCommands.TabIndex = 15;
-            this.txtCommands.KeyDown += new System.Windows.Forms.KeyEventHandler(this.txtCommands_KeyDown);
+            this.txtCommands.KeyDown += new System.Windows.Forms.KeyEventHandler(this.TxtCommands_KeyDown);
             // 
             // btnClose
             // 
@@ -152,7 +152,7 @@ namespace MCZall.Gui {
             this.btnClose.TabIndex = 17;
             this.btnClose.Text = "Close";
             this.btnClose.UseVisualStyleBackColor = true;
-            this.btnClose.Click += new System.EventHandler(this.btnClose_Click);
+            this.btnClose.Click += new System.EventHandler(this.BtnClose_Click);
             // 
             // gBChat
             // 
@@ -164,7 +164,7 @@ namespace MCZall.Gui {
             this.gBChat.TabIndex = 18;
             this.gBChat.TabStop = false;
             this.gBChat.Text = "Chat";
-            this.gBChat.Enter += new System.EventHandler(this.gBChat_Enter);
+            this.gBChat.Enter += new System.EventHandler(this.GBChat_Enter);
             // 
             // txtLog
             // 
@@ -217,8 +217,8 @@ namespace MCZall.Gui {
             this.txtBoxHost.Size = new System.Drawing.Size(58, 21);
             this.txtBoxHost.TabIndex = 15;
             this.txtBoxHost.Text = "Alive";
-            this.txtBoxHost.TextChanged += new System.EventHandler(this.txtBoxHost_TextChanged);
-            this.txtBoxHost.KeyDown += new System.Windows.Forms.KeyEventHandler(this.txtCommands_KeyDown);
+            this.txtBoxHost.TextChanged += new System.EventHandler(this.TxtBoxHost_TextChanged);
+            this.txtBoxHost.KeyDown += new System.Windows.Forms.KeyEventHandler(this.TxtCommands_KeyDown);
             // 
             // lblHost
             // 
@@ -239,7 +239,7 @@ namespace MCZall.Gui {
             this.btnProperties.TabIndex = 17;
             this.btnProperties.Text = "Properties";
             this.btnProperties.UseVisualStyleBackColor = true;
-            this.btnProperties.Click += new System.EventHandler(this.btnProperties_Click);
+            this.btnProperties.Click += new System.EventHandler(this.BtnProperties_Click);
             // 
             // btnExtra
             // 
@@ -249,7 +249,7 @@ namespace MCZall.Gui {
             this.btnExtra.TabIndex = 21;
             this.btnExtra.Text = "∇";
             this.btnExtra.UseVisualStyleBackColor = true;
-            this.btnExtra.Click += new System.EventHandler(this.btnExtra_Click);
+            this.btnExtra.Click += new System.EventHandler(this.BtnExtra_Click);
             // 
             // btnUpdate
             // 
@@ -260,7 +260,7 @@ namespace MCZall.Gui {
             this.btnUpdate.TabIndex = 17;
             this.btnUpdate.Text = "Update";
             this.btnUpdate.UseVisualStyleBackColor = true;
-            this.btnUpdate.Click += new System.EventHandler(this.btnUpdate_Click);
+            this.btnUpdate.Click += new System.EventHandler(this.BtnUpdate_Click);
             // 
             // Window
             // 

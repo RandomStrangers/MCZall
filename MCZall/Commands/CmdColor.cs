@@ -12,15 +12,13 @@
 	or implied. See the License for the specific language governing
 	permissions and limitations under the License.
 */
-using System;
-
 namespace MCZall
 {
     public class CmdColor : Command
     {
-        public override string name { get { return "color"; } }
-        public override string shortcut { get { return ""; } }
-        public override string type { get { return "other"; } }
+        public override string Name { get { return "color"; } }
+        public override string Shortcut { get { return ""; } }
+        public override string Type { get { return "other"; } }
         public CmdColor() { }
         public override void Use(Player p, string message)
         {
@@ -31,14 +29,15 @@ namespace MCZall
             {
                 Player who = Player.Find(message.Substring(0, pos));
                 if (who == null) { p.SendMessage("There is no player \"" + message.Substring(0, pos) + "\"!"); return; }
-                string color = c.Parse(message.Substring(pos + 1));
+                string color = C.Parse(message.Substring(pos + 1));
                 if (color == "") { p.SendMessage("There is no color \"" + message + "\"."); }
                 else if (color == who.color) { p.SendMessage(who.name + " already has that color."); }
-                else {
+                else
+                {
                     //Player.GlobalChat(who, p.color + "*" + p.name + "&e changed " + who.color + Name(who.name) +
                     //                  " color to " + color +
                     //                  c.Name(color) + "&e.", false);
-                    Player.GlobalChat(who, who.color + "*" + Name(who.name) + " color changed to " + color + c.Name(color) + Server.DefaultColor + ".", false);
+                    Player.GlobalChat(who, who.color + "*" + NameColor(who.name) + " color changed to " + color + C.Name(color) + Server.DefaultColor + ".", false);
                     who.color = color;
 
                     Player.GlobalDie(who, false);
@@ -47,14 +46,14 @@ namespace MCZall
             }
             else
             {
-                string color = c.Parse(message);
+                string color = C.Parse(message);
                 if (color == "") { p.SendMessage("There is no color \"" + message + "\"."); }
                 else if (color == p.color) { p.SendMessage("You already have that color."); }
                 else
                 {
-                    Player.GlobalChat(p, p.color + "*" + Name(p.name) +
+                    Player.GlobalChat(p, p.color + "*" + NameColor(p.name) +
                                       " color changed to " + color +
-                                      c.Name(color) + Server.DefaultColor + ".", false);
+                                      C.Name(color) + Server.DefaultColor + ".", false);
                     p.color = color; Player.GlobalDie(p, false);
                     Player.GlobalSpawn(p, p.pos[0], p.pos[1], p.pos[2], p.rot[0], p.rot[1], false);
                 }
@@ -66,7 +65,7 @@ namespace MCZall
             p.SendChat(p, "&0black &1navy &2green &3teal &4maroon &5purple &6gold &7silver");
             p.SendChat(p, "&8gray &9blue &alime &baqua &cred &dpink &eyellow &fwhite");
         }
-        static string Name(string name)
+        static string NameColor(string name)
         {
             string ch = name[name.Length - 1].ToString().ToLower();
             if (ch == "s" || ch == "x") { return name + Server.DefaultColor + "'"; }

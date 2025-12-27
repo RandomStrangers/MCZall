@@ -12,25 +12,30 @@
 	or implied. See the License for the specific language governing
 	permissions and limitations under the License.
 */
-using System;
-
-namespace MCZall {
-	public class CmdSpawn : Command {
-        public override string name { get { return "spawn"; } }
-        public override string shortcut { get { return ""; } }
-        public override string type { get { return "other"; } }
-		public CmdSpawn() {  }
-		public override void Use(Player p,string message)  {
-			if (message != "") { Help(p); return; }
-			ushort x = (ushort)((0.5+p.level.spawnx)*32);
+namespace MCZall
+{
+    public class CmdSpawn : Command
+    {
+        public override string Name { get { return "spawn"; } }
+        public override string Shortcut { get { return ""; } }
+        public override string Type { get { return "other"; } }
+        public CmdSpawn() { }
+        public override void Use(Player p, string message)
+        {
+            if (message != "") { Help(p); return; }
+            ushort x = (ushort)((0.5 + p.level.spawnx) * 32);
             ushort y = (ushort)((1 + p.level.spawny) * 32);
             ushort z = (ushort)((0.5 + p.level.spawnz) * 32);
-			unchecked { p.SendPos((byte)-1,x,y,z,
+            unchecked
+            {
+                p.SendPos((byte)-1, x, y, z,
                                     p.level.rotx,
                                     p.level.roty);
             }
-		} public override void Help(Player p)  {
-			p.SendMessage("/spawn - Teleports yourself to the spawn location.");
-		}
-	}
+        }
+        public override void Help(Player p)
+        {
+            p.SendMessage("/spawn - Teleports yourself to the spawn location.");
+        }
+    }
 }

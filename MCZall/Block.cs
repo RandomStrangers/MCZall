@@ -12,239 +12,243 @@
 	or implied. See the License for the specific language governing
 	permissions and limitations under the License.
 */
-using System;
 using System.Collections.Generic;
-using System.Text;
 
-namespace MCZall {
-	public class Block {
-		public const byte air = (byte)0;
-		public const byte rock = (byte)1;
-		public const byte grass = (byte)2;
-		public const byte dirt = (byte)3;
-		public const byte stone = (byte)4;
-		public const byte wood = (byte)5;
-		public const byte shrub = (byte)6;
-		public const byte blackrock = (byte)7;// adminium
-		public const byte water = (byte)8;
-		public const byte waterstill = (byte)9;
-		public const byte lava = (byte)10;
-		public const byte lavastill = (byte)11;
-		public const byte sand = (byte)12;
-		public const byte gravel = (byte)13;
-		public const byte goldrock = (byte)14;
-		public const byte ironrock = (byte)15;
-		public const byte coal = (byte)16;
-		public const byte trunk = (byte)17;
-		public const byte leaf = (byte)18;
-		public const byte sponge = (byte)19;
-		public const byte glass = (byte)20;
-		public const byte red = (byte)21;
-		public const byte orange = (byte)22;
-		public const byte yellow = (byte)23;
-		public const byte lightgreen = (byte)24;
-		public const byte green = (byte)25;
-		public const byte aquagreen = (byte)26;
-		public const byte cyan = (byte)27;
-		public const byte lightblue = (byte)28;
-		public const byte blue = (byte)29;
-		public const byte purple = (byte)30;
-		public const byte lightpurple = (byte)31;
-		public const byte pink = (byte)32;
-		public const byte darkpink = (byte)33;
-		public const byte darkgrey = (byte)34;
-		public const byte lightgrey = (byte)35;
-		public const byte white = (byte)36;
-		public const byte yellowflower = (byte)37;
-		public const byte redflower = (byte)38;
-		public const byte mushroom = (byte)39;
-		public const byte redmushroom = (byte)40;
-		public const byte goldsolid = (byte)41;
-		public const byte iron = (byte)42;
-		public const byte staircasefull = (byte)43;
-		public const byte staircasestep = (byte)44;
-		public const byte brick = (byte)45;
-		public const byte tnt = (byte)46;
-		public const byte bookcase = (byte)47;
-		public const byte stonevine = (byte)48;
-		public const byte obsidian = (byte)49;
-		public const byte Zero = 0xff;
+namespace MCZall
+{
+    public class Block
+    {
+        public const byte air = 0;
+        public const byte rock = 1;
+        public const byte grass = 2;
+        public const byte dirt = 3;
+        public const byte stone = 4;
+        public const byte wood = 5;
+        public const byte shrub = 6;
+        public const byte blackrock = 7;// adminium
+        public const byte water = 8;
+        public const byte waterstill = 9;
+        public const byte lava = 10;
+        public const byte lavastill = 11;
+        public const byte sand = 12;
+        public const byte gravel = 13;
+        public const byte goldrock = 14;
+        public const byte ironrock = 15;
+        public const byte coal = 16;
+        public const byte trunk = 17;
+        public const byte leaf = 18;
+        public const byte sponge = 19;
+        public const byte glass = 20;
+        public const byte red = 21;
+        public const byte orange = 22;
+        public const byte yellow = 23;
+        public const byte lightgreen = 24;
+        public const byte green = 25;
+        public const byte aquagreen = 26;
+        public const byte cyan = 27;
+        public const byte lightblue = 28;
+        public const byte blue = 29;
+        public const byte purple = 30;
+        public const byte lightpurple = 31;
+        public const byte pink = 32;
+        public const byte darkpink = 33;
+        public const byte darkgrey = 34;
+        public const byte lightgrey = 35;
+        public const byte white = 36;
+        public const byte yellowflower = 37;
+        public const byte redflower = 38;
+        public const byte mushroom = 39;
+        public const byte redmushroom = 40;
+        public const byte goldsolid = 41;
+        public const byte iron = 42;
+        public const byte staircasefull = 43;
+        public const byte staircasestep = 44;
+        public const byte brick = 45;
+        public const byte tnt = 46;
+        public const byte bookcase = 47;
+        public const byte stonevine = 48;
+        public const byte obsidian = 49;
+        public const byte Zero = 0xff;
 
         //Custom blocks
-        public const byte op_glass = (byte)100;
-        public const byte opsidian = (byte)101;
-        public const byte op_brick = (byte)102;
-        public const byte op_stone = (byte)103;
-        public const byte op_cobblestone = (byte)104;
-        public const byte op_air = (byte)105;
-        public const byte op_water = (byte)106;
+        public const byte op_glass = 100;
+        public const byte opsidian = 101;
+        public const byte op_brick = 102;
+        public const byte op_stone = 103;
+        public const byte op_cobblestone = 104;
+        public const byte op_air = 105;
+        public const byte op_water = 106;
 
-        public const byte wood_float = (byte)110;
-        public const byte door = (byte)111;
-        public const byte lava_fast = (byte)112;
-        public const byte door2 = (byte)113;
-        public const byte door3 = (byte)114;
-        public const byte door4 = (byte)115;
-        public const byte door5 = (byte)116;
-        public const byte door6 = (byte)117;
-        public const byte door7 = (byte)118;
-        public const byte door8 = (byte)119;
-        public const byte door9 = (byte)120;
-        public const byte door10 = (byte)121;
+        public const byte wood_float = 110;
+        public const byte door = 111;
+        public const byte lava_fast = 112;
+        public const byte door2 = 113;
+        public const byte door3 = 114;
+        public const byte door4 = 115;
+        public const byte door5 = 116;
+        public const byte door6 = 117;
+        public const byte door7 = 118;
+        public const byte door8 = 119;
+        public const byte door9 = 120;
+        public const byte door10 = 121;
 
-        public const byte tdoor = (byte)122;
-        public const byte tdoor2 = (byte)123;
-        public const byte tdoor3 = (byte)124;
-        public const byte tdoor4 = (byte)125;
-        public const byte tdoor5 = (byte)126;
-        public const byte tdoor6 = (byte)127;
-        public const byte tdoor7 = (byte)128;
-        public const byte tdoor8 = (byte)129;
+        public const byte tdoor = 122;
+        public const byte tdoor2 = 123;
+        public const byte tdoor3 = 124;
+        public const byte tdoor4 = 125;
+        public const byte tdoor5 = 126;
+        public const byte tdoor6 = 127;
+        public const byte tdoor7 = 128;
+        public const byte tdoor8 = 129;
 
         //Messages
-        public const byte MsgWhite = (byte)130;
-        public const byte MsgBlack = (byte)131;
-        public const byte MsgAir = (byte)132;
-        public const byte MsgWater = (byte)133;
-        public const byte MsgLava = (byte)134;
+        public const byte MsgWhite = 130;
+        public const byte MsgBlack = 131;
+        public const byte MsgAir = 132;
+        public const byte MsgWater = 133;
+        public const byte MsgLava = 134;
 
-        public const byte tdoor9 = (byte)135;
-        public const byte tdoor10 = (byte)136;
-        public const byte tdoor11 = (byte)137;
-        public const byte tdoor12 = (byte)138;
-        public const byte tdoor13 = (byte)139;
+        public const byte tdoor9 = 135;
+        public const byte tdoor10 = 136;
+        public const byte tdoor11 = 137;
+        public const byte tdoor12 = 138;
+        public const byte tdoor13 = 139;
 
         //"finite"
-        public const byte WaterDown = (byte)140;
-        public const byte LavaDown = (byte)141;
-        public const byte WaterFaucet = (byte)143;
-        public const byte LavaFaucet = (byte)144;
+        public const byte WaterDown = 140;
+        public const byte LavaDown = 141;
+        public const byte WaterFaucet = 143;
+        public const byte LavaFaucet = 144;
 
-        public const byte finiteWater = (byte)145;
-        public const byte finiteLava = (byte)146;
-        public const byte finiteFaucet = (byte)147;
+        public const byte finiteWater = 145;
+        public const byte finiteLava = 146;
+        public const byte finiteFaucet = 147;
 
-        public const byte odoor1 = (byte)148;
-        public const byte odoor2 = (byte)149;
-        public const byte odoor3 = (byte)150;
-        public const byte odoor4 = (byte)151;
-        public const byte odoor5 = (byte)152;
-        public const byte odoor6 = (byte)153;
-        public const byte odoor7 = (byte)154;
-        public const byte odoor8 = (byte)155;
-        public const byte odoor9 = (byte)156;
-        public const byte odoor10 = (byte)157;
-        public const byte odoor11 = (byte)158;
-        public const byte odoor12 = (byte)159;
-        
+        public const byte odoor1 = 148;
+        public const byte odoor2 = 149;
+        public const byte odoor3 = 150;
+        public const byte odoor4 = 151;
+        public const byte odoor5 = 152;
+        public const byte odoor6 = 153;
+        public const byte odoor7 = 154;
+        public const byte odoor8 = 155;
+        public const byte odoor9 = 156;
+        public const byte odoor10 = 157;
+        public const byte odoor11 = 158;
+        public const byte odoor12 = 159;
+
         //movement
-        public const byte air_portal = (byte)160;
-        public const byte water_portal = (byte)161;
-        public const byte lava_portal = (byte)162;
+        public const byte air_portal = 160;
+        public const byte water_portal = 161;
+        public const byte lava_portal = 162;
 
         //Movement doors
-        public const byte air_door = (byte)164;
-        public const byte air_switch = (byte)165;
-        public const byte water_door = (byte)166;
-        public const byte lava_door = (byte)167;
+        public const byte air_door = 164;
+        public const byte air_switch = 165;
+        public const byte water_door = 166;
+        public const byte lava_door = 167;
 
-        public const byte odoor1_air = (byte)168;
-        public const byte odoor2_air = (byte)169;
-        public const byte odoor3_air = (byte)170;
-        public const byte odoor4_air = (byte)171;
-        public const byte odoor5_air = (byte)172;
-        public const byte odoor6_air = (byte)173;
-        public const byte odoor7_air = (byte)174;
+        public const byte odoor1_air = 168;
+        public const byte odoor2_air = 169;
+        public const byte odoor3_air = 170;
+        public const byte odoor4_air = 171;
+        public const byte odoor5_air = 172;
+        public const byte odoor6_air = 173;
+        public const byte odoor7_air = 174;
 
         //portals
-        public const byte blue_portal = (byte)175;
-        public const byte orange_portal = (byte)176;
+        public const byte blue_portal = 175;
+        public const byte orange_portal = 176;
 
-        public const byte odoor8_air = (byte)177;
-        public const byte odoor9_air = (byte)178;
-        public const byte odoor10_air = (byte)179;
-        public const byte odoor11_air = (byte)180;
-        public const byte odoor12_air = (byte)181;
+        public const byte odoor8_air = 177;
+        public const byte odoor9_air = 178;
+        public const byte odoor10_air = 179;
+        public const byte odoor11_air = 180;
+        public const byte odoor12_air = 181;
 
         //Explosions
-        public const byte smalltnt = (byte)182;
-        public const byte bigtnt = (byte)183;
-        public const byte tntexplosion = (byte)184;
+        public const byte smalltnt = 182;
+        public const byte bigtnt = 183;
+        public const byte tntexplosion = 184;
 
-        public const byte fire = (byte)185;
+        public const byte fire = 185;
 
-        public const byte rocketstart = (byte)187;
-        public const byte rockethead = (byte)188;
-        public const byte firework = (byte)189;
+        public const byte rocketstart = 187;
+        public const byte rockethead = 188;
+        public const byte firework = 189;
 
         //Death
-        public const byte deathlava = (byte)190;
-        public const byte deathwater = (byte)191;
-        public const byte deathair = (byte)192;
+        public const byte deathlava = 190;
+        public const byte deathwater = 191;
+        public const byte deathair = 192;
 
-        public const byte activedeathwater = (byte)193;
-        public const byte activedeathlava = (byte)194;
+        public const byte activedeathwater = 193;
+        public const byte activedeathlava = 194;
 
-        public const byte magma = (byte)195;
-        public const byte geyser = (byte)196;
+        public const byte magma = 195;
+        public const byte geyser = 196;
 
-        public const byte air_flood = (byte)200;
-        public const byte door_air = (byte)201;
-        public const byte air_flood_layer = (byte)202;
-        public const byte air_flood_down = (byte)203;
-        public const byte air_flood_up = (byte)204;
-        public const byte door2_air = (byte)205;
-        public const byte door3_air = (byte)206;
-        public const byte door4_air = (byte)207;
-        public const byte door5_air = (byte)208;
-        public const byte door6_air = (byte)209;
-        public const byte door7_air = (byte)210;
-        public const byte door8_air = (byte)211;
-        public const byte door9_air = (byte)212;
-        public const byte door10_air = (byte)213;
-        public const byte door11_air = (byte)214;
-        public const byte door12_air = (byte)215;
-        public const byte door13_air = (byte)216;
-        public const byte door14_air = (byte)217;
+        public const byte air_flood = 200;
+        public const byte door_air = 201;
+        public const byte air_flood_layer = 202;
+        public const byte air_flood_down = 203;
+        public const byte air_flood_up = 204;
+        public const byte door2_air = 205;
+        public const byte door3_air = 206;
+        public const byte door4_air = 207;
+        public const byte door5_air = 208;
+        public const byte door6_air = 209;
+        public const byte door7_air = 210;
+        public const byte door8_air = 211;
+        public const byte door9_air = 212;
+        public const byte door10_air = 213;
+        public const byte door11_air = 214;
+        public const byte door12_air = 215;
+        public const byte door13_air = 216;
+        public const byte door14_air = 217;
 
-        public const byte train = (byte)230;
+        public const byte train = 230;
 
-        public const byte creeper = (byte)231;
-        public const byte zombiebody = (byte)232;
-        public const byte zombiehead = (byte)233;
+        public const byte creeper = 231;
+        public const byte zombiebody = 232;
+        public const byte zombiehead = 233;
 
-        public const byte birdwhite = (byte)235;
-        public const byte birdblack = (byte)236;
-        public const byte birdwater = (byte)237;
-        public const byte birdlava = (byte)238;
-        public const byte birdred = (byte)239;
-        public const byte birdblue = (byte)240;
-        public const byte birdkill = (byte)242;
+        public const byte birdwhite = 235;
+        public const byte birdblack = 236;
+        public const byte birdwater = 237;
+        public const byte birdlava = 238;
+        public const byte birdred = 239;
+        public const byte birdblue = 240;
+        public const byte birdkill = 242;
 
-        public const byte fishgold = (byte)245;
-        public const byte fishsponge = (byte)246;
-        public const byte fishshark = (byte)247;
-        public const byte fishsalmon = (byte)248;
-        public const byte fishbetta = (byte)249;
+        public const byte fishgold = 245;
+        public const byte fishsponge = 246;
+        public const byte fishshark = 247;
+        public const byte fishsalmon = 248;
+        public const byte fishbetta = 249;
 
         public static List<Blocks> BlockList = new List<Blocks>();
         public struct Blocks { public byte type; public LevelPermission placable; }
 
-        public static void SetBlocks() {
+        public static void SetBlocks()
+        {
             Blocks b;
             b.placable = LevelPermission.Guest;
 
-            for (int i = 0; i < 256; i++) {
+            for (int i = 0; i < 256; i++)
+            {
                 b.type = (byte)i;
                 BlockList.Add(b);
             }
 
             List<Blocks> storedList = new List<Blocks>();
 
-            foreach (Blocks bs in BlockList) {
+            foreach (Blocks bs in BlockList)
+            {
                 b.type = bs.type;
 
-                switch (bs.type) {
+                switch (bs.type)
+                {
                     case Zero:
                         b.placable = LevelPermission.Admin;
                         break;
@@ -263,14 +267,14 @@ namespace MCZall {
                     case air_flood_down:
                     case air_flood_layer:
                     case air_flood_up:
-                        
+
                     case rocketstart:
                     case rockethead:
 
                     case creeper:
                     case zombiebody:
                     case zombiehead:
-                        
+
                     case birdred:
                     case birdkill:
                     case birdblue:
@@ -344,10 +348,10 @@ namespace MCZall {
                     case activedeathwater:
                     case activedeathlava:
                     case fire:
-                        
+
                     case smalltnt:
                     case firework:
-                        
+
                     case train:
 
                     case birdwhite:
@@ -356,7 +360,7 @@ namespace MCZall {
                     case birdlava:
                         b.placable = LevelPermission.AdvBuilder;
                         break;
-                        
+
                     case door:
                     case door2:
                     case door3:
@@ -413,16 +417,20 @@ namespace MCZall {
             BlockList = storedList;
         }
 
-        public static LevelPermission allowPlace(byte type) {
-            foreach(Blocks b in BlockList) {
+        public static LevelPermission AllowPlace(byte type)
+        {
+            foreach (Blocks b in BlockList)
+            {
                 if (b.type == type) return b.placable;
             }
 
             return LevelPermission.Null;
         }
 
-        public static bool Walkthrough(byte type) {
-            switch (type) {
+        public static bool Walkthrough(byte type)
+        {
+            switch (type)
+            {
                 case air:
                 case water:
                 case waterstill:
@@ -438,82 +446,86 @@ namespace MCZall {
             return false;
         }
 
-        public static bool AnyBuild(byte type) {
-            switch (type) {
-		        case Block.air:
-		        case Block.rock:
-		        case Block.grass:
-		        case Block.dirt:
-		        case Block.stone:
-		        case Block.wood:
-		        case Block.shrub:
-		        case Block.sand:
-		        case Block.gravel:
-		        case Block.goldrock:
-		        case Block.ironrock:
-		        case Block.coal:
-		        case Block.trunk:
-		        case Block.leaf:
-		        case Block.sponge:
-		        case Block.glass:
-		        case Block.red:
-		        case Block.orange:
-		        case Block.yellow:
-		        case Block.lightgreen:
-		        case Block.green:
-		        case Block.aquagreen:
-		        case Block.cyan:
-		        case Block.lightblue:
-		        case Block.blue:
-		        case Block.purple:
-		        case Block.lightpurple:
-		        case Block.pink:
-		        case Block.darkpink:
-		        case Block.darkgrey:
-		        case Block.lightgrey:
-		        case Block.white:
-		        case Block.yellowflower:
-		        case Block.redflower:
-		        case Block.mushroom:
-		        case Block.redmushroom:
-		        case Block.goldsolid:
-		        case Block.iron:
-		        case Block.staircasefull:
-		        case Block.staircasestep:
-		        case Block.brick:
-		        case Block.tnt:
-		        case Block.bookcase:
-		        case Block.stonevine:
-		        case Block.obsidian:
+        public static bool AnyBuild(byte type)
+        {
+            switch (type)
+            {
+                case air:
+                case rock:
+                case grass:
+                case dirt:
+                case stone:
+                case wood:
+                case shrub:
+                case sand:
+                case gravel:
+                case goldrock:
+                case ironrock:
+                case coal:
+                case trunk:
+                case leaf:
+                case sponge:
+                case glass:
+                case red:
+                case orange:
+                case yellow:
+                case lightgreen:
+                case green:
+                case aquagreen:
+                case cyan:
+                case lightblue:
+                case blue:
+                case purple:
+                case lightpurple:
+                case pink:
+                case darkpink:
+                case darkgrey:
+                case lightgrey:
+                case white:
+                case yellowflower:
+                case redflower:
+                case mushroom:
+                case redmushroom:
+                case goldsolid:
+                case iron:
+                case staircasefull:
+                case staircasestep:
+                case brick:
+                case tnt:
+                case bookcase:
+                case stonevine:
+                case obsidian:
                     return true;
             }
             return false;
         }
 
-        public static bool AllowBreak(byte type) {
-            switch (type) {
-                case Block.blue_portal:
-                case Block.orange_portal:
+        public static bool AllowBreak(byte type)
+        {
+            switch (type)
+            {
+                case blue_portal:
+                case orange_portal:
 
-                case Block.MsgWhite:
-                case Block.MsgBlack:
+                case MsgWhite:
+                case MsgBlack:
 
-                case Block.door:
-                case Block.door2:
-                case Block.door3:
-                case Block.door4:
-                case Block.door5:
-                case Block.door6:
-                case Block.door7:
-                case Block.door8:
-                case Block.door9:
-                case Block.door10:
+                case door:
+                case door2:
+                case door3:
+                case door4:
+                case door5:
+                case door6:
+                case door7:
+                case door8:
+                case door9:
+                case door10:
 
-                case Block.smalltnt:
-                case Block.bigtnt:
-                case Block.rocketstart:
-                case Block.firework:
-                    
+                case smalltnt:
+                case bigtnt:
+                case rocketstart:
+                case firework:
+
                 case zombiebody:
                 case creeper:
                 case zombiehead:
@@ -522,55 +534,60 @@ namespace MCZall {
             return false;
         }
 
-		public static bool Placable(byte type)
-		{
-			switch (type) {
-//				case Block.air:
-//				case Block.grass:
-				case Block.blackrock:
-                case Block.water:
-                case Block.waterstill:
-                case Block.lava:
-                case Block.lavastill:
-					return false;
-			}
+        public static bool Placable(byte type)
+        {
+            switch (type)
+            {
+                //				case Block.air:
+                //				case Block.grass:
+                case blackrock:
+                case water:
+                case waterstill:
+                case lava:
+                case lavastill:
+                    return false;
+            }
 
             if (type > 49) { return false; }
-			return true;
-		}
+            return true;
+        }
 
-        public static bool OPBlocks(byte type) {
-            switch (type) {
-                case Block.blackrock:
-                case Block.op_air:
-                case Block.op_brick:
-                case Block.op_cobblestone:
-                case Block.op_glass:
-                case Block.op_stone:
-                case Block.op_water:
-                case Block.opsidian:
-                case Block.rocketstart:
+        public static bool OPBlocks(byte type)
+        {
+            switch (type)
+            {
+                case blackrock:
+                case op_air:
+                case op_brick:
+                case op_cobblestone:
+                case op_glass:
+                case op_stone:
+                case op_water:
+                case opsidian:
+                case rocketstart:
 
-                case Block.Zero:
+                case Zero:
                     return true;
             }
             return false;
         }
 
-        public static bool Death(byte type) {
-            switch (type) {
-                case Block.tntexplosion:
+        public static bool Death(byte type)
+        {
+            switch (type)
+            {
+                case tntexplosion:
 
-                case Block.deathwater:
-                case Block.deathlava:
-                case Block.deathair:
+                case deathwater:
+                case deathlava:
+                case deathair:
                 case activedeathlava:
                 case activedeathwater:
-                    
-                case Block.magma:
-                case Block.geyser:
 
-                case Block.birdkill:
+                case magma:
+                case geyser:
+
+                case birdkill:
                 case fishshark:
 
                 case train:
@@ -580,14 +597,16 @@ namespace MCZall {
 
                 case creeper:
                 case zombiebody:
-                //case zombiehead:
+                    //case zombiehead:
                     return true;
             }
             return false;
         }
 
-        public static bool BuildIn(byte type) {
-            switch (type) {
+        public static bool BuildIn(byte type)
+        {
+            switch (type)
+            {
                 case water:
                 case lava:
                 case waterstill:
@@ -601,64 +620,69 @@ namespace MCZall {
 
         public static bool Mover(byte type)
         {
-            switch (type) {
-                case Block.air_portal:
-                case Block.water_portal:
-                case Block.lava_portal:
+            switch (type)
+            {
+                case air_portal:
+                case water_portal:
+                case lava_portal:
 
-                case Block.air_switch:
-                case Block.water_door:
-                case Block.lava_door:
+                case air_switch:
+                case water_door:
+                case lava_door:
 
-                case Block.MsgAir:
-                case Block.MsgWater:
-                case Block.MsgLava:
-                return true;
-            }
-            return false;
-        }
-
-        public static bool LavaKill(byte type) {
-            switch (type) {
-		        case Block.wood:
-		        case Block.shrub:
-		        case Block.trunk:
-		        case Block.leaf:
-		        case Block.sponge:
-		        case Block.red:
-		        case Block.orange:
-		        case Block.yellow:
-		        case Block.lightgreen:
-		        case Block.green:
-		        case Block.aquagreen:
-		        case Block.cyan:
-		        case Block.lightblue:
-		        case Block.blue:
-		        case Block.purple:
-		        case Block.lightpurple:
-		        case Block.pink:
-		        case Block.darkpink:
-		        case Block.darkgrey:
-		        case Block.lightgrey:
-		        case Block.white:
-		        case Block.yellowflower:
-		        case Block.redflower:
-		        case Block.mushroom:
-		        case Block.redmushroom:
-		        case Block.bookcase:
+                case MsgAir:
+                case MsgWater:
+                case MsgLava:
                     return true;
             }
             return false;
         }
-        public static bool WaterKill(byte type) {
-            switch (type) {
-		        case Block.air:
-		        case Block.shrub:
-		        case Block.leaf:
-		        case Block.yellowflower:
-		        case Block.redflower:
-		        case Block.mushroom:
-		        case Block.redmushroom:
+
+        public static bool LavaKill(byte type)
+        {
+            switch (type)
+            {
+                case wood:
+                case shrub:
+                case trunk:
+                case leaf:
+                case sponge:
+                case red:
+                case orange:
+                case yellow:
+                case lightgreen:
+                case green:
+                case aquagreen:
+                case cyan:
+                case lightblue:
+                case blue:
+                case purple:
+                case lightpurple:
+                case pink:
+                case darkpink:
+                case darkgrey:
+                case lightgrey:
+                case white:
+                case yellowflower:
+                case redflower:
+                case mushroom:
+                case redmushroom:
+                case bookcase:
+                    return true;
+            }
+            return false;
+        }
+        public static bool WaterKill(byte type)
+        {
+            switch (type)
+            {
+                case air:
+                case shrub:
+                case leaf:
+                case yellowflower:
+                case redflower:
+                case mushroom:
+                case redmushroom:
                     return true;
             }
             return false;
@@ -666,15 +690,16 @@ namespace MCZall {
 
         public static bool LightPass(byte type)
         {
-            switch (Convert(type)) {
-                case Block.air:
-                case Block.glass:
-                case Block.leaf:
-                case Block.redflower:
-                case Block.yellowflower:
-                case Block.mushroom:
-                case Block.redmushroom:
-                case Block.shrub:
+            switch (Convert(type))
+            {
+                case air:
+                case glass:
+                case leaf:
+                case redflower:
+                case yellowflower:
+                case mushroom:
+                case redmushroom:
+                case shrub:
                     return true;
 
                 default:
@@ -682,8 +707,10 @@ namespace MCZall {
             }
         }
 
-        public static bool NeedRestart(byte type) {
-            switch (type) {
+        public static bool NeedRestart(byte type)
+        {
+            switch (type)
+            {
                 case train:
 
                 case fire:
@@ -714,24 +741,28 @@ namespace MCZall {
             return false;
         }
 
-        public static bool portal(byte type) {
-            switch (type) {
-                case Block.blue_portal:
-                case Block.orange_portal:
-                case Block.air_portal:
-                case Block.water_portal:
-                case Block.lava_portal:
+        public static bool Portal(byte type)
+        {
+            switch (type)
+            {
+                case blue_portal:
+                case orange_portal:
+                case air_portal:
+                case water_portal:
+                case lava_portal:
                     return true;
             }
             return false;
         }
-        public static bool mb(byte type) {
-            switch (type) {
-                case Block.MsgAir:
-                case Block.MsgWater:
-                case Block.MsgLava:
-                case Block.MsgBlack:
-                case Block.MsgWhite:
+        public static bool Mb(byte type)
+        {
+            switch (type)
+            {
+                case MsgAir:
+                case MsgWater:
+                case MsgLava:
+                case MsgBlack:
+                case MsgWhite:
                     return true;
             }
             return false;
@@ -741,56 +772,56 @@ namespace MCZall {
         {
             switch (type)
             {
-                case Block.rock:
-                case Block.stone:
-                case Block.blackrock:
-                case Block.waterstill:
-                case Block.lavastill:
-                case Block.goldrock:
-                case Block.ironrock:
-                case Block.coal:
-                case Block.red:
-                case Block.orange:
-                case Block.yellow:
-                case Block.lightgreen:
-                case Block.green:
-                case Block.aquagreen:
-                case Block.cyan:
-                case Block.lightblue:
-                case Block.blue:
-                case Block.purple:
-                case Block.lightpurple:
-                case Block.pink:
-                case Block.darkpink:
-                case Block.darkgrey:
-                case Block.lightgrey:
-                case Block.white:
-                case Block.goldsolid:
-                case Block.iron:
-                case Block.staircasefull:
-                case Block.brick:
-                case Block.tnt:
-                case Block.stonevine:
-                case Block.obsidian:
+                case rock:
+                case stone:
+                case blackrock:
+                case waterstill:
+                case lavastill:
+                case goldrock:
+                case ironrock:
+                case coal:
+                case red:
+                case orange:
+                case yellow:
+                case lightgreen:
+                case green:
+                case aquagreen:
+                case cyan:
+                case lightblue:
+                case blue:
+                case purple:
+                case lightpurple:
+                case pink:
+                case darkpink:
+                case darkgrey:
+                case lightgrey:
+                case white:
+                case goldsolid:
+                case iron:
+                case staircasefull:
+                case brick:
+                case tnt:
+                case stonevine:
+                case obsidian:
 
-                case Block.op_glass:
-                case Block.opsidian:
-                case Block.op_brick:
-                case Block.op_stone:
-                case Block.op_cobblestone:
-                case Block.op_air:
-                case Block.op_water:
+                case op_glass:
+                case opsidian:
+                case op_brick:
+                case op_stone:
+                case op_cobblestone:
+                case op_air:
+                case op_water:
 
-                case Block.door:
-                case Block.door2:
-                case Block.door3:
-                case Block.door4:
-                case Block.door5:
-                case Block.door6:
-                case Block.door7:
-                case Block.door8:
-                case Block.door9:
-                case Block.door10:
+                case door:
+                case door2:
+                case door3:
+                case door4:
+                case door5:
+                case door6:
+                case door7:
+                case door8:
+                case door9:
+                case door10:
 
                 case tdoor:
                 case tdoor2:
@@ -807,25 +838,25 @@ namespace MCZall {
                 case tdoor13:
 
                 case air_door:
-                case Block.air_switch:
-                case Block.water_door:
+                case air_switch:
+                case water_door:
                 case lava_door:
 
-                case Block.MsgAir:
-                case Block.MsgWater:
-                case Block.MsgLava:
-                case Block.MsgBlack:
-                case Block.MsgWhite:
+                case MsgAir:
+                case MsgWater:
+                case MsgLava:
+                case MsgBlack:
+                case MsgWhite:
 
-                case Block.blue_portal:
-                case Block.orange_portal:
-                case Block.air_portal:
-                case Block.water_portal:
-                case Block.lava_portal:
+                case blue_portal:
+                case orange_portal:
+                case air_portal:
+                case water_portal:
+                case lava_portal:
 
-                case Block.deathair:
-                case Block.deathlava:
-                case Block.deathwater:
+                case deathair:
+                case deathlava:
+                case deathwater:
                     return false;
 
                 default:
@@ -833,22 +864,22 @@ namespace MCZall {
             }
         }
 
-		public static string Name(byte type)
+        public static string Name(byte type)
         {
-			switch(type)
+            switch (type)
             {
-                case 0: return "air";  
+                case 0: return "air";
                 case 1: return "stone";
-                case 2: return "grass"; 
+                case 2: return "grass";
                 case 3: return "dirt";
                 case 4: return "cobblestone";
                 case 5: return "wood";
-                case 6: return "plant"; 
-                case 7: return "adminium"; 
-                case 8: return "active_water";  
-                case 9: return "water";  
-                case 10: return "active_lava";  
-                case 11: return "lava";  
+                case 6: return "plant";
+                case 7: return "adminium";
+                case 8: return "active_water";
+                case 9: return "water";
+                case 10: return "active_lava";
+                case 11: return "lava";
                 case 12: return "sand";
                 case 13: return "gravel";
                 case 14: return "gold_ore";
@@ -874,13 +905,13 @@ namespace MCZall {
                 case 34: return "black";
                 case 35: return "gray";
                 case 36: return "white";
-                case 37: return "yellow_flower"; 
-                case 38: return "red_flower"; 
-                case 39: return "brown_shroom"; 
-                case 40: return "red_shroom"; 
+                case 37: return "yellow_flower";
+                case 38: return "red_flower";
+                case 39: return "brown_shroom";
+                case 40: return "red_shroom";
                 case 41: return "gold";
                 case 42: return "iron";
-                case 43: return "double_stair"; 
+                case 43: return "double_stair";
                 case 44: return "stair";
                 case 45: return "brick";
                 case 46: return "tnt";
@@ -888,7 +919,7 @@ namespace MCZall {
                 case 48: return "mossy_cobblestone";
                 case 49: return "obsidian";
 
-                case 100: return "op_glass"; 
+                case 100: return "op_glass";
                 case 101: return "opsidian";              //TODO Add command or just use bind?
                 case 102: return "op_brick";              //TODO
                 case 103: return "op_stone";              //TODO
@@ -996,7 +1027,7 @@ namespace MCZall {
                 case 196: return "geyser";
 
                 //Blocks after this are converted before saving
-                case 200: return "air_flood"; 
+                case 200: return "air_flood";
                 case 201: return "door_air";
                 case 202: return "air_flood_layer";
                 case 203: return "air_flood_down";
@@ -1022,13 +1053,13 @@ namespace MCZall {
                 case zombiebody: return "zombie";
                 case zombiehead: return "zombie_head";
 
-                case Block.birdblue: return "blue_bird";
-                case Block.birdred: return "red_robin";
-                case Block.birdwhite: return "dove";
-                case Block.birdblack: return "pidgeon";
-                case Block.birdwater: return "duck";
-                case Block.birdlava: return "phoenix";
-                case Block.birdkill: return "killer_phoenix";
+                case birdblue: return "blue_bird";
+                case birdred: return "red_robin";
+                case birdwhite: return "dove";
+                case birdblack: return "pidgeon";
+                case birdwater: return "duck";
+                case birdlava: return "phoenix";
+                case birdkill: return "killer_phoenix";
 
                 case fishbetta: return "betta_fish";
                 case fishgold: return "goldfish";
@@ -1036,11 +1067,13 @@ namespace MCZall {
                 case fishshark: return "shark";
                 case fishsponge: return "sea_sponge";
 
-			    default: return "unknown";
+                default: return "unknown";
             }
-		}
-        public static byte Byte(string type) {
-            switch (type.ToLower()) {
+        }
+        public static byte Byte(string type)
+        {
+            switch (type.ToLower())
+            {
                 case "air": return 0;
                 case "stone": return 1;
                 case "grass": return 2;
@@ -1123,7 +1156,7 @@ namespace MCZall {
                 case "door9": return door9;
                 case "door_stair":
                 case "door10": return door10;
-                    
+
                 case "tdoor_tree":
                 case "tdoor": return tdoor;
                 case "tdoor_obsidian":
@@ -1150,7 +1183,7 @@ namespace MCZall {
                 case "tdoor12": return tdoor12;
                 case "tdoor_lava":
                 case "tdoor13": return tdoor13;
-                    
+
                 case "odoor_tree":
                 case "odoor": return odoor1;
                 case "odoor_obsidian":
@@ -1176,7 +1209,7 @@ namespace MCZall {
                 case "odoor_water":
                 case "odoor12": return odoor12;
                 case "odoor_red": return odoor8_air;
-                    
+
                 case "white_message": return 130;
                 case "black_message": return 131;
                 case "air_message": return 132;
@@ -1191,7 +1224,7 @@ namespace MCZall {
                 case "finite_water": return finiteWater;
                 case "finite_lava": return finiteLava;
                 case "finite_faucet": return finiteFaucet;
- 
+
                 case "air_portal": return 160;
                 case "water_portal": return 161;
                 case "lava_portal": return 162;
@@ -1233,20 +1266,20 @@ namespace MCZall {
                 case "air_flood_layer": return 202;
                 case "air_flood_down": return 203;
                 case "air_flood_up": return 204;
-                    /*
-                case "door2_air": return 205;
-                case "door3_air": return 206;
-                case "door4_air": return 207;
-                case "door5_air": return 208;
-                case "door6_air": return 209;
-                case "door7_air": return 210;
-                case "door8_air": return 211;
-                case "door9_air": return 212;
-                case "door10_air": return 213;
-                case "door11_air": return 214;
-                case "door12_air": return 215;
-                case "door13_air": return 216;
-                case "door14_air": return 217;*/
+                /*
+            case "door2_air": return 205;
+            case "door3_air": return 206;
+            case "door4_air": return 207;
+            case "door5_air": return 208;
+            case "door6_air": return 209;
+            case "door7_air": return 210;
+            case "door8_air": return 211;
+            case "door9_air": return 212;
+            case "door10_air": return 213;
+            case "door11_air": return 214;
+            case "door12_air": return 215;
+            case "door13_air": return 216;
+            case "door14_air": return 217;*/
 
                 case "train": return train;
 
@@ -1254,13 +1287,13 @@ namespace MCZall {
                 case "zombie": return zombiebody;
                 case "zombie_head": return zombiehead;
 
-                case "blue_bird": return Block.birdblue;
-                case "red_robin": return Block.birdred;
-                case "dove": return Block.birdwhite;
-                case "pidgeon": return Block.birdblack;
-                case "duck": return Block.birdwater;
-                case "phoenix": return Block.birdlava;
-                case "killer_phoenix": return Block.birdkill;
+                case "blue_bird": return birdblue;
+                case "red_robin": return birdred;
+                case "dove": return birdwhite;
+                case "pidgeon": return birdblack;
+                case "duck": return birdwater;
+                case "phoenix": return birdlava;
+                case "killer_phoenix": return birdkill;
 
                 case "betta_fish": return fishbetta;
                 case "goldfish": return fishgold;
@@ -1272,18 +1305,20 @@ namespace MCZall {
             }
         }
 
-        public static byte Convert(byte b) {
-            switch (b) {
-                case 100: return (byte)20; //Op_glass
-                case 101: return (byte)49; //Opsidian
-                case 102: return (byte)45; //Op_brick
-                case 103: return (byte)1; //Op_stone
-                case 104: return (byte)4; //Op_cobblestone
-                case 105: return (byte)0; //Op_air - Must be cuboided / replaced
-                case 106: return Block.waterstill; //Op_water
+        public static byte Convert(byte b)
+        {
+            switch (b)
+            {
+                case 100: return 20; //Op_glass
+                case 101: return 49; //Opsidian
+                case 102: return 45; //Op_brick
+                case 103: return 1; //Op_stone
+                case 104: return 4; //Op_cobblestone
+                case 105: return 0; //Op_air - Must be cuboided / replaced
+                case 106: return waterstill; //Op_water
 
-                case 110: return (byte)5; //wood_float
-                case 112: return (byte)10;
+                case 110: return 5; //wood_float
+                case 112: return 10;
 
                 case door: return trunk;//door show by treetype
                 case door2: return obsidian;//door show by obsidian
@@ -1323,22 +1358,22 @@ namespace MCZall {
                 case odoor11: return lavastill;
                 case odoor12: return waterstill;
 
-                case 130: return (byte)36;  //upVator
-                case 131: return (byte)34;  //upVator
-                case 132: return (byte)0;   //upVator
+                case 130: return 36;  //upVator
+                case 131: return 34;  //upVator
+                case 132: return 0;   //upVator
                 case MsgWater: return waterstill;   //upVator
                 case MsgLava: return lavastill;  //upVator
 
-                case 140: return (byte)8;
-                case 141: return (byte)10;
-                case WaterFaucet: return Block.cyan;
-                case LavaFaucet: return Block.orange;
+                case 140: return 8;
+                case 141: return 10;
+                case WaterFaucet: return cyan;
+                case LavaFaucet: return orange;
 
                 case finiteWater: return water;
                 case finiteLava: return lava;
                 case finiteFaucet: return lightblue;
 
-                case 160: return (byte)0;//air portal
+                case 160: return 0;//air portal
                 case 161: return waterstill;//water portal
                 case 162: return lavastill;//lava portal
 
@@ -1347,12 +1382,12 @@ namespace MCZall {
                 case water_door: return waterstill;//water door
                 case lava_door: return lavastill;
 
-                case 175: return (byte)28;//blue portal
-                case 176: return (byte)22;//orange portal
+                case 175: return 28;//blue portal
+                case 176: return 22;//orange portal
 
-                case 182: return (byte)46;//smalltnt
-                case 183: return (byte)46;//bigtnt
-                case 184: return (byte)10;//explosion
+                case 182: return 46;//smalltnt
+                case 183: return 46;//bigtnt
+                case 184: return 10;//explosion
 
                 case fire: return lava;
 
@@ -1360,14 +1395,14 @@ namespace MCZall {
                 case rockethead: return goldsolid;
                 case firework: return iron;
 
-                case Block.deathwater: return waterstill;
-                case Block.deathlava: return lavastill;
-                case Block.deathair: return (byte)0;
+                case deathwater: return waterstill;
+                case deathlava: return lavastill;
+                case deathair: return 0;
                 case activedeathwater: return water;
                 case activedeathlava: return lava;
 
-                case Block.magma: return Block.lava;
-                case Block.geyser: return Block.water;
+                case magma: return lava;
+                case geyser: return water;
 
                 case 200: //air_flood
                 case 201: //door_air
@@ -1385,10 +1420,10 @@ namespace MCZall {
                 case 215: //door10_air
                 case 216: //door10_air
                 case door14_air:
-                    return (byte)0;
+                    return 0;
                 case door9_air: return lava;
                 case door8_air: return red;
-                    
+
                 case odoor1_air:
                 case odoor2_air:
                 case odoor3_air:
@@ -1427,28 +1462,30 @@ namespace MCZall {
                     if (b < 50) return b; else return 22;
             }
         }
-        public static byte SaveConvert(byte b) {
-            switch (b) {
+        public static byte SaveConvert(byte b)
+        {
+            switch (b)
+            {
                 case 200:
                 case 202:
                 case 203:
-                case 204: 
-                    return (byte)0; //air_flood must be converted to air on save to prevent issues
-                case 201: return (byte)111; //door_air back into door
-                case 205: return (byte)113; //door_air back into door
-                case 206: return (byte)114; //door_air back into door
-                case 207: return (byte)115; //door_air back into door
-                case 208: return (byte)116; //door_air back into door
-                case 209: return (byte)117; //door_air back into door
-                case 210: return (byte)118; //door_air back into door
-                case 211: return (byte)119; //door_air back into door
-                case 212: return (byte)120; //door_air back into door
-                case 213: return (byte)121; //door_air back into door
-                case 214: return (byte)165; //door_air back into door
-                case 215: return (byte)166; //door_air back into door
-                case 216: return (byte)167; //door_air back into door
+                case 204:
+                    return 0; //air_flood must be converted to air on save to prevent issues
+                case 201: return 111; //door_air back into door
+                case 205: return 113; //door_air back into door
+                case 206: return 114; //door_air back into door
+                case 207: return 115; //door_air back into door
+                case 208: return 116; //door_air back into door
+                case 209: return 117; //door_air back into door
+                case 210: return 118; //door_air back into door
+                case 211: return 119; //door_air back into door
+                case 212: return 120; //door_air back into door
+                case 213: return 121; //door_air back into door
+                case 214: return 165; //door_air back into door
+                case 215: return 166; //door_air back into door
+                case 216: return 167; //door_air back into door
                 case 217: return air_door; //door_air back into door
-                    
+
                 case odoor1_air:
                 case odoor2_air:
                 case odoor3_air:
@@ -1461,13 +1498,15 @@ namespace MCZall {
                 case odoor10_air:
                 case odoor11_air:
                 case odoor12_air:
-                    return odoor(b);
+                    return Odoor(b);
 
                 default: return b;
             }
         }
-        public static byte DoorAirs(byte b) {
-            switch (b) {
+        public static byte DoorAirs(byte b)
+        {
+            switch (b)
+            {
                 case door: return door_air;
                 case door2: return door2_air;
                 case door3: return door3_air;
@@ -1486,8 +1525,10 @@ namespace MCZall {
             }
         }
 
-        public static bool tDoor(byte b) {
-            switch (b) {
+        public static bool TDoor(byte b)
+        {
+            switch (b)
+            {
                 case tdoor:
                 case tdoor2:
                 case tdoor3:
@@ -1506,8 +1547,10 @@ namespace MCZall {
             return false;
         }
 
-        public static byte odoor(byte b) {
-            switch (b) {
+        public static byte Odoor(byte b)
+        {
+            switch (b)
+            {
                 case odoor1: return odoor1_air;
                 case odoor2: return odoor2_air;
                 case odoor3: return odoor3_air;
@@ -1536,5 +1579,5 @@ namespace MCZall {
             }
             return Zero;
         }
-	}	
+    }
 }

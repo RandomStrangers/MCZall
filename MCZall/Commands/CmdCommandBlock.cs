@@ -14,22 +14,26 @@
 */
 using System;
 
-namespace MCZall {
-	public class CmdCommandBlock : Command {
-        public override string name { get { return "commandblock"; } }
-        public override string shortcut { get { return "cmd"; } }
-        public override string type { get { return "build"; } }
+namespace MCZall
+{
+    public class CmdCommandBlock : Command
+    {
+        public override string Name { get { return "commandblock"; } }
+        public override string Shortcut { get { return "cmd"; } }
+        public override string Type { get { return "build"; } }
         public CmdCommandBlock() { }
-		public override void Use(Player p,string message)  {
+        public override void Use(Player p, string message)
+        {
             if (message == "" || message.Split(' ').Length < 2) { Help(p); return; }
             p.ClearBlockchange();
 
-            cmdPos pos;
+            CmdPos pos;
 
             bool b2needed = false;
 
-            pos.cmd = Command.all.Find(message.Split(' ')[0].ToLower()).name;
-            switch (pos.cmd) {
+            pos.cmd = all.Find(message.Split(' ')[0].ToLower()).Name;
+            switch (pos.cmd)
+            {
                 case "cuboid":
                 case "spheroid": break;
                 case "replace":
@@ -38,41 +42,46 @@ namespace MCZall {
             }
 
             string[] xyz = message.Split(' ');
-            try {
+            try
+            {
                 pos.x1 = Convert.ToUInt16(xyz[1]);
                 pos.y1 = Convert.ToUInt16(xyz[2]);
                 pos.z1 = Convert.ToUInt16(xyz[3]);
                 pos.x2 = Convert.ToUInt16(xyz[4]);
                 pos.y2 = Convert.ToUInt16(xyz[5]);
                 pos.z2 = Convert.ToUInt16(xyz[6]);
-            } catch { p.SendMessage("Coordinates invalid."); return; }
+            }
+            catch { p.SendMessage("Coordinates invalid."); return; }
 
             pos.b1 = Block.Byte(xyz[7]);
             if (pos.b1 == Block.Zero) { p.SendMessage("Invalid block."); return; }
-            if (Block.allowPlace(pos.b1) > p.group.Permission) { p.SendMessage("Cannot use this block."); return; }
+            if (Block.AllowPlace(pos.b1) > p.group.Permission) { p.SendMessage("Cannot use this block."); return; }
 
             pos.b2 = Block.Zero;
-            if (b2needed) {
+            if (b2needed)
+            {
                 pos.b2 = Block.Byte(xyz[8]);
                 if (pos.b2 == Block.Zero) { p.SendMessage("Invalid block."); return; }
-                if (Block.allowPlace(pos.b2) > p.group.Permission) { p.SendMessage("Cannot use this block."); return; }
+                if (Block.AllowPlace(pos.b2) > p.group.Permission) { p.SendMessage("Cannot use this block."); return; }
             }
 
             p.blockchangeObject = pos;
             p.Blockchange += new Player.BlockchangeEventHandler(CmdChange);
             p.SendMessage("Place a block to determine a location.");
-		}
+        }
 
-        public void CmdChange(Player p, ushort x, ushort y, ushort z, byte type) {
+        public void CmdChange(Player p, ushort x, ushort y, ushort z, byte type)
+        {
 
         }
 
-        public struct cmdPos { public string cmd; public ushort x1, y1, z1, x2, y2, z2; public byte b1, b2; }
+        public struct CmdPos { public string cmd; public ushort x1, y1, z1, x2, y2, z2; public byte b1, b2; }
 
-        public override void Help(Player p)  {
+        public override void Help(Player p)
+        {
             p.SendMessage("/cmd [command] [x1 y1 z1] [x2 y2 z2] [block1] [block2] - Creates a command block which performs [command] when clicked");
             p.SendMessage("Different commands require different syntax");
             p.SendMessage("Unsupported commands: ");
-		}
-	}
+        }
+    }
 }

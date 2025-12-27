@@ -13,16 +13,14 @@
 	permissions and limitations under the License.
 */
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace MCZall
 {
     class CmdNewLvl : Command
     {
-        public override string name { get { return "newlvl"; } }
-        public override string shortcut { get { return ""; } }
-        public override string type { get { return "mod"; } }
+        public override string Name { get { return "newlvl"; } }
+        public override string Shortcut { get { return ""; } }
+        public override string Type { get { return "mod"; } }
         public CmdNewLvl() { }
 
         public override void Use(Player p, string message)
@@ -48,28 +46,38 @@ namespace MCZall
                 }
 
                 string name = parameters[0];
-                ushort x = 1, y = 1, z = 1;
-                try {
+                ushort x, y, z;
+                try
+                {
                     x = Convert.ToUInt16(parameters[1]);
                     y = Convert.ToUInt16(parameters[2]);
                     z = Convert.ToUInt16(parameters[3]);
-                } catch { p.SendMessage("Invalid dimensions."); return; }
+                }
+                catch { p.SendMessage("Invalid dimensions."); return; }
 
                 if (!Player.ValidName(name)) { p.SendMessage("Invalid name!"); return; }
 
-                try {
-                    if (p.group.Permission < LevelPermission.Admin) {
+                try
+                {
+                    if (p.group.Permission < LevelPermission.Admin)
+                    {
                         if (x * y * z > 30000000) { p.SendMessage("Cannot create a map with over 30million blocks"); return; }
-                    } else {
+                    }
+                    else
+                    {
                         if (x * y * z > 225000000) { p.SendMessage("You cannot make a map with over 225million blocks"); return; }
                     }
-                } catch { p.SendMessage("An error occured"); }
+                }
+                catch { p.SendMessage("An error occured"); }
 
                 // create a new level...
-                try {
+                try
+                {
                     Level lvl = new Level(name, x, y, z, parameters[4]);
                     lvl.Save(true); //... and save it.
-                } finally {
+                }
+                finally
+                {
                     GC.Collect();
                     GC.WaitForPendingFinalizers();
                 }

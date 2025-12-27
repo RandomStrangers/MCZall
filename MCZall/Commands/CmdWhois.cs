@@ -18,20 +18,24 @@ namespace MCZall
 {
     public class CmdWhois : Command
     {
-        public override string name { get { return "whois"; } }
-        public override string shortcut { get { return ""; } }
-        public override string type { get { return "other"; } }
+        public override string Name { get { return "whois"; } }
+        public override string Shortcut { get { return ""; } }
+        public override string Type { get { return "other"; } }
         public CmdWhois() { }
         public override void Use(Player p, string message)
         {
-            Player who = null;
+            Player who;
             if (message == "") { who = p; message = p.name; } else { who = Player.Find(message); }
-            if (who != null && !who.hidden) {
-                if (who == p) {
-                    message = Server.DefaultColor + "You are " + who.group.color + who.prefix + who.group.name + Server.DefaultColor + ".";
-                } else {
+            if (who != null && !who.hidden)
+            {
+                if (who == p)
+                {
+                    message = Server.DefaultColor + "You are " + who.group.Color + who.prefix + who.group.Name + Server.DefaultColor + ".";
+                }
+                else
+                {
                     message = who.color + who.prefix + who.name + Server.DefaultColor + " is " +
-                        who.group.color + who.group.name + Server.DefaultColor + " on &b" + who.level.name + Server.DefaultColor + ".";
+                        who.group.Color + who.group.Name + Server.DefaultColor + " on &b" + who.level.name + Server.DefaultColor + ".";
                 }
 
                 if (Server.afkset.Contains(who.name)) message += "-AFK-";
@@ -45,11 +49,12 @@ namespace MCZall
                 p.SendMessage("> > been logged in for &a" + storedTime);
                 p.SendMessage("> > first logged into the server on &a" + who.firstLogin.ToString("yyyy-MM-dd") + " at " + who.firstLogin.ToString("HH:mm:ss"));
                 p.SendMessage("> > logged in &a" + who.totalLogins + Server.DefaultColor + " times, &c" + who.totalKicked + Server.DefaultColor + " of which ended in a kick.");
-                if (p != null) if (p.group.Permission > LevelPermission.AdvBuilder) {
-                    string givenIP;
-                    if (Server.bannedIP.Contains(p.ip)) givenIP = "&8" + who.ip + ", which is banned"; else givenIP = who.ip;
+                if (p != null) if (p.group.Permission > LevelPermission.AdvBuilder)
+                    {
+                        string givenIP;
+                        if (Server.bannedIP.Contains(p.ip)) givenIP = "&8" + who.ip + ", which is banned"; else givenIP = who.ip;
                         p.SendMessage("> > the IP of " + givenIP);
-                }
+                    }
             }
             else { p.SendMessage("\"" + message + "\" is offline! Use /whowas instead."); }
         }

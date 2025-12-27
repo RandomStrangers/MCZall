@@ -12,24 +12,27 @@
 	or implied. See the License for the specific language governing
 	permissions and limitations under the License.
 */
-using System;
-
-namespace MCZall {
-	public class CmdGive : Command {
-        public override string name { get { return "give"; } }
-        public override string shortcut { get { return ""; } }
-        public override string type { get { return "other"; } }
+namespace MCZall
+{
+    public class CmdGive : Command
+    {
+        public override string Name { get { return "give"; } }
+        public override string Shortcut { get { return ""; } }
+        public override string Type { get { return "other"; } }
         public CmdGive() { }
-		public override void Use(Player p,string message)  {
+        public override void Use(Player p, string message)
+        {
             if (message.Split(' ').Length > 2 || message.Split(' ').Length < 2) { Help(p); return; }
 
             Player who = Player.Find(message.Split(' ')[0]);
             if (who == null) { p.SendMessage("Could not find \"" + message.Split(' ')[0] + "\"."); return; }
-            
 
 
-		} public override void Help(Player p)  {
+
+        }
+        public override void Help(Player p)
+        {
             p.SendMessage("/give [name] [thing] - Gives [name] [thing].");
-		}
-	}
+        }
+    }
 }

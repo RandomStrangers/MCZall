@@ -13,17 +13,17 @@
 	permissions and limitations under the License.
 */
 using System;
-using System.Collections.Generic;
 
 namespace MCZall
 {
     public class CmdStairs : Command
     {
-        public override string name { get { return "stairs"; } }
-        public override string shortcut { get { return ""; } }
-        public override string type { get { return "build"; } }
+        public override string Name { get { return "stairs"; } }
+        public override string Shortcut { get { return ""; } }
+        public override string Type { get { return "build"; } }
         public CmdStairs() { }
-        public override void Use(Player p, string message) {
+        public override void Use(Player p, string message)
+        {
 
             CatchPos cpos;
             cpos.x = 0; cpos.y = 0; cpos.z = 0; p.blockchangeObject = cpos;
@@ -45,18 +45,21 @@ namespace MCZall
             p.Blockchange += new Player.BlockchangeEventHandler(Blockchange2);
         }
 
-        public void Swap(ref int a, ref int b) {
-            int c; 
+        public void Swap(ref int a, ref int b)
+        {
+            int c;
             c = a; a = b; b = c;
         }
 
-        public void Blockchange2(Player p, ushort x, ushort y, ushort z, byte type) {
+        public void Blockchange2(Player p, ushort x, ushort y, ushort z, byte type)
+        {
             p.ClearBlockchange();
             byte b = p.level.GetTile(x, y, z);
             p.SendBlockchange(x, y, z, b);
             CatchPos cpos = (CatchPos)p.blockchangeObject;
-                        
-            if (cpos.y == y) {
+
+            if (cpos.y == y)
+            {
                 p.SendMessage("Cannot create a stairway 0 blocks high.");
                 return;
             }
@@ -69,21 +72,29 @@ namespace MCZall
             else if (cpos.x < x && cpos.z > z) currentState = 2;
             else currentState = 3;
 
-            for (ushort yy = Math.Min(cpos.y, y); yy <= Math.Max(cpos.y, y); ++yy) {
-                if (currentState == 0) {
-                    xx++; p.level.Blockchange(p, xx, yy, zz, Block.staircasestep);                
+            for (ushort yy = Math.Min(cpos.y, y); yy <= Math.Max(cpos.y, y); ++yy)
+            {
+                if (currentState == 0)
+                {
+                    xx++; p.level.Blockchange(p, xx, yy, zz, Block.staircasestep);
                     xx++; p.level.Blockchange(p, xx, yy, zz, Block.staircasefull);
                     currentState = 1;
-                } else if (currentState == 1) {
-                    zz++; p.level.Blockchange(p, xx, yy, zz, Block.staircasestep);                
+                }
+                else if (currentState == 1)
+                {
+                    zz++; p.level.Blockchange(p, xx, yy, zz, Block.staircasestep);
                     zz++; p.level.Blockchange(p, xx, yy, zz, Block.staircasefull);
                     currentState = 2;
-                } else if (currentState == 2) {
-                    xx--; p.level.Blockchange(p, xx, yy, zz, Block.staircasestep);                
+                }
+                else if (currentState == 2)
+                {
+                    xx--; p.level.Blockchange(p, xx, yy, zz, Block.staircasestep);
                     xx--; p.level.Blockchange(p, xx, yy, zz, Block.staircasefull);
                     currentState = 3;
-                } else {
-                    zz--; p.level.Blockchange(p, xx, yy, zz, Block.staircasestep);                
+                }
+                else
+                {
+                    zz--; p.level.Blockchange(p, xx, yy, zz, Block.staircasestep);
                     zz--; p.level.Blockchange(p, xx, yy, zz, Block.staircasefull);
                     currentState = 0;
                 }
@@ -99,6 +110,6 @@ namespace MCZall
         }
         struct CatchPos { public ushort x, y, z; }
 
-        public ushort z { get; set; }
+        public ushort Z { get; set; }
     }
 }

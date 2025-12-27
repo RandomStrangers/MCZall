@@ -12,17 +12,16 @@
 	or implied. See the License for the specific language governing
 	permissions and limitations under the License.
 */
-using System;
-using System.Net;
-using System.Threading;
-
-namespace MCZall {
-	public class CmdUpdate : Command {
-        public override string name { get { return "update"; } }
-        public override string shortcut { get { return ""; } }
-        public override string type { get { return "information"; } }
+namespace MCZall
+{
+    public class CmdUpdate : Command
+    {
+        public override string Name { get { return "update"; } }
+        public override string Shortcut { get { return ""; } }
+        public override string Type { get { return "information"; } }
         public CmdUpdate() { }
-		public override void Use(Player p,string message)  {
+        public override void Use(Player p, string message)
+        {
             /*
             p.SendMessage("Please wait, checking for updates");
 
@@ -42,8 +41,10 @@ namespace MCZall {
             })); updateThread.Start();*/
 
             p.SendMessage("Disabled");
-		} public override void Help(Player p)  {
-			p.SendMessage("/update - Shows whether the server is out-of-date");
-		}
-	}
+        }
+        public override void Help(Player p)
+        {
+            p.SendMessage("/update - Shows whether the server is out-of-date");
+        }
+    }
 }

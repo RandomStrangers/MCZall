@@ -27,11 +27,10 @@
 //
 
 
+using MonoTorrent.Common;
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading;
-using MonoTorrent.Common;
 
 namespace MonoTorrent.Client
 {
@@ -44,7 +43,7 @@ namespace MonoTorrent.Client
     {
         private class DelegateTask : ICacheable
         {
-            private ManualResetEvent handle;
+            private readonly ManualResetEvent handle;
             private bool isBlocking;
             private MainLoopJob job;
             private object jobResult;
@@ -142,15 +141,17 @@ namespace MonoTorrent.Client
             }
         }
 
-        AutoResetEvent handle = new AutoResetEvent(false);
-        ICache<DelegateTask> cache = new Cache<DelegateTask>(true).Synchronize();
-        Queue<DelegateTask> tasks = new Queue<DelegateTask>();
+        readonly AutoResetEvent handle = new AutoResetEvent(false);
+        readonly ICache<DelegateTask> cache = new Cache<DelegateTask>(true).Synchronize();
+        readonly Queue<DelegateTask> tasks = new Queue<DelegateTask>();
         internal Thread thread;
 
-        public MainLoop(string name)
+        public MainLoop()
         {
-            thread = new Thread(Loop);
-            thread.IsBackground = true;
+            thread = new Thread(Loop)
+            {
+                IsBackground = true
+            };
             thread.Start();
         }
 
@@ -182,11 +183,6 @@ namespace MonoTorrent.Client
         }
 
         private void Queue(DelegateTask task)
-        {
-            Queue(task, Priority.Normal);
-        }
-
-        private void Queue(DelegateTask task, Priority priority)
         {
             lock (tasks)
             {
@@ -239,7 +235,7 @@ namespace MonoTorrent.Client
             if (Thread.CurrentThread == thread)
                 t.Execute();
             else
-                Queue(t, Priority.Highest);
+                Queue(t);
 
             t.WaitHandle.WaitOne();
 

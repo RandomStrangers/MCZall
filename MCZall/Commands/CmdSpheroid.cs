@@ -5,31 +5,42 @@ namespace MCZall
 {
     public class CmdSpheroid : Command
     {
-        public override string name { get { return "spheroid"; } }
-        public override string shortcut { get { return "e"; } }
-        public override string type { get { return "build"; } }
+        public override string Name { get { return "spheroid"; } }
+        public override string Shortcut { get { return "e"; } }
+        public override string Type { get { return "build"; } }
         public CmdSpheroid() { }
-        public override void Use(Player p, string message) {
+        public override void Use(Player p, string message)
+        {
             CatchPos cpos;
 
             cpos.x = 0; cpos.y = 0; cpos.z = 0;
 
-            if (message == "") {
+            if (message == "")
+            {
                 cpos.type = Block.Zero;
                 cpos.vertical = false;
-            } else if (message.IndexOf(' ') == -1) {
+            }
+            else if (message.IndexOf(' ') == -1)
+            {
                 cpos.type = Block.Byte(message);
                 cpos.vertical = false;
-                if (cpos.type == Block.Zero) {
-                    if (message.ToLower() == "vertical") {
+                if (cpos.type == Block.Zero)
+                {
+                    if (message.ToLower() == "vertical")
+                    {
                         cpos.vertical = true;
-                    } else {
+                    }
+                    else
+                    {
                         Help(p); return;
                     }
                 }
-            } else {
+            }
+            else
+            {
                 cpos.type = Block.Byte(message.Split(' ')[0]);
-                if (cpos.type == Block.Zero || message.Split(' ')[1].ToLower() != "vertical") {
+                if (cpos.type == Block.Zero || message.Split(' ')[1].ToLower() != "vertical")
+                {
                     Help(p); return;
                 }
                 cpos.vertical = true;
@@ -40,11 +51,13 @@ namespace MCZall
             p.ClearBlockchange();
             p.Blockchange += new Player.BlockchangeEventHandler(Blockchange1);
         }
-        public override void Help(Player p) {
+        public override void Help(Player p)
+        {
             p.SendMessage("/spheroid [type] <vertical> - Create a spheroid of blocks.");
             p.SendMessage("If <vertical> is added, it will be a vertical tube");
         }
-        public void Blockchange1(Player p, ushort x, ushort y, ushort z, byte type) {
+        public void Blockchange1(Player p, ushort x, ushort y, ushort z, byte type)
+        {
             p.ClearBlockchange();
             byte b = p.level.GetTile(x, y, z);
             p.SendBlockchange(x, y, z, b);
@@ -52,15 +65,17 @@ namespace MCZall
             bp.x = x; bp.y = y; bp.z = z; p.blockchangeObject = bp;
             p.Blockchange += new Player.BlockchangeEventHandler(Blockchange2);
         }
-        public void Blockchange2(Player p, ushort x, ushort y, ushort z, byte type) {
+        public void Blockchange2(Player p, ushort x, ushort y, ushort z, byte type)
+        {
             p.ClearBlockchange();
             byte b = p.level.GetTile(x, y, z);
             p.SendBlockchange(x, y, z, b);
             CatchPos cpos = (CatchPos)p.blockchangeObject;
             if (cpos.type != Block.Zero) { type = cpos.type; }
             List<Pos> buffer = new List<Pos>();
-            
-            if (!cpos.vertical) {
+
+            if (!cpos.vertical)
+            {
                 /* Courtesy of fCraft's awesome Open-Source'ness :D */
 
                 // find start/end coordinates
@@ -85,32 +100,37 @@ namespace MCZall
                 double cy = (ey + sy) / 2;
                 double cz = (ez + sz) / 2;
                 int totalBlocks = (int)(Math.PI * 0.75 * rx * ry * rz);
-                        
-                if (totalBlocks > p.group.maxBlocks) {
+
+                if (totalBlocks > p.group.MaxBlocks)
+                {
                     p.SendMessage("You tried to spheroid " + totalBlocks + " blocks.");
-                    p.SendMessage("You cannot spheroid more than " + p.group.maxBlocks + ".");
+                    p.SendMessage("You cannot spheroid more than " + p.group.MaxBlocks + ".");
                     return;
                 }
 
                 p.SendMessage(totalBlocks + " blocks.");
-            
-                for( int xx = sx; xx <= ex; xx += 8 )
-                for( int yy = sy; yy <= ey; yy += 8 )
-                for( int zz = sz; zz <= ez; zz += 8 )
-                for( int z3 = 0; z3 < 8 && zz + z3 <= ez; z3++ )
-                for( int y3 = 0; y3 < 8 && yy + y3 <= ey; y3++ )
-                for( int x3 = 0; x3 < 8 && xx + x3 <= ex; x3++ ) {
-                    // get relative coordinates
-                    double dx = (xx + x3 - cx);
-                    double dy = (yy + y3 - cy);
-                    double dz = (zz + z3 - cz);
 
-                    // test if it's inside ellipse
-                    if( (dx * dx) * rx2 + (dy * dy) * ry2 + (dz * dz) * rz2 <= 1 ) {
-                        p.level.Blockchange(p, (ushort)(x3 + xx), (ushort)(yy + y3), (ushort)(zz + z3), type);
-                    }
-                }
-            } else {
+                for (int xx = sx; xx <= ex; xx += 8)
+                    for (int yy = sy; yy <= ey; yy += 8)
+                        for (int zz = sz; zz <= ez; zz += 8)
+                            for (int z3 = 0; z3 < 8 && zz + z3 <= ez; z3++)
+                                for (int y3 = 0; y3 < 8 && yy + y3 <= ey; y3++)
+                                    for (int x3 = 0; x3 < 8 && xx + x3 <= ex; x3++)
+                                    {
+                                        // get relative coordinates
+                                        double dx = xx + x3 - cx;
+                                        double dy = yy + y3 - cy;
+                                        double dz = zz + z3 - cz;
+
+                                        // test if it's inside ellipse
+                                        if (dx * dx * rx2 + dy * dy * ry2 + dz * dz * rz2 <= 1)
+                                        {
+                                            p.level.Blockchange(p, (ushort)(x3 + xx), (ushort)(yy + y3), (ushort)(zz + z3), type);
+                                        }
+                                    }
+            }
+            else
+            {
                 int radius = Math.Abs(cpos.x - x) / 2;
                 int f = 1 - radius;
                 int ddF_x = 1;
@@ -121,14 +141,16 @@ namespace MCZall
                 int x0 = Math.Min(cpos.x, x) + radius;
                 int z0 = Math.Min(cpos.z, z) + radius;
 
-                Pos pos = new Pos();
-                pos.x = (ushort)x0; pos.z = (ushort)(z0 + radius); buffer.Add(pos);
+                Pos pos = new Pos { x = (ushort)x0, z = (ushort)(z0 + radius) };
+                buffer.Add(pos);
                 pos.z = (ushort)(z0 - radius); buffer.Add(pos);
                 pos.x = (ushort)(x0 + radius); pos.z = (ushort)z0; buffer.Add(pos);
                 pos.x = (ushort)(x0 - radius); buffer.Add(pos);
 
-                while (xx < zz) {
-                    if (f >= 0) {
+                while (xx < zz)
+                {
+                    if (f >= 0)
+                    {
                         zz--;
                         ddF_y += 2;
                         f += ddF_y;
@@ -153,15 +175,18 @@ namespace MCZall
 
                 int ydiff = Math.Abs(y - cpos.y) + 1;
 
-                if (buffer.Count * ydiff > p.group.maxBlocks) {
+                if (buffer.Count * ydiff > p.group.MaxBlocks)
+                {
                     p.SendMessage("You tried to spheroid " + buffer.Count * ydiff + " blocks.");
-                    p.SendMessage("You cannot spheroid more than " + p.group.maxBlocks + ".");
+                    p.SendMessage("You cannot spheroid more than " + p.group.MaxBlocks + ".");
                     return;
                 }
                 p.SendMessage(buffer.Count * ydiff + " blocks.");
 
-                foreach (Pos Pos in buffer) {
-                    for (ushort yy = Math.Min(cpos.y, y); yy <= Math.Max(cpos.y, y); yy++) {
+                foreach (Pos Pos in buffer)
+                {
+                    for (ushort yy = Math.Min(cpos.y, y); yy <= Math.Max(cpos.y, y); yy++)
+                    {
                         p.level.Blockchange(p, Pos.x, yy, Pos.z, type);
                     }
                 }
@@ -169,11 +194,13 @@ namespace MCZall
 
             if (p.staticCommands) p.Blockchange += new Player.BlockchangeEventHandler(Blockchange1);
         }
-        void BufferAdd(List<Pos> list, ushort x, ushort y, ushort z) {
+        void BufferAdd(List<Pos> list, ushort x, ushort y, ushort z)
+        {
             Pos pos; pos.x = x; pos.y = y; pos.z = z; list.Add(pos);
         }
         struct Pos { public ushort x, y, z; }
-        struct CatchPos {
+        struct CatchPos
+        {
             public byte type;
             public ushort x, y, z;
             public bool vertical;

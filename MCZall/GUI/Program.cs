@@ -1,33 +1,26 @@
-using System;  
-using System.Windows.Forms;
-using System.Text;
-using System.Linq;
-using System.Collections.Generic;
-using System.IO;  
+using System;
+using System.IO;
 using System.Runtime.InteropServices;
-using Microsoft.Win32.SafeHandles;
-
-using System.ComponentModel;
-using System.Data;
-using System.Diagnostics;
-using System.Drawing;
 using System.Threading;
-using System.Text.RegularExpressions;
-using System.Net;
-using MCZall;
- 
-namespace MCZall.Gui {  
-    static class Program { 
+using System.Windows.Forms;
+
+namespace MCZall.Gui
+{
+    static class Program
+    {
         [DllImport("kernel32")]
         public static extern IntPtr GetConsoleWindow();
         [DllImport("user32.dll")]
         public static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
 
-        static void Main(string[] args) {
+        static void Main(string[] _)
+        {
             bool skip = false;
-remake:
-            try {
-                if (!File.Exists("Viewmode.cfg") || skip) {
+        remake:
+            try
+            {
+                if (!File.Exists("Viewmode.cfg") || skip)
+                {
                     StreamWriter SW = new StreamWriter(File.Create("Viewmode.cfg"));
                     SW.WriteLine("#This file controls how the console window is shown to the server host");
                     SW.WriteLine("#cli:             True or False (Determines whether a CLI interface is used) (Set True if on Mono)");
@@ -45,70 +38,87 @@ remake:
                 string[] foundView = File.ReadAllLines("Viewmode.cfg");
                 if (foundView[0][0] != '#') { skip = true; goto remake; }
 
-                if (foundView[4].Split(' ')[2].ToLower() == "true") {                    
+                if (foundView[4].Split(' ')[2].ToLower() == "true")
+                {
                     Server s = new Server();
                     s.OnLog += Console.WriteLine;
                     s.OnCommand += Console.WriteLine;
                     s.Start();
                     Console.Title = Server.name + " MCZall Version: " + Server.Version;
-                    handleComm(Console.ReadLine());
+                    HandleComm(Console.ReadLine());
 
                     //Application.Run();
-                } else {
-                    
+                }
+                else
+                {
+
                     IntPtr hConsole = GetConsoleWindow();
-                    if (IntPtr.Zero != hConsole) {
+                    if (IntPtr.Zero != hConsole)
+                    {
                         ShowWindow(hConsole, 0);
                     }
-                    UpdateCheck(true);
-                    if (foundView[5].Split(' ')[2].ToLower() == "true") {
+                    UpdateCheck();
+                    if (foundView[5].Split(' ')[2].ToLower() == "true")
+                    {
                         Application.EnableVisualStyles();
                         Application.SetCompatibleTextRenderingDefault(false);
                     }
-            
+
                     updateTimer.Elapsed += delegate { UpdateCheck(); }; updateTimer.Start();
 
                     Application.Run(new Window());
                 }
-            } catch (Exception e) { Server.ErrorLog(e); return; }
+            }
+            catch (Exception e) { Server.ErrorLog(e); return; }
         }
 
 
 
-        public static void handleComm(string s) {            
-            string sentCmd = "", sentMsg = "";
+        public static void HandleComm(string s)
+        {
+            string sentCmd, sentMsg = "";
 
-            if (s.IndexOf(' ') != -1) {
+            if (s.IndexOf(' ') != -1)
+            {
                 sentCmd = s.Split(' ')[0];
                 sentMsg = s.Substring(s.IndexOf(' ') + 1);
-            } else if (s != "") {
+            }
+            else if (s != "")
+            {
                 sentCmd = s;
-            } else {
+            }
+            else
+            {
                 goto talk;
             }
 
-            try { 
+            try
+            {
                 Command cmd = Command.all.Find(sentCmd);
-                if (cmd != null) {
+                if (cmd != null)
+                {
                     cmd.Use(null, sentMsg);
                     Console.WriteLine("CONSOLE: USED /" + sentCmd + " " + sentMsg);
-                    handleComm(Console.ReadLine());
+                    HandleComm(Console.ReadLine());
                     return;
                 }
-            } catch {
+            }
+            catch
+            {
                 Console.WriteLine("CONSOLE: Failed command.");
-                handleComm(Console.ReadLine());
+                HandleComm(Console.ReadLine());
                 return;
             }
 
-    talk:   handleComm("say " + Group.Find("super").color + "Console: &f" + s);
-            handleComm(Console.ReadLine());
+        talk: HandleComm("say " + Group.Find("super").Color + "Console: &f" + s);
+            HandleComm(Console.ReadLine());
         }
 
         public static bool CurrentUpdate = false;
         public static System.Timers.Timer updateTimer = new System.Timers.Timer(120 * 60 * 1000);
 
-        public static void UpdateCheck(bool wait = false) {
+        public static void UpdateCheck()
+        {
             /*
             CurrentUpdate = true;
             Thread updateThread = new Thread(new ThreadStart(delegate {
@@ -165,18 +175,24 @@ remake:
             })); updateThread.Start();*/
         }
 
-        static public void ExitProgram(Boolean AutoRestart) {
+        public static void ExitProgram(bool AutoRestart)
+        {
             Thread exitThread;
             Server.Exit();
 
-            exitThread = new Thread(new ThreadStart(delegate {
-                try {
+            exitThread = new Thread(new ThreadStart(delegate
+            {
+                try
+                {
                     string level = null;
-                    foreach (Level l in Server.levels) {
-                        try { 
-                            level = level + l.name + "=" + l.physics + System.Environment.NewLine;
+                    foreach (Level l in Server.levels)
+                    {
+                        try
+                        {
+                            level = level + l.name + "=" + l.physics + Environment.NewLine;
                             l.Save();
-                        } catch {  }
+                        }
+                        catch { }
                     }
 
                     File.WriteAllText("text/autoload.txt", level);
@@ -185,7 +201,9 @@ remake:
 
                     if (AutoRestart == true) Application.Restart();
                     else Server.process.Kill();
-                } catch {
+                }
+                catch
+                {
                     Server.process.Kill();
                 }
             })); exitThread.Start();

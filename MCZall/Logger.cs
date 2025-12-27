@@ -14,16 +14,15 @@
 */
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.IO;
+using System.Text;
 using System.Threading;
-using MCZall.Gui;
 
 namespace MCZall
 {
     public class Logger
     {
-        static PidgeonLogger _pidLog = new PidgeonLogger();
+        static readonly PidgeonLogger _pidLog = new PidgeonLogger();
 
         public static void Write(string str) //Kept for backwards compatibility
         {
@@ -33,7 +32,7 @@ namespace MCZall
         {
             _pidLog.LogError(ex);
         }
-        public static string LogPath { get { return _pidLog.MessageLogPath; } set { _pidLog.MessageLogPath = value;} }
+        public static string LogPath { get { return _pidLog.MessageLogPath; } set { _pidLog.MessageLogPath = value; } }
         public static string ErrorLogPath { get { return _pidLog.ErrorLogPath; } set { _pidLog.ErrorLogPath = value; } }
 
         //Everything is static..!
@@ -50,29 +49,28 @@ namespace MCZall
     {
         //TODO: Implement report back feature
 
-        Boolean NeedRestart = false;
-        System.Timers.Timer RestartTimer = new System.Timers.Timer(30000);
+        bool NeedRestart = false;
 
         bool _disposed;
-        bool _reportBack = false;
         string _messagePath;
         string _errorPath;
-        object _lockObject = new object();
-        Thread _workingThread;
-        Queue<string> _messageCache = new Queue<string>();
-        Queue<string> _errorCache = new Queue<string>(); //always handle this first!
+        readonly object _lockObject = new object();
+        readonly Thread _workingThread;
+        readonly Queue<string> _messageCache = new Queue<string>();
+        readonly Queue<string> _errorCache = new Queue<string>(); //always handle this first!
 
         public PidgeonLogger()
         {
-            _reportBack = Server.reportBack;
             //Should be done as part of the config
             if (!Directory.Exists("logs"))
                 Directory.CreateDirectory("logs");
             _messagePath = "logs/" + DateTime.Now.ToShortDateString().Replace("/", "-") + ".txt";
             _errorPath = "error.log";
 
-            _workingThread = new Thread(new ThreadStart(WorkerThread));
-            _workingThread.IsBackground = true;
+            _workingThread = new Thread(new ThreadStart(WorkerThread))
+            {
+                IsBackground = true
+            };
             _workingThread.Start();
         }
 
@@ -92,7 +90,7 @@ namespace MCZall
             try
             {
                 if (_disposed)
-                    throw new ObjectDisposedException(this.GetType().Name);
+                    throw new ObjectDisposedException(GetType().Name);
 
                 if (message != null && message.Length > 0)
                     lock (_lockObject)
@@ -110,7 +108,7 @@ namespace MCZall
         public void LogError(Exception ex)
         {
             if (_disposed)
-                throw new ObjectDisposedException(this.GetType().Name);
+                throw new ObjectDisposedException(GetType().Name);
 
             StringBuilder sb = new StringBuilder();
             Exception e = ex;
@@ -118,18 +116,19 @@ namespace MCZall
             sb.AppendLine("----" + DateTime.Now + " ----");
             while (e != null)
             {
-                sb.AppendLine(getErrorText(e));
+                sb.AppendLine(GetErrorText(e));
                 e = e.InnerException;
             }
 
             sb.AppendLine(new string('-', 25));
-            lock (_lockObject) 
-            { 
+            lock (_lockObject)
+            {
                 _errorCache.Enqueue(sb.ToString());
                 Monitor.Pulse(_lockObject);
             }
 
-            if (NeedRestart == true) {
+            if (NeedRestart == true)
+            {
                 Server.listen.Close();
                 Server.Setup();
 
@@ -168,25 +167,25 @@ namespace MCZall
         //Only call from within synchronised code or all hell will break loose
         void FlushCache(string path, Queue<string> cache)
         {
-			FileStream fs = null;
-			try
-			{
-				//TODO: not happy about constantly opening and closing a stream like this but I suppose its ok (Pidgeon)
-				fs = new FileStream(path, FileMode.Append, FileAccess.Write);
-				while (cache.Count > 0)
-				{
-					byte[] tmp = Encoding.Default.GetBytes(cache.Dequeue());
-					fs.Write(tmp, 0, tmp.Length);
-				}
-				fs.Close();
-			}
-			catch
-			{
-				
-			}
+            FileStream fs = null;
+            try
+            {
+                //TODO: not happy about constantly opening and closing a stream like this but I suppose its ok (Pidgeon)
+                fs = new FileStream(path, FileMode.Append, FileAccess.Write);
+                while (cache.Count > 0)
+                {
+                    byte[] tmp = Encoding.Default.GetBytes(cache.Dequeue());
+                    fs.Write(tmp, 0, tmp.Length);
+                }
+                fs.Close();
+            }
+            catch
+            {
+
+            }
             fs.Dispose();
         }
-        string getErrorText(Exception e)
+        string GetErrorText(Exception e)
         {
             StringBuilder sb = new StringBuilder();
 
@@ -195,21 +194,26 @@ namespace MCZall
             sb.AppendLine("Message: " + e.Message);
             sb.AppendLine("Target: " + e.TargetSite.Name);
             sb.AppendLine("Trace: " + e.StackTrace);
-            
-            if (e.Message.IndexOf("An existing connection was forcibly closed by the remote host") != -1) { 
+
+            if (e.Message.IndexOf("An existing connection was forcibly closed by the remote host") != -1)
+            {
                 NeedRestart = true;
             }
 
             return sb.ToString();
-            }
+        }
 
         #region IDisposable Members
 
-        public void Dispose() {
-            if (!_disposed) {
+        public void Dispose()
+        {
+            if (!_disposed)
+            {
                 _disposed = true;
-                lock (_lockObject) {
-                    if (_errorCache.Count > 0) {
+                lock (_lockObject)
+                {
+                    if (_errorCache.Count > 0)
+                    {
                         FlushCache(_errorPath, _errorCache);
                     }
 

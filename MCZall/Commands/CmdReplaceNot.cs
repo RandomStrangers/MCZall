@@ -19,9 +19,9 @@ namespace MCZall
 {
     public class CmdReplaceNot : Command
     {
-        public override string name { get { return "replacenot"; } }
-        public override string shortcut { get { return "rn"; } }
-        public override string type { get { return "build"; } }
+        public override string Name { get { return "replacenot"; } }
+        public override string Shortcut { get { return "rn"; } }
+        public override string Type { get { return "build"; } }
         public CmdReplaceNot() { }
         public override void Use(Player p, string message)
         {
@@ -31,7 +31,7 @@ namespace MCZall
 
             btype = Block.Byte(message.Split(' ')[0]);
             if (btype == 255) { p.SendMessage(message.Split(' ')[0] + " does not exist, please spell it correctly."); return; }
-                
+
             cpos.type = btype;
 
             if (Block.Byte(message.Split(' ')[1]) == 255) { p.SendMessage(message.Split(' ')[1] + " does not exist, please spell it correctly."); return; }
@@ -63,29 +63,35 @@ namespace MCZall
             CatchPos cpos = (CatchPos)p.blockchangeObject;
             List<Pos> buffer = new List<Pos>();
 
-            for (ushort xx = Math.Min(cpos.x, x); xx <= Math.Max(cpos.x, x); ++xx) {           
-                for (ushort yy = Math.Min(cpos.y, y); yy <= Math.Max(cpos.y, y); ++yy) {
-                    for (ushort zz = Math.Min(cpos.z, z); zz <= Math.Max(cpos.z, z); ++zz) {
+            for (ushort xx = Math.Min(cpos.x, x); xx <= Math.Max(cpos.x, x); ++xx)
+            {
+                for (ushort yy = Math.Min(cpos.y, y); yy <= Math.Max(cpos.y, y); ++yy)
+                {
+                    for (ushort zz = Math.Min(cpos.z, z); zz <= Math.Max(cpos.z, z); ++zz)
+                    {
                         if (p.level.GetTile(xx, yy, zz) != cpos.type) { BufferAdd(buffer, xx, yy, zz); }
-                    }       
-                }   
+                    }
+                }
             }
-            
-            if (buffer.Count > p.group.maxBlocks) {
+
+            if (buffer.Count > p.group.MaxBlocks)
+            {
                 p.SendMessage("You tried to replace " + buffer.Count + " blocks.");
-                p.SendMessage("You cannot replace more than " + p.group.maxBlocks + ".");
+                p.SendMessage("You cannot replace more than " + p.group.MaxBlocks + ".");
                 return;
             }
 
             p.SendMessage(buffer.Count.ToString() + " blocks.");
 
-            buffer.ForEach(delegate(Pos pos) {
+            buffer.ForEach(delegate (Pos pos)
+            {
                 p.level.Blockchange(p, pos.x, pos.y, pos.z, cpos.type2);                  //update block for everyone
             });
 
             if (p.staticCommands) p.Blockchange += new Player.BlockchangeEventHandler(Blockchange1);
         }
-        void BufferAdd(List<Pos> list, ushort x, ushort y, ushort z) {
+        void BufferAdd(List<Pos> list, ushort x, ushort y, ushort z)
+        {
             Pos pos; pos.x = x; pos.y = y; pos.z = z; list.Add(pos);
         }
 
@@ -96,6 +102,6 @@ namespace MCZall
             public byte type2;
             public ushort x, y, z;
         }
-        
+
     }
 }

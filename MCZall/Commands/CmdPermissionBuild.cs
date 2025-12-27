@@ -12,15 +12,13 @@
 	or implied. See the License for the specific language governing
 	permissions and limitations under the License.
 */
-using System;
-
 namespace MCZall
 {
     public class CmdPermissionBuild : Command
     {
-        public override string name { get { return "perbuild"; } }
-        public override string shortcut { get { return ""; } }
-        public override string type { get { return "mod"; } }
+        public override string Name { get { return "perbuild"; } }
+        public override string Shortcut { get { return ""; } }
+        public override string Type { get { return "mod"; } }
         public CmdPermissionBuild() { }
         public override void Use(Player p, string message)
         {
@@ -44,14 +42,16 @@ namespace MCZall
                 if (Perm == LevelPermission.Null) { p.SendMessage("Not a valid rank"); return; }
 
                 Level level = Level.Find(t);
-                if (level != null) {
+                if (level != null)
+                {
                     level.permissionbuild = Perm;
                     Server.s.Log(level.name + " build permission changed to " + s + ".");
                     Player.GlobalMessageLevel(level, "build permission changed to " + s + ".");
                     if (p != null)
-                    if (p.level != level) { p.SendMessage("build permission changed to " + s + " on " + level.name + "."); }
+                        if (p.level != level) { p.SendMessage("build permission changed to " + s + " on " + level.name + "."); }
                     return;
-                } else 
+                }
+                else
                     p.SendMessage("There is no level \"" + s + "\" loaded.");
             }
         }

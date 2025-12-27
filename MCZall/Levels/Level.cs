@@ -12,14 +12,13 @@
 	or implied. See the License for the specific language governing
 	permissions and limitations under the License.
 */
+using MySql.Data.MySqlClient;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.IO;
 using System.IO.Compression;
-using System.Data;
 using System.Threading;
-using MySql.Data.MySqlClient;
-using MySql.Data.Types;
 
 ///WARNING! DO NOT CHANGE THE WAY THE LEVEL IS SAVED/LOADED!
 ///You MUST make it able to save and load as a new version other wise you will make old levels incompatible!
@@ -37,9 +36,10 @@ namespace MCZall
         AdvBuilder = 0x02,
         Operator = 0x04,
         Admin = 0x05
-	}
+    }
 
-	public class Level {
+    public class Level
+    {
         public string name;
         public ushort width; // x
         public ushort depth; // y       THIS IS STUPID, SHOULD HAVE BEEN Z
@@ -90,15 +90,16 @@ namespace MCZall
         public struct Zone { public ushort smallX, smallY, smallZ, bigX, bigY, bigZ; public string Owner; }
         public List<Zone> ZoneList;
 
-        List<Check> ListCheck = new List<Check>();  //A list of blocks that need to be updated
-        List<Update> ListUpdate = new List<Update>();  //A list of block to change after calculation
+        readonly List<Check> ListCheck = new List<Check>();  //A list of blocks that need to be updated
+        readonly List<Update> ListUpdate = new List<Update>();  //A list of block to change after calculation
 
         public int lastCheck = 0;
         public int lastUpdate = 0;
 
         public bool changed = false;
         public bool backedup = false;
-        public Level(string n, ushort x, ushort y, ushort z, string type) {
+        public Level(string n, ushort x, ushort y, ushort z, string type)
+        {
             width = x; depth = y; height = z;
 
             if (width < 16) { width = 16; }
@@ -109,19 +110,27 @@ namespace MCZall
             blocks = new byte[width * depth * height];
             ZoneList = new List<Zone>();
 
-            switch (type) {
+            switch (type)
+            {
                 case "flat":
                 case "pixel":
                     ushort half = (ushort)(depth / 2);
-                    for (x = 0; x < width; ++x) {
-                        for (z = 0; z < height; ++z) {
-                            for (y = 0; y < depth; ++y) {
+                    for (x = 0; x < width; ++x)
+                    {
+                        for (z = 0; z < height; ++z)
+                        {
+                            for (y = 0; y < depth; ++y)
+                            {
                                 //Block b = new Block();
-                                switch (type) {
+                                switch (type)
+                                {
                                     case "flat":
-                                        if (y != half) {
-                                            SetTile(x, y, z, (byte)((y >= half) ? Block.air : Block.dirt));
-                                        } else {
+                                        if (y != half)
+                                        {
+                                            SetTile(x, y, z, (y >= half) ? Block.air : Block.dirt);
+                                        }
+                                        else
+                                        {
                                             SetTile(x, y, z, Block.grass);
                                         }
                                         break;
@@ -131,7 +140,7 @@ namespace MCZall
                                             SetTile(x, y, z, Block.blackrock);
                                         else
                                             if (x == 0 || x == width - 1 || z == 0 || z == height - 1)
-                                                SetTile(x, y, z, Block.white);
+                                            SetTile(x, y, z, Block.white);
                                         break;
                                 }
                                 //blocks[x + width * z + width * height * y] = b;
@@ -161,33 +170,38 @@ namespace MCZall
             Server.s.Log("Level initialized");
         }
 
-        public byte GetTile(ushort x, ushort y, ushort z) {
+        public byte GetTile(ushort x, ushort y, ushort z)
+        {
             //if (PosToInt(x, y, z) >= blocks.Length) { return null; }
             //Avoid internal overflow
-			if (x < 0) { return Block.Zero; }
-			if (x >= width) { return Block.Zero; }
-			if (y < 0) { return Block.Zero; }
-			if (y >= depth) { return Block.Zero; }
+            if (x < 0) { return Block.Zero; }
+            if (x >= width) { return Block.Zero; }
+            if (y < 0) { return Block.Zero; }
+            if (y >= depth) { return Block.Zero; }
             if (z < 0) { return Block.Zero; }
-			if (z >= height) { return Block.Zero; }
+            if (z >= height) { return Block.Zero; }
             return blocks[PosToInt(x, y, z)];
         }
-        public byte GetTile(int b) {
-            ushort x = 0, y = 0, z = 0;
-            IntToPos(b, out x, out y, out z);
+        public byte GetTile(int b)
+        {
+            IntToPos(b, out ushort x, out ushort y, out ushort z);
             return GetTile(x, y, z);
         }
-		public void SetTile(ushort x, ushort y, ushort z, byte type) {
-			blocks[x + width * z + width * height * y] = type;
+        public void SetTile(ushort x, ushort y, ushort z, byte type)
+        {
+            blocks[x + width * z + width * height * y] = type;
             //blockchanges[x + width * z + width * height * y] = pName;
-		}
+        }
 
-        public static Level Find(string levelName) {
+        public static Level Find(string levelName)
+        {
             Level tempLevel = null; bool returnNull = false;
 
-            foreach (Level level in Server.levels) {
+            foreach (Level level in Server.levels)
+            {
                 if (level.name.ToLower() == levelName) return level;
-                if (level.name.ToLower().IndexOf(levelName.ToLower()) != -1) {
+                if (level.name.ToLower().IndexOf(levelName.ToLower()) != -1)
+                {
                     if (tempLevel == null) tempLevel = level;
                     else returnNull = true;
                 }
@@ -198,55 +212,74 @@ namespace MCZall
             return null;
         }
 
-        public void Blockchange(Player p, ushort x, ushort y, ushort z, byte type) { Blockchange(p, x, y, z, type, true); }
-        public void Blockchange(Player p, ushort x, ushort y, ushort z, byte type, bool addaction) {
-    retry:  try {
-                if (x < 0 || y < 0 || z < 0) return;            
+        public void Blockchange(Player p, ushort x, ushort y, ushort z, byte type)
+        {
+        retry: try
+            {
+                if (x < 0 || y < 0 || z < 0) return;
                 if (x >= width || y >= depth || z >= height) return;
 
                 byte b = GetTile(x, y, z);
 
-                if (!Block.AllowBreak(b)) {
-                    if (Block.allowPlace(b) > p.group.Permission && !Block.BuildIn(b)) {
+                if (!Block.AllowBreak(b))
+                {
+                    if (Block.AllowPlace(b) > p.group.Permission && !Block.BuildIn(b))
+                    {
                         p.SendBlockchange(x, y, z, b);
                         return;
                     }
                 }
 
-#region zones
+                #region zones
                 bool AllowBuild = true, foundDel = false; string Owners = ""; List<Zone> toDel = new List<Zone>();
-                if (p.group.Permission < LevelPermission.Admin || p.ZoneCheck || p.zoneDel) {
+                if (p.group.Permission < LevelPermission.Admin || p.ZoneCheck || p.zoneDel)
+                {
                     if (ZoneList.Count == 0) AllowBuild = true;
-                    else {
-                        foreach (Zone Zn in ZoneList) {
-                            if (Zn.smallX <= x && x <= Zn.bigX && Zn.smallY <= y && y <= Zn.bigY && Zn.smallZ <= z && z <= Zn.bigZ) {
-                                if (p.zoneDel) {
+                    else
+                    {
+                        foreach (Zone Zn in ZoneList)
+                        {
+                            if (Zn.smallX <= x && x <= Zn.bigX && Zn.smallY <= y && y <= Zn.bigY && Zn.smallZ <= z && z <= Zn.bigZ)
+                            {
+                                if (p.zoneDel)
+                                {
                                     //DB
                                     MySqlCommand DelZone = Server.mysqlCon.CreateCommand();
                                     DelZone.CommandText = "DELETE FROM Zone" + p.level.name + " WHERE Owner='" + Zn.Owner + "' AND SmallX='" + Zn.smallX + "' AND SMALLY='" + Zn.smallY + "' AND SMALLZ='" + Zn.smallZ + "' AND BIGX='" + Zn.bigX + "' AND BIGY='" + Zn.bigY + "' AND BIGZ='" + Zn.bigZ + "'";
 
                                     int totalCount = 0;
-                        retryTag:   try { DelZone.ExecuteNonQuery(); } catch (Exception e) { totalCount++; if (totalCount < 10) goto retryTag; else Server.ErrorLog(e); }
+                                retryTag: try { DelZone.ExecuteNonQuery(); } catch (Exception e) { totalCount++; if (totalCount < 10) goto retryTag; else Server.ErrorLog(e); }
 
                                     toDel.Add(Zn);
 
                                     p.SendBlockchange(x, y, z, b);
                                     p.SendMessage("Zone deleted for &b" + Zn.Owner);
                                     foundDel = true;
-                                } else {
-                                    if (Zn.Owner.Substring(0, 3) == "grp") {
-                                        if (Group.Find(Zn.Owner.Substring(3)).Permission <= p.group.Permission && !p.ZoneCheck) {
+                                }
+                                else
+                                {
+                                    if (Zn.Owner.Substring(0, 3) == "grp")
+                                    {
+                                        if (Group.Find(Zn.Owner.Substring(3)).Permission <= p.group.Permission && !p.ZoneCheck)
+                                        {
                                             AllowBuild = true;
                                             break;
-                                        } else {
+                                        }
+                                        else
+                                        {
                                             AllowBuild = false;
                                             Owners += ", " + Zn.Owner.Substring(3);
                                         }
-                                    } else {
-                                        if (Zn.Owner.ToLower() == p.name.ToLower() && !p.ZoneCheck) {
+                                    }
+                                    else
+                                    {
+                                        if (Zn.Owner.ToLower() == p.name.ToLower() && !p.ZoneCheck)
+                                        {
                                             AllowBuild = true;
                                             break;
-                                        } else {
+                                        }
+                                        else
+                                        {
                                             AllowBuild = false;
                                             Owners += ", " + Zn.Owner;
                                         }
@@ -255,11 +288,14 @@ namespace MCZall
                             }
                         }
                     }
-                
-                    if (p.zoneDel) {
+
+                    if (p.zoneDel)
+                    {
                         if (!foundDel) p.SendMessage("No zones found to delete.");
-                        else {
-                            foreach (Zone Zn in toDel) {
+                        else
+                        {
+                            foreach (Zone Zn in toDel)
+                            {
                                 ZoneList.Remove(Zn);
                             }
                         }
@@ -267,7 +303,8 @@ namespace MCZall
                         return;
                     }
 
-                    if (!AllowBuild || p.ZoneCheck) {
+                    if (!AllowBuild || p.ZoneCheck)
+                    {
                         if (Owners != "") p.SendMessage("This zone belongs to &b" + Owners.Remove(0, 2) + ".");
                         else p.SendMessage("This zone belongs to no one.");
 
@@ -278,11 +315,13 @@ namespace MCZall
                         return;
                     }
                 }
-#endregion
+                #endregion
 
-                if (Owners == "") {
-                    if (p.group.Permission < this.permissionbuild) {
-                        p.SendBlockchange(x, y, z, b); 
+                if (Owners == "")
+                {
+                    if (p.group.Permission < permissionbuild)
+                    {
+                        p.SendBlockchange(x, y, z, b);
                         return;
                     }
                 }
@@ -304,11 +343,15 @@ namespace MCZall
 
                 changed = true;
                 backedup = false;
-            } catch (OutOfMemoryException) {
+            }
+            catch (OutOfMemoryException)
+            {
                 p.SendMessage("Undo buffer too big! Cleared!");
                 p.UndoBuffer.Clear();
                 goto retry;
-            } catch (Exception e) {
+            }
+            catch (Exception e)
+            {
                 Server.ErrorLog(e);
                 Player.GlobalMessageOps(p.name + " has triggered a block change error in level.cs on " + name);
                 IRCBot.Say(p.name + " has triggered a block change error in level.cs on " + name);
@@ -326,11 +369,12 @@ namespace MCZall
         }
         public void Blockchange(ushort x, ushort y, ushort z, byte type, bool overRide = false, string extraInfo = "")    //Block change made by physics
         {
-            if (x < 0 || y < 0 || z < 0) return;            
+            if (x < 0 || y < 0 || z < 0) return;
             if (x >= width || y >= depth || z >= height) return;
             byte b = GetTile(x, y, z);
 
-            try {
+            try
+            {
                 if (!overRide)
                     if (Block.OPBlocks(b)) return;
 
@@ -340,56 +384,69 @@ namespace MCZall
                 if (b == Block.sponge && physics > 0 && type != Block.sponge)
                     PhysSpongeRemoved(PosToInt(x, y, z));
 
-                try { 
+                try
+                {
                     UndoPos uP;
                     uP.location = PosToInt(x, y, z);
                     uP.newType = type;
                     uP.oldType = b;
                     uP.timePerformed = DateTime.Now;
 
-                    if (currentUndo > Server.physUndo) {
+                    if (currentUndo > Server.physUndo)
+                    {
                         currentUndo = 0;
                         UndoBuffer[currentUndo] = uP;
-                    } else if (UndoBuffer.Count < Server.physUndo) {
+                    }
+                    else if (UndoBuffer.Count < Server.physUndo)
+                    {
                         currentUndo++;
                         UndoBuffer.Add(uP);
-                    } else {
+                    }
+                    else
+                    {
                         currentUndo++;
                         UndoBuffer[currentUndo] = uP;
                     }
-                } catch { }
+                }
+                catch { }
 
                 SetTile(x, y, z, type);               //Updates server level blocks
 
                 if (physics > 0)
                     if (Block.Physics(type) || extraInfo != "") AddCheck(PosToInt(x, y, z), extraInfo);
-            } catch {
+            }
+            catch
+            {
                 SetTile(x, y, z, type);
             }
         }
 
-        public void skipChange(ushort x, ushort y, ushort z, byte type) {
-            if (x < 0 || y < 0 || z < 0) return;            
+        public void SkipChange(ushort x, ushort y, ushort z, byte type)
+        {
+            if (x < 0 || y < 0 || z < 0) return;
             if (x >= width || y >= depth || z >= height) return;
 
             SetTile(x, y, z, type);
         }
 
-        public void Save(Boolean Override = false) {
+        public void Save(bool Override = false)
+        {
             string path = "levels/" + name + ".lvl";
 
-            try {
+            try
+            {
                 if (!Directory.Exists("levels")) Directory.CreateDirectory("levels");
                 if (!Directory.Exists("levels/level properties")) Directory.CreateDirectory("levels/level properties");
 
-                if (changed == true || !File.Exists(path) || Override) {
+                if (changed == true || !File.Exists(path) || Override)
+                {
                     FileStream fs = File.Create(path);
                     GZipStream gs = new GZipStream(fs, CompressionMode.Compress);
 
                     byte[] header = new byte[16];
                     BitConverter.GetBytes(1874).CopyTo(header, 0);
                     gs.Write(header, 0, 2);
-                
+
                     BitConverter.GetBytes(width).CopyTo(header, 0);
                     BitConverter.GetBytes(height).CopyTo(header, 2);
                     BitConverter.GetBytes(depth).CopyTo(header, 4);
@@ -401,13 +458,18 @@ namespace MCZall
                     header[15] = (byte)permissionbuild;
                     gs.Write(header, 0, header.Length);
                     byte[] level = new byte[blocks.Length];
-                    for (int i = 0; i < blocks.Length; ++i) {
-                        if (blocks[i] < 80) {
+                    for (int i = 0; i < blocks.Length; ++i)
+                    {
+                        if (blocks[i] < 80)
+                        {
                             level[i] = blocks[i];
-                        } else {
+                        }
+                        else
+                        {
                             level[i] = Block.SaveConvert(blocks[i]);
                         }
-                    } gs.Write(level, 0, level.Length); gs.Close(); 
+                    }
+                    gs.Write(level, 0, level.Length); gs.Close();
                     fs.Close();
 
                     StreamWriter SW = new StreamWriter(File.Create("levels/level properties/" + name));
@@ -432,20 +494,27 @@ namespace MCZall
 
                     Server.s.Log("SAVED: Level \"" + name + "\". " + Player.players.Count + "/" + Server.players);
                     changed = false;
-                    try {
+                    try
+                    {
                         File.Copy(path, path + ".backup", true);
                         Server.s.Log("And backed up");
-                    } catch {
+                    }
+                    catch
+                    {
                         Server.s.Log("Failed to make backup");
                     }
 
                     fs.Dispose();
                     gs.Dispose();
                     SW.Dispose();
-                } else {
+                }
+                else
+                {
                     Server.s.Log("Skipping level save for " + name + ".");
                 }
-            } catch {
+            }
+            catch
+            {
                 Server.s.Log("FAILED TO SAVE :" + name);
                 Player.GlobalMessage("FAILED TO SAVE :" + name);
                 return;
@@ -455,107 +524,133 @@ namespace MCZall
             GC.WaitForPendingFinalizers();
         }
 
-        public int Backup(bool Forced = false) {
-            if (!backedup || Forced == true) {
+        public int Backup(bool Forced = false)
+        {
+            if (!backedup || Forced == true)
+            {
                 int backupNumber = 1; string backupPath = "levels/backups";
-				if (Directory.Exists(backupPath + "/" + name)) {
-					backupNumber = Directory.GetDirectories(backupPath + "/" + name).Length + 1;
-				} else {
-					Directory.CreateDirectory(backupPath + "/" + name);
-				}
-				string path = backupPath + "/" + name + "/" + backupNumber;
-				string previousBackup = backupPath + "/" + name + "/" + (backupNumber - 1);
-				Directory.CreateDirectory(path);
+                if (Directory.Exists(backupPath + "/" + name))
+                {
+                    backupNumber = Directory.GetDirectories(backupPath + "/" + name).Length + 1;
+                }
+                else
+                {
+                    Directory.CreateDirectory(backupPath + "/" + name);
+                }
+                string path = backupPath + "/" + name + "/" + backupNumber;
+                //string previousBackup = backupPath + "/" + name + "/" + (backupNumber - 1);
+                Directory.CreateDirectory(path);
 
                 string BackPath = path + "/" + name + ".lvl";
                 string current = "levels/" + name + ".lvl";
-                try {
+                try
+                {
                     File.Copy(current, BackPath, true);
                     backedup = true;
                     return backupNumber;
-                } catch {
+                }
+                catch
+                {
                     Server.s.Log("FAILED TO INCREMENTAL BACKUP :" + name);
                     return -1;
                 }
-            } else {
+            }
+            else
+            {
                 Server.s.Log("Level unchanged, skipping backup");
                 return -1;
             }
         }
 
         public Level Load(string givenName) { return Load(givenName, 0); }
-        public Level Load(string givenName, byte phys) {
+        public Level Load(string givenName, byte phys)
+        {
             MySqlCommand CreateTable = Server.mysqlCon.CreateCommand();
 
             int totalCount = 0;
-            CreateTable.CommandText = "CREATE TABLE if not exists Block" + givenName + " (Username CHAR(20), TimePerformed DATETIME, X SMALLINT UNSIGNED, Y SMALLINT UNSIGNED, Z SMALLINT UNSIGNED, Type TINYINT UNSIGNED, Deleted BOOL)";            
-retryTag1:  try { CreateTable.ExecuteNonQuery(); } catch (Exception e) { totalCount++; if (totalCount < 10) goto retryTag1; else { Server.ErrorLog(e); return null; } }
-            
+            CreateTable.CommandText = "CREATE TABLE if not exists Block" + givenName + " (Username CHAR(20), TimePerformed DATETIME, X SMALLINT UNSIGNED, Y SMALLINT UNSIGNED, Z SMALLINT UNSIGNED, Type TINYINT UNSIGNED, Deleted BOOL)";
+        retryTag1: try { CreateTable.ExecuteNonQuery(); } catch (Exception e) { totalCount++; if (totalCount < 10) goto retryTag1; else { Server.ErrorLog(e); return null; } }
+
             totalCount = 0;
             CreateTable = new MySqlCommand("CREATE TABLE if not exists Portals" + givenName + " (EntryX SMALLINT UNSIGNED, EntryY SMALLINT UNSIGNED, EntryZ SMALLINT UNSIGNED, ExitMap CHAR(20), ExitX SMALLINT UNSIGNED, ExitY SMALLINT UNSIGNED, ExitZ SMALLINT UNSIGNED);", Server.mysqlCon);
-retryTag2:  try { CreateTable.ExecuteNonQuery(); } catch (Exception e) { totalCount++; if (totalCount < 10) goto retryTag2; else { Server.ErrorLog(e); return null; } }
+        retryTag2: try { CreateTable.ExecuteNonQuery(); } catch (Exception e) { totalCount++; if (totalCount < 10) goto retryTag2; else { Server.ErrorLog(e); return null; } }
 
             totalCount = 0;
             CreateTable = new MySqlCommand("CREATE TABLE if not exists Messages" + givenName + " (X SMALLINT UNSIGNED, Y SMALLINT UNSIGNED, Z SMALLINT UNSIGNED, Message CHAR(255));", Server.mysqlCon);
-retryTag3:  try { CreateTable.ExecuteNonQuery(); } catch (Exception e) { totalCount++; if (totalCount < 10) goto retryTag3; else { Server.ErrorLog(e); return null; } }
+        retryTag3: try { CreateTable.ExecuteNonQuery(); } catch (Exception e) { totalCount++; if (totalCount < 10) goto retryTag3; else { Server.ErrorLog(e); return null; } }
 
             totalCount = 0;
             CreateTable = new MySqlCommand("CREATE TABLE if not exists Zone" + givenName + " (SmallX SMALLINT UNSIGNED, SmallY SMALLINT UNSIGNED, SmallZ SMALLINT UNSIGNED, BigX SMALLINT UNSIGNED, BigY SMALLINT UNSIGNED, BigZ SMALLINT UNSIGNED, Owner VARCHAR(20));", Server.mysqlCon);
-retryTag4:  try { CreateTable.ExecuteNonQuery(); } catch (Exception e) { totalCount++; if (totalCount < 10) goto retryTag4; else { Server.ErrorLog(e); return null; } }
+        retryTag4: try { CreateTable.ExecuteNonQuery(); } catch (Exception e) { totalCount++; if (totalCount < 10) goto retryTag4; else { Server.ErrorLog(e); return null; } }
 
             string path = "levels/" + givenName + ".lvl";
-            if (File.Exists(path)) {                
+            if (File.Exists(path))
+            {
                 FileStream fs = File.OpenRead(path);
-                try {
+                try
+                {
                     GZipStream gs = new GZipStream(fs, CompressionMode.Decompress);
                     byte[] ver = new byte[2];
                     gs.Read(ver, 0, ver.Length);
                     ushort version = BitConverter.ToUInt16(ver, 0);
                     Level level;
-                    if (version == 1874) {
+                    if (version == 1874)
+                    {
                         byte[] header = new byte[16]; gs.Read(header, 0, header.Length);
                         ushort width = BitConverter.ToUInt16(header, 0);
                         ushort height = BitConverter.ToUInt16(header, 2);
                         ushort depth = BitConverter.ToUInt16(header, 4);
-                        level = new Level(name, width, depth, height, "empty");
-                        level.spawnx = BitConverter.ToUInt16(header, 6);
-                        level.spawnz = BitConverter.ToUInt16(header, 8);
-                        level.spawny = BitConverter.ToUInt16(header, 10);
-                        level.rotx = header[12]; level.roty = header[13];
-                        level.permissionvisit = (LevelPermission)header[14];
-                        level.permissionbuild = (LevelPermission)header[15];
-                    } else {
+                        level = new Level(name, width, depth, height, "empty")
+                        {
+                            spawnx = BitConverter.ToUInt16(header, 6),
+                            spawnz = BitConverter.ToUInt16(header, 8),
+                            spawny = BitConverter.ToUInt16(header, 10),
+                            rotx = header[12],
+                            roty = header[13],
+                            permissionvisit = (LevelPermission)header[14],
+                            permissionbuild = (LevelPermission)header[15]
+                        };
+                    }
+                    else
+                    {
                         byte[] header = new byte[12]; gs.Read(header, 0, header.Length);
                         ushort width = version;
                         ushort height = BitConverter.ToUInt16(header, 0);
                         ushort depth = BitConverter.ToUInt16(header, 2);
-                        level = new Level(name, width, depth, height, "grass");
-                        level.spawnx = BitConverter.ToUInt16(header, 4);
-                        level.spawnz = BitConverter.ToUInt16(header, 6);
-                        level.spawny = BitConverter.ToUInt16(header, 8);
-                        level.rotx = header[10]; level.roty = header[11];
+                        level = new Level(name, width, depth, height, "grass")
+                        {
+                            spawnx = BitConverter.ToUInt16(header, 4),
+                            spawnz = BitConverter.ToUInt16(header, 6),
+                            spawny = BitConverter.ToUInt16(header, 8),
+                            rotx = header[10],
+                            roty = header[11]
+                        };
                     }
 
                     level.name = givenName;
-                    level.setPhysics(phys);
+                    level.SetPhysics(phys);
 
                     byte[] blocks = new byte[level.width * level.height * level.depth];
                     gs.Read(blocks, 0, blocks.Length);
-                    for (int i = 0; i < level.width * level.height * level.depth; ++i) {
+                    for (int i = 0; i < level.width * level.height * level.depth; ++i)
+                    {
                         level.blocks[i] = blocks[i];
-                    } 
+                    }
                     gs.Close();
 
                     level.backedup = true;
 
                     totalCount = 0;
                     DataTable ZoneDB = new DataTable("ZoneDB" + givenName);
-        retryTag:   try {
+                retryTag: try
+                    {
                         using (MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Zone" + givenName, Server.mysqlCon)) { da.Fill(ZoneDB); }
-                    } catch (Exception e) { totalCount++; if (totalCount < 10) goto retryTag; else { Server.ErrorLog(e); return null; } }
+                    }
+                    catch (Exception e) { totalCount++; if (totalCount < 10) goto retryTag; else { Server.ErrorLog(e); return null; } }
 
                     Zone Zn;
-                    for (int i = 0; i < ZoneDB.Rows.Count; ++i) {
+                    for (int i = 0; i < ZoneDB.Rows.Count; ++i)
+                    {
                         Zn.smallX = (ushort)ZoneDB.Rows[i]["SmallX"];
                         Zn.smallY = (ushort)ZoneDB.Rows[i]["SmallY"];
                         Zn.smallZ = (ushort)ZoneDB.Rows[i]["SmallZ"];
@@ -573,45 +668,60 @@ retryTag4:  try { CreateTable.ExecuteNonQuery(); } catch (Exception e) { totalCo
 
                     level.physThread = new Thread(new ThreadStart(level.Physics));
 
-                    try {
+                    try
+                    {
                         totalCount = 0;
                         DataTable foundDB = new DataTable("foundDB" + givenName);
-            retryTag6:   try {
+                    retryTag6: try
+                        {
                             using (MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Portals" + givenName, Server.mysqlCon)) { da.Fill(foundDB); }
-                        } catch (Exception e) { totalCount++; if (totalCount < 10) goto retryTag6; else Server.ErrorLog(e); }
-                                  
-                        for (int i = 0; i < foundDB.Rows.Count; ++i) {
-                            if (!Block.portal(level.GetTile((ushort)foundDB.Rows[i]["EntryX"], (ushort)foundDB.Rows[i]["EntryY"], (ushort)foundDB.Rows[i]["EntryZ"]))) {
+                        }
+                        catch (Exception e) { totalCount++; if (totalCount < 10) goto retryTag6; else Server.ErrorLog(e); }
+
+                        for (int i = 0; i < foundDB.Rows.Count; ++i)
+                        {
+                            if (!Block.Portal(level.GetTile((ushort)foundDB.Rows[i]["EntryX"], (ushort)foundDB.Rows[i]["EntryY"], (ushort)foundDB.Rows[i]["EntryZ"])))
+                            {
                                 totalCount = 0;
                                 CreateTable = new MySqlCommand("DELETE FROM Portals" + givenName + " WHERE EntryX=" + foundDB.Rows[i]["EntryX"] + " AND EntryY=" + foundDB.Rows[i]["EntryY"] + " AND EntryZ=" + foundDB.Rows[i]["EntryZ"], Server.mysqlCon);
-                    retryTag7:  try { CreateTable.ExecuteNonQuery(); } catch (Exception e) { totalCount++; if (totalCount < 10) goto retryTag7; else Server.ErrorLog(e); }
+                            retryTag7: try { CreateTable.ExecuteNonQuery(); } catch (Exception e) { totalCount++; if (totalCount < 10) goto retryTag7; else Server.ErrorLog(e); }
                             }
                         }
-                                            
+
                         totalCount = 0;
                         foundDB = new DataTable("foundDB" + givenName);
-            retryTag8:   try {
+                    retryTag8: try
+                        {
                             using (MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Messages" + givenName, Server.mysqlCon)) { da.Fill(foundDB); }
-                        } catch (Exception e) { totalCount++; if (totalCount < 10) goto retryTag8; else Server.ErrorLog(e); }
-                                         
-                        for (int i = 0; i < foundDB.Rows.Count; ++i) {
-                            if (!Block.mb(level.GetTile((ushort)foundDB.Rows[i]["X"], (ushort)foundDB.Rows[i]["Y"], (ushort)foundDB.Rows[i]["Z"]))) {
+                        }
+                        catch (Exception e) { totalCount++; if (totalCount < 10) goto retryTag8; else Server.ErrorLog(e); }
+
+                        for (int i = 0; i < foundDB.Rows.Count; ++i)
+                        {
+                            if (!Block.Mb(level.GetTile((ushort)foundDB.Rows[i]["X"], (ushort)foundDB.Rows[i]["Y"], (ushort)foundDB.Rows[i]["Z"])))
+                            {
                                 totalCount = 0;
                                 CreateTable = new MySqlCommand("DELETE FROM Messages" + givenName + " WHERE X=" + foundDB.Rows[i]["X"] + " AND Y=" + foundDB.Rows[i]["Y"] + " AND Z=" + foundDB.Rows[i]["Z"], Server.mysqlCon);
-                    retryTag9:  try { CreateTable.ExecuteNonQuery(); } catch (Exception e) { totalCount++; if (totalCount < 10) goto retryTag9; else Server.ErrorLog(e); }
+                            retryTag9: try { CreateTable.ExecuteNonQuery(); } catch (Exception e) { totalCount++; if (totalCount < 10) goto retryTag9; else Server.ErrorLog(e); }
                             }
                         }
                         foundDB.Dispose();
-                    } catch (Exception e) { Server.ErrorLog(e); }
+                    }
+                    catch (Exception e) { Server.ErrorLog(e); }
                     CreateTable.Dispose();
 
-                    try {
-                        foreach (string line in File.ReadAllLines("levels/level properties/" + level.name)) {
-                            try {
-                                if (line[0] != '#') {
-                                    switch (line.Substring(0, line.IndexOf(" = ")).ToLower()) {
+                    try
+                    {
+                        foreach (string line in File.ReadAllLines("levels/level properties/" + level.name))
+                        {
+                            try
+                            {
+                                if (line[0] != '#')
+                                {
+                                    switch (line.Substring(0, line.IndexOf(" = ")).ToLower())
+                                    {
                                         case "theme": level.theme = line.Substring(line.IndexOf(" = ") + 3); break;
-                                        case "physics": level.setPhysics(int.Parse(line.Substring(line.IndexOf(" = ") + 3))); break;
+                                        case "physics": level.SetPhysics(int.Parse(line.Substring(line.IndexOf(" = ") + 3))); break;
                                         case "physics speed": level.speedPhysics = int.Parse(line.Substring(line.IndexOf(" = ") + 3)); break;
                                         case "physics overload": level.overload = int.Parse(line.Substring(line.IndexOf(" = ") + 3)); break;
                                         case "finite mode": level.finite = bool.Parse(line.Substring(line.IndexOf(" = ") + 3)); break;
@@ -627,9 +737,11 @@ retryTag4:  try { CreateTable.ExecuteNonQuery(); } catch (Exception e) { totalCo
                                         case "unload": level.unload = bool.Parse(line.Substring(line.IndexOf(" = ") + 3)); break;
                                     }
                                 }
-                            } catch (Exception e) { Server.ErrorLog(e); }
+                            }
+                            catch (Exception e) { Server.ErrorLog(e); }
                         }
-                    } catch (Exception e) { Server.ErrorLog(e); }
+                    }
+                    catch (Exception e) { Server.ErrorLog(e); }
 
                     return level;
                 }
@@ -638,9 +750,11 @@ retryTag4:  try { CreateTable.ExecuteNonQuery(); } catch (Exception e) { totalCo
             }
             else { Server.s.Log("ERROR loading level \"" + name + "\"."); return null; }
         }
-        
-        public void setPhysics(int newValue) {
-            if (physics == 0 && newValue != 0) {
+
+        public void SetPhysics(int newValue)
+        {
+            if (physics == 0 && newValue != 0)
+            {
                 for (int i = 0; i < blocks.Length; i++)
                     if (Block.NeedRestart(blocks[i]))
                         AddCheck(i);
@@ -648,11 +762,14 @@ retryTag4:  try { CreateTable.ExecuteNonQuery(); } catch (Exception e) { totalCo
             physics = newValue;
         }
 
-        public void Physics() {
+        public void Physics()
+        {
             int wait = speedPhysics;
-            while (true) {
-                try {
-    retry:          if (wait > 0) Thread.Sleep(wait);
+            while (true)
+            {
+                try
+                {
+                retry: if (wait > 0) Thread.Sleep(wait);
                     if (physics == 0 || ListCheck.Count == 0) goto retry;
 
                     DateTime Start = DateTime.Now;
@@ -660,33 +777,41 @@ retryTag4:  try { CreateTable.ExecuteNonQuery(); } catch (Exception e) { totalCo
                     if (physics > 0) CalcPhysics();
 
                     TimeSpan Took = DateTime.Now - Start;
-                    wait = (int)speedPhysics - (int)Took.TotalMilliseconds;
-                    
-                    if (wait < (int)(-overload * 0.75f)) {
+                    wait = speedPhysics - (int)Took.TotalMilliseconds;
+
+                    if (wait < (int)(-overload * 0.75f))
+                    {
                         Level Cause = this;
 
-                        if (wait < -overload) {
-                            if (!Server.physicsRestart) Cause.setPhysics(0);
+                        if (wait < -overload)
+                        {
+                            if (!Server.physicsRestart) Cause.SetPhysics(0);
                             Cause.ClearPhysics();
 
                             Player.GlobalMessage("Physics shutdown on &b" + Cause.name);
                             Server.s.Log("Physics shutdown on " + name);
 
                             wait = speedPhysics;
-                        } else {
-                            foreach (Player p in Player.players) {
+                        }
+                        else
+                        {
+                            foreach (Player p in Player.players)
+                            {
                                 if (p.level == this) p.SendMessage("Physics warning!");
                             }
                             Server.s.Log("Physics warning on " + name);
                         }
                     }
-                } catch {
+                }
+                catch
+                {
                     wait = speedPhysics;
                 }
             }
         }
-        
-        public int PosToInt(ushort x, ushort y, ushort z) {
+
+        public int PosToInt(ushort x, ushort y, ushort z)
+        {
             if (x < 0) { return -1; }
             if (x >= width) { return -1; }
             if (y < 0) { return -1; }
@@ -694,42 +819,51 @@ retryTag4:  try { CreateTable.ExecuteNonQuery(); } catch (Exception e) { totalCo
             if (z < 0) { return -1; }
             if (z >= height) { return -1; }
             return x + (z * width) + (y * width * height);
-			//alternate method: (h * widthY + y) * widthX + x;
+            //alternate method: (h * widthY + y) * widthX + x;
         }
-        public void IntToPos(int pos, out ushort x, out ushort y, out ushort z) {
+        public void IntToPos(int pos, out ushort x, out ushort y, out ushort z)
+        {
             y = (ushort)(pos / width / height); pos -= y * width * height;
             z = (ushort)(pos / width); pos -= z * width; x = (ushort)pos;
         }
-        public int IntOffset(int pos, int x, int y, int z) {
+        public int IntOffset(int pos, int x, int y, int z)
+        {
             return pos + x + z * width + y * width * height;
         }
 
         #region ==Physics==
         public struct Pos { public ushort x, z; }
 
-        public string foundInfo(ushort x, ushort y, ushort z) {
+        public string FoundInfo(ushort x, ushort y, ushort z)
+        {
             Check foundCheck = ListCheck.Find(Check => Check.b == PosToInt(x, y, z));
             if (foundCheck != null)
                 return foundCheck.extraInfo;
             return "";
         }
 
-        public void CalcPhysics() {
-            try {
-                if (physics > 0) {
+        public void CalcPhysics()
+        {
+            try
+            {
+                if (physics > 0)
+                {
                     ushort x, y, z; int mx, my, mz;
 
                     Random rand = new Random();
                     lastCheck = ListCheck.Count;
-                    ListCheck.ForEach(delegate(Check C) {
-                        try {
+                    ListCheck.ForEach(delegate (Check C)
+                    {
+                        try
+                        {
                             IntToPos(C.b, out x, out y, out z);
                             bool InnerChange = false; bool skip = false;
                             int storedRand = 0;
                             Player foundPlayer = null; int foundNum = 75, currentNum, newNum;
                             string foundInfo = C.extraInfo;
 
-    newPhysic:              if (foundInfo != "") {
+                        newPhysic: if (foundInfo != "")
+                            {
                                 int currentLoop = 0;
                                 if (!foundInfo.Contains("wait")) if (blocks[C.b] == Block.air) C.extraInfo = "";
 
@@ -742,9 +876,12 @@ retryTag4:  try { CreateTable.ExecuteNonQuery(); } catch (Exception e) { totalCo
                                 bool rainbow = false; int rainbownum = 0;
                                 bool door = false;
 
-                                foreach (string s in C.extraInfo.Split(' ')) {
-                                    if (currentLoop % 2 == 0) { //Type of code
-                                        switch (s) {
+                                foreach (string s in C.extraInfo.Split(' '))
+                                {
+                                    if (currentLoop % 2 == 0)
+                                    { //Type of code
+                                        switch (s)
+                                        {
                                             case "wait":
                                                 wait = true;
                                                 waitnum = int.Parse(C.extraInfo.Split(' ')[currentLoop + 1]);
@@ -759,7 +896,7 @@ retryTag4:  try { CreateTable.ExecuteNonQuery(); } catch (Exception e) { totalCo
                                                 break;
                                             case "revert":
                                                 revert = true;
-                                                reverttype = Byte.Parse(C.extraInfo.Split(' ')[currentLoop + 1]);
+                                                reverttype = byte.Parse(C.extraInfo.Split(' ')[currentLoop + 1]);
                                                 break;
                                             case "explode":
                                                 explode = true;
@@ -769,66 +906,84 @@ retryTag4:  try { CreateTable.ExecuteNonQuery(); } catch (Exception e) { totalCo
                                             case "finite":
                                                 finiteWater = true;
                                                 break;
-                                                
+
                                             case "rainbow":
                                                 rainbow = true;
                                                 rainbownum = int.Parse(C.extraInfo.Split(' ')[currentLoop + 1]);
                                                 break;
-                                                
+
                                             case "door":
                                                 door = true;
                                                 break;
                                         }
-                                    } currentLoop++;
+                                    }
+                                    currentLoop++;
                                 }
 
-    startCheck:
-                                if (wait) {
+                            startCheck:
+                                if (wait)
+                                {
                                     int storedInt = 0;
-                                    if (door && C.time < 2) {
+                                    if (door && C.time < 2)
+                                    {
                                         storedInt = IntOffset(C.b, -1, 0, 0);
-                                        if (Block.tDoor(blocks[storedInt])) { AddUpdate(storedInt, Block.air, false, "wait 10 door 1 revert " + blocks[storedInt].ToString()); }
+                                        if (Block.TDoor(blocks[storedInt])) { AddUpdate(storedInt, Block.air, false, "wait 10 door 1 revert " + blocks[storedInt].ToString()); }
                                         storedInt = IntOffset(C.b, 1, 0, 0);
-                                        if (Block.tDoor(blocks[storedInt])) { AddUpdate(storedInt, Block.air, false, "wait 10 door 1 revert " + blocks[storedInt].ToString()); }
+                                        if (Block.TDoor(blocks[storedInt])) { AddUpdate(storedInt, Block.air, false, "wait 10 door 1 revert " + blocks[storedInt].ToString()); }
                                         storedInt = IntOffset(C.b, 0, 1, 0);
-                                        if (Block.tDoor(blocks[storedInt])) { AddUpdate(storedInt, Block.air, false, "wait 10 door 1 revert " + blocks[storedInt].ToString()); }
+                                        if (Block.TDoor(blocks[storedInt])) { AddUpdate(storedInt, Block.air, false, "wait 10 door 1 revert " + blocks[storedInt].ToString()); }
                                         storedInt = IntOffset(C.b, 0, -1, 0);
-                                        if (Block.tDoor(blocks[storedInt])) { AddUpdate(storedInt, Block.air, false, "wait 10 door 1 revert " + blocks[storedInt].ToString()); }
+                                        if (Block.TDoor(blocks[storedInt])) { AddUpdate(storedInt, Block.air, false, "wait 10 door 1 revert " + blocks[storedInt].ToString()); }
                                         storedInt = IntOffset(C.b, 0, 0, 1);
-                                        if (Block.tDoor(blocks[storedInt])) { AddUpdate(storedInt, Block.air, false, "wait 10 door 1 revert " + blocks[storedInt].ToString()); }
+                                        if (Block.TDoor(blocks[storedInt])) { AddUpdate(storedInt, Block.air, false, "wait 10 door 1 revert " + blocks[storedInt].ToString()); }
                                         storedInt = IntOffset(C.b, 0, 0, -1);
-                                        if (Block.tDoor(blocks[storedInt])) { AddUpdate(storedInt, Block.air, false, "wait 10 door 1 revert " + blocks[storedInt].ToString()); }
+                                        if (Block.TDoor(blocks[storedInt])) { AddUpdate(storedInt, Block.air, false, "wait 10 door 1 revert " + blocks[storedInt].ToString()); }
                                     }
 
-                                    if (waitnum <= C.time) {
+                                    if (waitnum <= C.time)
+                                    {
                                         wait = false;
                                         C.extraInfo = C.extraInfo.Substring(0, C.extraInfo.IndexOf("wait ")) + C.extraInfo.Substring(C.extraInfo.IndexOf(' ', C.extraInfo.IndexOf("wait ") + 5) + 1);
                                         //C.extraInfo = C.extraInfo.Substring(8);
                                         goto startCheck;
-                                    } else {
+                                    }
+                                    else
+                                    {
                                         C.time++;
                                         foundInfo = "";
                                         goto newPhysic;
                                     }
-                                } else {
+                                }
+                                else
+                                {
                                     if (finiteWater)
-                                        finiteMovement(C, x, y, z);
+                                        FiniteMovement(C, x, y, z);
                                     else if (rainbow)
-                                        if (C.time < 4) { 
-                                            C.time++; 
-                                        } else {                                        
-                                            if (rainbownum > 2) {
-                                                if (blocks[C.b] < Block.red || blocks[C.b] > Block.darkpink) {
+                                        if (C.time < 4)
+                                        {
+                                            C.time++;
+                                        }
+                                        else
+                                        {
+                                            if (rainbownum > 2)
+                                            {
+                                                if (blocks[C.b] < Block.red || blocks[C.b] > Block.darkpink)
+                                                {
                                                     AddUpdate(C.b, Block.red, true);
-                                                } else {
-                                                    if (blocks[C.b] == Block.darkpink) AddUpdate(C.b, Block.red);
-                                                    else AddUpdate(C.b, (blocks[C.b] + 1));
                                                 }
-                                            } else {
+                                                else
+                                                {
+                                                    if (blocks[C.b] == Block.darkpink) AddUpdate(C.b, Block.red);
+                                                    else AddUpdate(C.b, blocks[C.b] + 1);
+                                                }
+                                            }
+                                            else
+                                            {
                                                 AddUpdate(C.b, rand.Next(21, 33));
                                             }
                                         }
-                                    else {
+                                    else
+                                    {
                                         if (revert) { AddUpdate(C.b, reverttype); C.extraInfo = ""; }
                                         if (dissipate) if (rand.Next(1, 100) <= dissipatenum) { AddUpdate(C.b, Block.air); C.extraInfo = ""; }
                                         if (explode) if (rand.Next(1, 100) <= explodenum) { MakeExplosion(x, y, z, 0); C.extraInfo = ""; }
@@ -836,7 +991,8 @@ retryTag4:  try { CreateTable.ExecuteNonQuery(); } catch (Exception e) { totalCo
                                             if (rand.Next(1, 100) <= dropnum)
                                                 if (GetTile(x, (ushort)(y - 1), z) == Block.air || GetTile(x, (ushort)(y - 1), z) == Block.lava || GetTile(x, (ushort)(y - 1), z) == Block.water)
                                                 {
-                                                    if (rand.Next(1, 100) < int.Parse(C.extraInfo.Split(' ')[1])) {
+                                                    if (rand.Next(1, 100) < int.Parse(C.extraInfo.Split(' ')[1]))
+                                                    {
                                                         AddUpdate(PosToInt(x, (ushort)(y - 1), z), blocks[C.b], false, C.extraInfo);
                                                         AddUpdate(C.b, Block.air); C.extraInfo = "";
                                                     }
@@ -844,8 +1000,11 @@ retryTag4:  try { CreateTable.ExecuteNonQuery(); } catch (Exception e) { totalCo
 
                                     }
                                 }
-                            } else {
-                                switch (blocks[C.b]) {
+                            }
+                            else
+                            {
+                                switch (blocks[C.b])
+                                {
                                     case Block.air:         //Placed air
                                         //initialy checks if block is valid
                                         PhysAir(PosToInt((ushort)(x + 1), y, z));
@@ -855,9 +1014,12 @@ retryTag4:  try { CreateTable.ExecuteNonQuery(); } catch (Exception e) { totalCo
                                         PhysAir(PosToInt(x, (ushort)(y + 1), z));  //Check block above the air
 
                                         //Edge of map water
-                                        if (edgeWater == true) {
-                                            if (y < depth / 2 && y >= (depth / 2) - 2) {
-                                                if (x == 0 || x == width - 1 || z == 0 || z == height - 1) {
+                                        if (edgeWater == true)
+                                        {
+                                            if (y < depth / 2 && y >= (depth / 2) - 2)
+                                            {
+                                                if (x == 0 || x == width - 1 || z == 0 || z == height - 1)
+                                                {
                                                     AddUpdate(C.b, Block.water);
                                                 }
                                             }
@@ -867,12 +1029,16 @@ retryTag4:  try { CreateTable.ExecuteNonQuery(); } catch (Exception e) { totalCo
                                         break;
 
                                     case Block.dirt:     //Dirt
-                                        if (C.time > 80) {
-                                            if (Block.LightPass(GetTile(x, (ushort)(y + 1), z))) {
+                                        if (C.time > 80)
+                                        {
+                                            if (Block.LightPass(GetTile(x, (ushort)(y + 1), z)))
+                                            {
                                                 AddUpdate(C.b, Block.grass);
                                             }
                                             C.time = 255;
-                                        } else {
+                                        }
+                                        else
+                                        {
                                             C.time++;
                                         }
                                         break;
@@ -880,20 +1046,26 @@ retryTag4:  try { CreateTable.ExecuteNonQuery(); } catch (Exception e) { totalCo
                                     case Block.water:         //Active_water
                                     case Block.activedeathwater:
                                         //initialy checks if block is valid
-                                        if (!finite) {
-                                            if (!PhysSpongeCheck(C.b)) {
+                                        if (!finite)
+                                        {
+                                            if (!PhysSpongeCheck(C.b))
+                                            {
                                                 if (GetTile(x, (ushort)(y + 1), z) != Block.Zero) { PhysSandCheck(PosToInt(x, (ushort)(y + 1), z)); }
                                                 PhysWater(PosToInt((ushort)(x + 1), y, z), blocks[C.b]);
                                                 PhysWater(PosToInt((ushort)(x - 1), y, z), blocks[C.b]);
                                                 PhysWater(PosToInt(x, y, (ushort)(z + 1)), blocks[C.b]);
                                                 PhysWater(PosToInt(x, y, (ushort)(z - 1)), blocks[C.b]);
                                                 PhysWater(PosToInt(x, (ushort)(y - 1), z), blocks[C.b]);
-                                            } else {
+                                            }
+                                            else
+                                            {
                                                 AddUpdate(C.b, Block.air);  //was placed near sponge
                                             }
 
                                             if (C.extraInfo.IndexOf("wait") == -1) C.time = 255;
-                                        } else { 
+                                        }
+                                        else
+                                        {
                                             goto case Block.finiteWater;
                                         }
                                         break;
@@ -901,37 +1073,51 @@ retryTag4:  try { CreateTable.ExecuteNonQuery(); } catch (Exception e) { totalCo
                                     case Block.WaterDown:
                                         rand = new Random();
 
-                                        if (GetTile(x, (ushort)(y - 1), z) == Block.air) {
+                                        if (GetTile(x, (ushort)(y - 1), z) == Block.air)
+                                        {
                                             AddUpdate(PosToInt(x, (ushort)(y - 1), z), Block.WaterDown);
                                             if (C.extraInfo.IndexOf("wait") == -1) C.time = 255;
-                                        } else if (GetTile(x, (ushort)(y - 1), z) == Block.air_flood_down) {
-                                        } else if (GetTile(x, (ushort)(y - 1), z) == Block.waterstill || GetTile(x, (ushort)(y - 1), z) == Block.lavastill) {
+                                        }
+                                        else if (GetTile(x, (ushort)(y - 1), z) == Block.air_flood_down)
+                                        {
+                                        }
+                                        else if (GetTile(x, (ushort)(y - 1), z) == Block.waterstill || GetTile(x, (ushort)(y - 1), z) == Block.lavastill)
+                                        {
 
-                                        } else if (GetTile(x, (ushort)(y - 1), z) != Block.WaterDown) {
+                                        }
+                                        else if (GetTile(x, (ushort)(y - 1), z) != Block.WaterDown)
+                                        {
                                             PhysWater(PosToInt((ushort)(x + 1), y, z), blocks[C.b]);
                                             PhysWater(PosToInt((ushort)(x - 1), y, z), blocks[C.b]);
                                             PhysWater(PosToInt(x, y, (ushort)(z + 1)), blocks[C.b]);
                                             PhysWater(PosToInt(x, y, (ushort)(z - 1)), blocks[C.b]);
                                             if (C.extraInfo.IndexOf("wait") == -1) C.time = 255;
-                                        } 
+                                        }
                                         break;
 
                                     case Block.LavaDown:
                                         rand = new Random();
 
-                                        if (GetTile(x, (ushort)(y - 1), z) == Block.air) {
+                                        if (GetTile(x, (ushort)(y - 1), z) == Block.air)
+                                        {
                                             AddUpdate(PosToInt(x, (ushort)(y - 1), z), Block.LavaDown);
                                             if (C.extraInfo.IndexOf("wait") == -1) C.time = 255;
-                                        } else if (GetTile(x, (ushort)(y - 1), z) == Block.air_flood_down) {
-                                        } else if (GetTile(x, (ushort)(y - 1), z) == Block.waterstill || GetTile(x, (ushort)(y - 1), z) == Block.lavastill) {
+                                        }
+                                        else if (GetTile(x, (ushort)(y - 1), z) == Block.air_flood_down)
+                                        {
+                                        }
+                                        else if (GetTile(x, (ushort)(y - 1), z) == Block.waterstill || GetTile(x, (ushort)(y - 1), z) == Block.lavastill)
+                                        {
 
-                                        } else if (GetTile(x, (ushort)(y - 1), z) != Block.LavaDown) {
+                                        }
+                                        else if (GetTile(x, (ushort)(y - 1), z) != Block.LavaDown)
+                                        {
                                             PhysLava(PosToInt((ushort)(x + 1), y, z), blocks[C.b]);
                                             PhysLava(PosToInt((ushort)(x - 1), y, z), blocks[C.b]);
                                             PhysLava(PosToInt(x, y, (ushort)(z + 1)), blocks[C.b]);
                                             PhysLava(PosToInt(x, y, (ushort)(z - 1)), blocks[C.b]);
                                             if (C.extraInfo.IndexOf("wait") == -1) C.time = 255;
-                                        } 
+                                        }
                                         break;
 
                                     case Block.WaterFaucet:
@@ -941,9 +1127,12 @@ retryTag4:  try { CreateTable.ExecuteNonQuery(); } catch (Exception e) { totalCo
 
                                         C.time = 0;
 
-                                        if (GetTile(x, (ushort)(y - 1), z) == Block.air || GetTile(x, (ushort)(y - 1), z) == Block.WaterDown) {
+                                        if (GetTile(x, (ushort)(y - 1), z) == Block.air || GetTile(x, (ushort)(y - 1), z) == Block.WaterDown)
+                                        {
                                             if (rand.Next(1, 10) > 7) AddUpdate(PosToInt(x, (ushort)(y - 1), z), Block.air_flood_down);
-                                        } else if (GetTile(x, (ushort)(y - 1), z) == Block.air_flood_down) {
+                                        }
+                                        else if (GetTile(x, (ushort)(y - 1), z) == Block.air_flood_down)
+                                        {
                                             if (rand.Next(1, 10) > 4) AddUpdate(PosToInt(x, (ushort)(y - 1), z), Block.WaterDown);
                                         }
                                         break;
@@ -955,9 +1144,12 @@ retryTag4:  try { CreateTable.ExecuteNonQuery(); } catch (Exception e) { totalCo
 
                                         C.time = 0;
 
-                                        if (GetTile(x, (ushort)(y - 1), z) == Block.air || GetTile(x, (ushort)(y - 1), z) == Block.LavaDown) {
+                                        if (GetTile(x, (ushort)(y - 1), z) == Block.air || GetTile(x, (ushort)(y - 1), z) == Block.LavaDown)
+                                        {
                                             if (rand.Next(1, 10) > 7) AddUpdate(PosToInt(x, (ushort)(y - 1), z), Block.air_flood_down);
-                                        } else if (GetTile(x, (ushort)(y - 1), z) == Block.air_flood_down) {
+                                        }
+                                        else if (GetTile(x, (ushort)(y - 1), z) == Block.air_flood_down)
+                                        {
                                             if (rand.Next(1, 10) > 4) AddUpdate(PosToInt(x, (ushort)(y - 1), z), Block.LavaDown);
                                         }
                                         break;
@@ -966,23 +1158,27 @@ retryTag4:  try { CreateTable.ExecuteNonQuery(); } catch (Exception e) { totalCo
                                     case Block.activedeathlava:
                                         //initialy checks if block is valid
                                         if (C.time < 4) { C.time++; break; }
-                                        if (!finite) {
+                                        if (!finite)
+                                        {
                                             PhysLava(PosToInt((ushort)(x + 1), y, z), blocks[C.b]);
                                             PhysLava(PosToInt((ushort)(x - 1), y, z), blocks[C.b]);
                                             PhysLava(PosToInt(x, y, (ushort)(z + 1)), blocks[C.b]);
                                             PhysLava(PosToInt(x, y, (ushort)(z - 1)), blocks[C.b]);
                                             PhysLava(PosToInt(x, (ushort)(y - 1), z), blocks[C.b]);
-                                        } else {
+                                        }
+                                        else
+                                        {
                                             goto case Block.finiteWater;
                                         }
                                         if (C.extraInfo.IndexOf("wait") == -1) C.time = 255;
                                         break;
-#region fire
+                                    #region fire
                                     case Block.fire:
                                         if (C.time < 2) { C.time++; break; }
 
                                         storedRand = rand.Next(1, 20);
-                                        if (storedRand < 2 && C.time % 2 == 0) {
+                                        if (storedRand < 2 && C.time % 2 == 0)
+                                        {
                                             storedRand = rand.Next(1, 18);
 
                                             if (storedRand <= 3 && GetTile((ushort)(x - 1), y, z) == Block.air)
@@ -999,82 +1195,96 @@ retryTag4:  try { CreateTable.ExecuteNonQuery(); } catch (Exception e) { totalCo
                                                 AddUpdate(PosToInt(x, y, (ushort)(z + 1)), Block.fire);
                                         }
 
-                                        if (Block.LavaKill(GetTile((ushort)(x - 1), y, (ushort)(z - 1)))) {
+                                        if (Block.LavaKill(GetTile((ushort)(x - 1), y, (ushort)(z - 1))))
+                                        {
                                             if (GetTile((ushort)(x - 1), y, z) == Block.air)
                                                 AddUpdate(PosToInt((ushort)(x - 1), y, z), Block.fire);
                                             if (GetTile(x, y, (ushort)(z - 1)) == Block.air)
                                                 AddUpdate(PosToInt(x, y, (ushort)(z - 1)), Block.fire);
                                         }
-                                        if (Block.LavaKill(GetTile((ushort)(x + 1), y, (ushort)(z - 1)))) {
+                                        if (Block.LavaKill(GetTile((ushort)(x + 1), y, (ushort)(z - 1))))
+                                        {
                                             if (GetTile((ushort)(x + 1), y, z) == Block.air)
                                                 AddUpdate(PosToInt((ushort)(x + 1), y, z), Block.fire);
                                             if (GetTile(x, y, (ushort)(z - 1)) == Block.air)
                                                 AddUpdate(PosToInt(x, y, (ushort)(z - 1)), Block.fire);
                                         }
-                                        if (Block.LavaKill(GetTile((ushort)(x - 1), y, (ushort)(z + 1)))) {
+                                        if (Block.LavaKill(GetTile((ushort)(x - 1), y, (ushort)(z + 1))))
+                                        {
                                             if (GetTile((ushort)(x - 1), y, z) == Block.air)
                                                 AddUpdate(PosToInt((ushort)(x - 1), y, z), Block.fire);
                                             if (GetTile(x, y, (ushort)(z + 1)) == Block.air)
                                                 AddUpdate(PosToInt(x, y, (ushort)(z + 1)), Block.fire);
                                         }
-                                        if (Block.LavaKill(GetTile((ushort)(x + 1), y, (ushort)(z + 1)))) {
+                                        if (Block.LavaKill(GetTile((ushort)(x + 1), y, (ushort)(z + 1))))
+                                        {
                                             if (GetTile((ushort)(x + 1), y, z) == Block.air)
                                                 AddUpdate(PosToInt((ushort)(x + 1), y, z), Block.fire);
                                             if (GetTile(x, y, (ushort)(z + 1)) == Block.air)
                                                 AddUpdate(PosToInt(x, y, (ushort)(z + 1)), Block.fire);
                                         }
-                                        if (Block.LavaKill(GetTile(x, (ushort)(y - 1), (ushort)(z - 1)))) {
+                                        if (Block.LavaKill(GetTile(x, (ushort)(y - 1), (ushort)(z - 1))))
+                                        {
                                             if (GetTile(x, (ushort)(y - 1), z) == Block.air)
                                                 AddUpdate(PosToInt(x, (ushort)(y - 1), z), Block.fire);
                                             if (GetTile(x, y, (ushort)(z - 1)) == Block.air)
                                                 AddUpdate(PosToInt(x, y, (ushort)(z - 1)), Block.fire);
-                                        } else if (GetTile(x, (ushort)(y - 1), z) == Block.grass)
+                                        }
+                                        else if (GetTile(x, (ushort)(y - 1), z) == Block.grass)
                                             AddUpdate(PosToInt(x, (ushort)(y - 1), z), Block.dirt);
-                                        
-                                        if (Block.LavaKill(GetTile(x, (ushort)(y + 1), (ushort)(z - 1)))) {
+
+                                        if (Block.LavaKill(GetTile(x, (ushort)(y + 1), (ushort)(z - 1))))
+                                        {
                                             if (GetTile(x, (ushort)(y + 1), z) == Block.air)
                                                 AddUpdate(PosToInt(x, (ushort)(y + 1), z), Block.fire);
                                             if (GetTile(x, y, (ushort)(z - 1)) == Block.air)
                                                 AddUpdate(PosToInt(x, y, (ushort)(z - 1)), Block.fire);
                                         }
-                                        if (Block.LavaKill(GetTile(x, (ushort)(y - 1), (ushort)(z + 1)))) {
+                                        if (Block.LavaKill(GetTile(x, (ushort)(y - 1), (ushort)(z + 1))))
+                                        {
                                             if (GetTile(x, (ushort)(y - 1), z) == Block.air)
                                                 AddUpdate(PosToInt(x, (ushort)(y - 1), z), Block.fire);
                                             if (GetTile(x, y, (ushort)(z + 1)) == Block.air)
                                                 AddUpdate(PosToInt(x, y, (ushort)(z + 1)), Block.fire);
                                         }
-                                        if (Block.LavaKill(GetTile(x, (ushort)(y + 1), (ushort)(z + 1)))) {
+                                        if (Block.LavaKill(GetTile(x, (ushort)(y + 1), (ushort)(z + 1))))
+                                        {
                                             if (GetTile(x, (ushort)(y + 1), z) == Block.air)
                                                 AddUpdate(PosToInt(x, (ushort)(y + 1), z), Block.fire);
                                             if (GetTile(x, y, (ushort)(z + 1)) == Block.air)
                                                 AddUpdate(PosToInt(x, y, (ushort)(z + 1)), Block.fire);
                                         }
-                                        if (Block.LavaKill(GetTile((ushort)(x - 1), (ushort)(y - 1), z))) {
+                                        if (Block.LavaKill(GetTile((ushort)(x - 1), (ushort)(y - 1), z)))
+                                        {
                                             if (GetTile(x, (ushort)(y - 1), z) == Block.air)
                                                 AddUpdate(PosToInt(x, (ushort)(y - 1), z), Block.fire);
                                             if (GetTile((ushort)(x - 1), y, z) == Block.air)
                                                 AddUpdate(PosToInt((ushort)(x - 1), y, z), Block.fire);
                                         }
-                                        if (Block.LavaKill(GetTile((ushort)(x - 1), (ushort)(y + 1), z))) {
+                                        if (Block.LavaKill(GetTile((ushort)(x - 1), (ushort)(y + 1), z)))
+                                        {
                                             if (GetTile(x, (ushort)(y + 1), z) == Block.air)
                                                 AddUpdate(PosToInt(x, (ushort)(y + 1), z), Block.fire);
                                             if (GetTile((ushort)(x - 1), y, z) == Block.air)
                                                 AddUpdate(PosToInt((ushort)(x - 1), y, z), Block.fire);
                                         }
-                                        if (Block.LavaKill(GetTile((ushort)(x + 1), (ushort)(y - 1), z))) {
+                                        if (Block.LavaKill(GetTile((ushort)(x + 1), (ushort)(y - 1), z)))
+                                        {
                                             if (GetTile(x, (ushort)(y - 1), z) == Block.air)
                                                 AddUpdate(PosToInt(x, (ushort)(y - 1), z), Block.fire);
                                             if (GetTile((ushort)(x + 1), y, z) == Block.air)
                                                 AddUpdate(PosToInt((ushort)(x + 1), y, z), Block.fire);
                                         }
-                                        if (Block.LavaKill(GetTile((ushort)(x + 1), (ushort)(y + 1), z))) {
+                                        if (Block.LavaKill(GetTile((ushort)(x + 1), (ushort)(y + 1), z)))
+                                        {
                                             if (GetTile(x, (ushort)(y + 1), z) == Block.air)
                                                 AddUpdate(PosToInt(x, (ushort)(y + 1), z), Block.fire);
                                             if (GetTile((ushort)(x + 1), y, z) == Block.air)
                                                 AddUpdate(PosToInt((ushort)(x + 1), y, z), Block.fire);
                                         }
 
-                                        if (physics >= 2) {
+                                        if (physics >= 2)
+                                        {
                                             if (C.time < 4) { C.time++; break; }
 
                                             if (Block.LavaKill(GetTile((ushort)(x - 1), y, z)))
@@ -1109,8 +1319,9 @@ retryTag4:  try { CreateTable.ExecuteNonQuery(); } catch (Exception e) { totalCo
                                         }
 
                                         C.time++;
-                                        if (C.time > 5) {
-                                            storedRand = (rand.Next(1, 10));
+                                        if (C.time > 5)
+                                        {
+                                            storedRand = rand.Next(1, 10);
                                             if (storedRand <= 2) { AddUpdate(C.b, Block.coal); C.extraInfo = "drop 63 dissipate 10"; }
                                             else if (storedRand <= 4) { AddUpdate(C.b, Block.obsidian); C.extraInfo = "drop 63 dissipate 10"; }
                                             else if (storedRand <= 8) AddUpdate(C.b, Block.air);
@@ -1118,10 +1329,10 @@ retryTag4:  try { CreateTable.ExecuteNonQuery(); } catch (Exception e) { totalCo
                                         }
 
                                         break;
-#endregion
+                                    #endregion
                                     case Block.finiteWater:
                                     case Block.finiteLava:
-                                        finiteMovement(C, x, y, z);
+                                        FiniteMovement(C, x, y, z);
                                         break;
 
                                     case Block.finiteFaucet:
@@ -1129,45 +1340,58 @@ retryTag4:  try { CreateTable.ExecuteNonQuery(); } catch (Exception e) { totalCo
 
                                         for (int i = 0; i < 6; ++i) bufferfinitefaucet.Add(i);
 
-                                        for (int k = bufferfinitefaucet.Count - 1; k > 1; --k) {
+                                        for (int k = bufferfinitefaucet.Count - 1; k > 1; --k)
+                                        {
                                             int randIndx = rand.Next(k);
-                                            int temp = bufferfinitefaucet[k];
-                                            bufferfinitefaucet[k] = bufferfinitefaucet[randIndx]; // move random num to end of list.
-                                            bufferfinitefaucet[randIndx] = temp;
+                                            (bufferfinitefaucet[randIndx], bufferfinitefaucet[k]) = (bufferfinitefaucet[k], bufferfinitefaucet[randIndx]);
                                         }
-                                                                                    
-                                        foreach (int i in bufferfinitefaucet) {
-                                            switch (i) {
+
+                                        foreach (int i in bufferfinitefaucet)
+                                        {
+                                            switch (i)
+                                            {
                                                 case 0:
-                                                    if (GetTile((ushort)(x - 1), y, z) == Block.air) {
+                                                    if (GetTile((ushort)(x - 1), y, z) == Block.air)
+                                                    {
                                                         if (AddUpdate(PosToInt((ushort)(x - 1), y, z), Block.finiteWater))
                                                             InnerChange = true;
-                                                    } break;
+                                                    }
+                                                    break;
                                                 case 1:
-                                                    if (GetTile((ushort)(x + 1), y, z) == Block.air) {
+                                                    if (GetTile((ushort)(x + 1), y, z) == Block.air)
+                                                    {
                                                         if (AddUpdate(PosToInt((ushort)(x + 1), y, z), Block.finiteWater))
                                                             InnerChange = true;
-                                                    } break;
+                                                    }
+                                                    break;
                                                 case 2:
-                                                    if (GetTile(x, (ushort)(y - 1), z) == Block.air) {
+                                                    if (GetTile(x, (ushort)(y - 1), z) == Block.air)
+                                                    {
                                                         if (AddUpdate(PosToInt(x, (ushort)(y - 1), z), Block.finiteWater))
                                                             InnerChange = true;
-                                                    } break;
+                                                    }
+                                                    break;
                                                 case 3:
-                                                    if (GetTile(x, (ushort)(y + 1), z) == Block.air) {
+                                                    if (GetTile(x, (ushort)(y + 1), z) == Block.air)
+                                                    {
                                                         if (AddUpdate(PosToInt(x, (ushort)(y + 1), z), Block.finiteWater))
                                                             InnerChange = true;
-                                                    } break;
+                                                    }
+                                                    break;
                                                 case 4:
-                                                    if (GetTile(x, y, (ushort)(z - 1)) == Block.air) {
+                                                    if (GetTile(x, y, (ushort)(z - 1)) == Block.air)
+                                                    {
                                                         if (AddUpdate(PosToInt(x, y, (ushort)(z - 1)), Block.finiteWater))
                                                             InnerChange = true;
-                                                    } break;
+                                                    }
+                                                    break;
                                                 case 5:
-                                                    if (GetTile(x, y, (ushort)(z + 1)) == Block.air) {
+                                                    if (GetTile(x, y, (ushort)(z + 1)) == Block.air)
+                                                    {
                                                         if (AddUpdate(PosToInt(x, y, (ushort)(z + 1)), Block.finiteWater))
                                                             InnerChange = true;
-                                                    } break;
+                                                    }
+                                                    break;
                                             }
 
                                             if (InnerChange) break;
@@ -1188,7 +1412,8 @@ retryTag4:  try { CreateTable.ExecuteNonQuery(); } catch (Exception e) { totalCo
                                         break;
 
                                     case Block.gravel:    //Gravel
-                                        if (PhysSand(C.b, Block.gravel)) {
+                                        if (PhysSand(C.b, Block.gravel))
+                                        {
                                             PhysAir(PosToInt((ushort)(x + 1), y, z));
                                             PhysAir(PosToInt((ushort)(x - 1), y, z));
                                             PhysAir(PosToInt(x, y, (ushort)(z + 1)));
@@ -1281,7 +1506,7 @@ retryTag4:  try { CreateTable.ExecuteNonQuery(); } catch (Exception e) { totalCo
                                         AnyDoor(C, x, y, z, 4, true); break;
                                     case Block.door9_air:   //door_air         Change any door blocks nearby into door_air
                                         AnyDoor(C, x, y, z, 4); break;
-                                        
+
                                     case Block.odoor1_air:
                                     case Block.odoor2_air:
                                     case Block.odoor3_air:
@@ -1307,17 +1532,20 @@ retryTag4:  try { CreateTable.ExecuteNonQuery(); } catch (Exception e) { totalCo
                                     case Block.odoor10:
                                     case Block.odoor11:
                                     case Block.odoor12:
-                                        odoor(C); break;
+                                        Odoor(C); break;
 
                                     case Block.air_flood_layer:   //air_flood_layer
-                                        if (C.time < 1) {
+                                        if (C.time < 1)
+                                        {
                                             PhysAirFlood(PosToInt((ushort)(x + 1), y, z), Block.air_flood_layer);
                                             PhysAirFlood(PosToInt((ushort)(x - 1), y, z), Block.air_flood_layer);
                                             PhysAirFlood(PosToInt(x, y, (ushort)(z + 1)), Block.air_flood_layer);
                                             PhysAirFlood(PosToInt(x, y, (ushort)(z - 1)), Block.air_flood_layer);
 
                                             C.time++;
-                                        } else {
+                                        }
+                                        else
+                                        {
                                             AddUpdate(C.b, 0);    //Turn back into normal air
                                             C.time = 255;
                                         }
@@ -1360,41 +1588,47 @@ retryTag4:  try { CreateTable.ExecuteNonQuery(); } catch (Exception e) { totalCo
                                         break;
 
                                     case Block.smalltnt:
-                                        if (physics < 3) this.Blockchange(x, y, z, Block.air);
+                                        if (physics < 3) Blockchange(x, y, z, Block.air);
 
-                                        if (physics >= 3) {
+                                        if (physics >= 3)
+                                        {
                                             rand = new Random();
 
-                                            if (C.time < 5 && physics == 3) {
+                                            if (C.time < 5 && physics == 3)
+                                            {
                                                 C.time += 1;
-                                                if (this.GetTile(x, (ushort)(y + 1), z) == Block.lavastill) this.Blockchange(x, (ushort)(y + 1), z, Block.air); else this.Blockchange(x, (ushort)(y + 1), z, Block.lavastill);
-                                                break; 
+                                                if (GetTile(x, (ushort)(y + 1), z) == Block.lavastill) Blockchange(x, (ushort)(y + 1), z, Block.air); else Blockchange(x, (ushort)(y + 1), z, Block.lavastill);
+                                                break;
                                             }
 
                                             MakeExplosion(x, y, z, 0);
-                                        } else { this.Blockchange(x, y, z, Block.air); }
+                                        }
+                                        else { Blockchange(x, y, z, Block.air); }
                                         break;
 
                                     case Block.bigtnt:
-                                        if (physics < 3) this.Blockchange(x, y, z, Block.air);
+                                        if (physics < 3) Blockchange(x, y, z, Block.air);
 
-                                        if (physics >= 3) {
+                                        if (physics >= 3)
+                                        {
                                             rand = new Random();
 
-                                            if (C.time < 5 && physics == 3) {
+                                            if (C.time < 5 && physics == 3)
+                                            {
                                                 C.time += 1;
-                                                if (this.GetTile(x, (ushort)(y + 1), z) == Block.lavastill) this.Blockchange(x, (ushort)(y + 1), z, Block.air); else this.Blockchange(x, (ushort)(y + 1), z, Block.lavastill);
-                                                if (this.GetTile(x, (ushort)(y - 1), z) == Block.lavastill) this.Blockchange(x, (ushort)(y - 1), z, Block.air); else this.Blockchange(x, (ushort)(y - 1), z, Block.lavastill);
-                                                if (this.GetTile((ushort)(x + 1), y, z) == Block.lavastill) this.Blockchange((ushort)(x + 1), y, z, Block.air); else this.Blockchange((ushort)(x + 1), y, z, Block.lavastill);
-                                                if (this.GetTile((ushort)(x - 1), y, z) == Block.lavastill) this.Blockchange((ushort)(x - 1), y, z, Block.air); else this.Blockchange((ushort)(x - 1), y, z, Block.lavastill);
-                                                if (this.GetTile(x, y, (ushort)(z + 1)) == Block.lavastill) this.Blockchange(x, y, (ushort)(z + 1), Block.air); else this.Blockchange(x, y, (ushort)(z + 1), Block.lavastill);
-                                                if (this.GetTile(x, y, (ushort)(z - 1)) == Block.lavastill) this.Blockchange(x, y, (ushort)(z - 1), Block.air); else this.Blockchange(x, y, (ushort)(z - 1), Block.lavastill);
+                                                if (GetTile(x, (ushort)(y + 1), z) == Block.lavastill) Blockchange(x, (ushort)(y + 1), z, Block.air); else Blockchange(x, (ushort)(y + 1), z, Block.lavastill);
+                                                if (GetTile(x, (ushort)(y - 1), z) == Block.lavastill) Blockchange(x, (ushort)(y - 1), z, Block.air); else Blockchange(x, (ushort)(y - 1), z, Block.lavastill);
+                                                if (GetTile((ushort)(x + 1), y, z) == Block.lavastill) Blockchange((ushort)(x + 1), y, z, Block.air); else Blockchange((ushort)(x + 1), y, z, Block.lavastill);
+                                                if (GetTile((ushort)(x - 1), y, z) == Block.lavastill) Blockchange((ushort)(x - 1), y, z, Block.air); else Blockchange((ushort)(x - 1), y, z, Block.lavastill);
+                                                if (GetTile(x, y, (ushort)(z + 1)) == Block.lavastill) Blockchange(x, y, (ushort)(z + 1), Block.air); else Blockchange(x, y, (ushort)(z + 1), Block.lavastill);
+                                                if (GetTile(x, y, (ushort)(z - 1)) == Block.lavastill) Blockchange(x, y, (ushort)(z - 1), Block.air); else Blockchange(x, y, (ushort)(z - 1), Block.lavastill);
 
                                                 break;
                                             }
 
                                             MakeExplosion(x, y, z, 1);
-                                        } else { this.Blockchange(x, y, z, Block.air); }
+                                        }
+                                        else { Blockchange(x, y, z, Block.air); }
                                         break;
 
                                     case Block.tntexplosion:
@@ -1406,16 +1640,20 @@ retryTag4:  try { CreateTable.ExecuteNonQuery(); } catch (Exception e) { totalCo
                                         if (rand.Next(1, 10) <= 5) my = 1; else my = -1;
                                         if (rand.Next(1, 10) <= 5) mz = 1; else mz = -1;
 
-                                        for (int cx = (-1 * mx); cx != ((1 * mx) + mx); cx = cx + (1 * mx))
-                                            for (int cy = (-1 * my); cy != ((1 * my) + my); cy = cy + (1 * my))
-                                                for (int cz = (-1 * mz); cz != ((1 * mz) + mz); cz = cz + (1 * mz)) {
-                                                    if (GetTile((ushort)(x + cx), (ushort)(y + cy - 1), (ushort)(z + cz)) == Block.red && (GetTile((ushort)(x + cx), (ushort)(y + cy), (ushort)(z + cz)) == Block.air || GetTile((ushort)(x + cx), (ushort)(y + cy), (ushort)(z + cz)) == Block.water) && !InnerChange) {
+                                        for (int cx = -1 * mx; cx != ((1 * mx) + mx); cx += (1 * mx))
+                                            for (int cy = -1 * my; cy != ((1 * my) + my); cy += (1 * my))
+                                                for (int cz = -1 * mz; cz != ((1 * mz) + mz); cz += (1 * mz))
+                                                {
+                                                    if (GetTile((ushort)(x + cx), (ushort)(y + cy - 1), (ushort)(z + cz)) == Block.red && (GetTile((ushort)(x + cx), (ushort)(y + cy), (ushort)(z + cz)) == Block.air || GetTile((ushort)(x + cx), (ushort)(y + cy), (ushort)(z + cz)) == Block.water) && !InnerChange)
+                                                    {
                                                         AddUpdate(PosToInt((ushort)(x + cx), (ushort)(y + cy), (ushort)(z + cz)), Block.train);
                                                         AddUpdate(PosToInt(x, y, z), Block.air);
                                                         AddUpdate(IntOffset(C.b, 0, -1, 0), Block.obsidian, true, "wait 5 revert " + Block.red.ToString());
                                                         InnerChange = true;
                                                         break;
-                                                    } else if (GetTile((ushort)(x + cx), (ushort)(y + cy - 1), (ushort)(z + cz)) == Block.op_air && (GetTile((ushort)(x + cx), (ushort)(y + cy), (ushort)(z + cz)) == Block.air || GetTile((ushort)(x + cx), (ushort)(y + cy), (ushort)(z + cz)) == Block.water) && !InnerChange) {
+                                                    }
+                                                    else if (GetTile((ushort)(x + cx), (ushort)(y + cy - 1), (ushort)(z + cz)) == Block.op_air && (GetTile((ushort)(x + cx), (ushort)(y + cy), (ushort)(z + cz)) == Block.air || GetTile((ushort)(x + cx), (ushort)(y + cy), (ushort)(z + cz)) == Block.water) && !InnerChange)
+                                                    {
                                                         AddUpdate(PosToInt((ushort)(x + cx), (ushort)(y + cy), (ushort)(z + cz)), Block.train);
                                                         AddUpdate(PosToInt(x, y, z), Block.air);
                                                         AddUpdate(IntOffset(C.b, 0, -1, 0), Block.glass, true, "wait 5 revert " + Block.op_air.ToString());
@@ -1431,35 +1669,48 @@ retryTag4:  try { CreateTable.ExecuteNonQuery(); } catch (Exception e) { totalCo
 
                                         if (GetTile(x, (ushort)(y - 1), z) == Block.air)
                                             AddUpdate(PosToInt(x, (ushort)(y - 1), z), Block.magma);
-                                        else if (GetTile(x, (ushort)(y - 1), z) != Block.magma) {
+                                        else if (GetTile(x, (ushort)(y - 1), z) != Block.magma)
+                                        {
                                             PhysLava(PosToInt((ushort)(x + 1), y, z), blocks[C.b]);
                                             PhysLava(PosToInt((ushort)(x - 1), y, z), blocks[C.b]);
                                             PhysLava(PosToInt(x, y, (ushort)(z + 1)), blocks[C.b]);
                                             PhysLava(PosToInt(x, y, (ushort)(z - 1)), blocks[C.b]);
-                                        } 
+                                        }
 
-                                        if (physics > 1) {
-                                            if (C.time > 10) {
+                                        if (physics > 1)
+                                        {
+                                            if (C.time > 10)
+                                            {
                                                 C.time = 0;
-                                        
-                                                if (Block.LavaKill(GetTile((ushort)(x + 1), y, z))) {
+
+                                                if (Block.LavaKill(GetTile((ushort)(x + 1), y, z)))
+                                                {
                                                     AddUpdate(PosToInt((ushort)(x + 1), y, z), Block.magma);
                                                     InnerChange = true;
-                                                } if (Block.LavaKill(GetTile((ushort)(x - 1), y, z))) {
+                                                }
+                                                if (Block.LavaKill(GetTile((ushort)(x - 1), y, z)))
+                                                {
                                                     AddUpdate(PosToInt((ushort)(x - 1), y, z), Block.magma);
                                                     InnerChange = true;
-                                                } if (Block.LavaKill(GetTile(x, y, (ushort)(z + 1)))) {
+                                                }
+                                                if (Block.LavaKill(GetTile(x, y, (ushort)(z + 1))))
+                                                {
                                                     AddUpdate(PosToInt(x, y, (ushort)(z + 1)), Block.magma);
                                                     InnerChange = true;
-                                                } if (Block.LavaKill(GetTile(x, y, (ushort)(z - 1)))) {
+                                                }
+                                                if (Block.LavaKill(GetTile(x, y, (ushort)(z - 1))))
+                                                {
                                                     AddUpdate(PosToInt(x, y, (ushort)(z - 1)), Block.magma);
                                                     InnerChange = true;
-                                                } if (Block.LavaKill(GetTile(x, (ushort)(y - 1), z))) {
+                                                }
+                                                if (Block.LavaKill(GetTile(x, (ushort)(y - 1), z)))
+                                                {
                                                     AddUpdate(PosToInt(x, (ushort)(y - 1), z), Block.magma);
                                                     InnerChange = true;
                                                 }
 
-                                                if (InnerChange == true) {
+                                                if (InnerChange == true)
+                                                {
                                                     if (Block.LavaKill(GetTile(x, (ushort)(y + 1), z)))
                                                         AddUpdate(PosToInt(x, (ushort)(y + 1), z), Block.magma);
                                                 }
@@ -1472,35 +1723,48 @@ retryTag4:  try { CreateTable.ExecuteNonQuery(); } catch (Exception e) { totalCo
 
                                         if (GetTile(x, (ushort)(y - 1), z) == Block.air)
                                             AddUpdate(PosToInt(x, (ushort)(y - 1), z), Block.geyser);
-                                        else if (GetTile(x, (ushort)(y - 1), z) != Block.geyser) {
+                                        else if (GetTile(x, (ushort)(y - 1), z) != Block.geyser)
+                                        {
                                             PhysWater(PosToInt((ushort)(x + 1), y, z), blocks[C.b]);
                                             PhysWater(PosToInt((ushort)(x - 1), y, z), blocks[C.b]);
                                             PhysWater(PosToInt(x, y, (ushort)(z + 1)), blocks[C.b]);
                                             PhysWater(PosToInt(x, y, (ushort)(z - 1)), blocks[C.b]);
                                         }
 
-                                        if (physics > 1) {
-                                            if (C.time > 10) {
+                                        if (physics > 1)
+                                        {
+                                            if (C.time > 10)
+                                            {
                                                 C.time = 0;
-                                        
-                                                if (Block.WaterKill(GetTile((ushort)(x + 1), y, z))) {
+
+                                                if (Block.WaterKill(GetTile((ushort)(x + 1), y, z)))
+                                                {
                                                     AddUpdate(PosToInt((ushort)(x + 1), y, z), Block.geyser);
                                                     InnerChange = true;
-                                                } if (Block.WaterKill(GetTile((ushort)(x - 1), y, z))) {
+                                                }
+                                                if (Block.WaterKill(GetTile((ushort)(x - 1), y, z)))
+                                                {
                                                     AddUpdate(PosToInt((ushort)(x - 1), y, z), Block.geyser);
                                                     InnerChange = true;
-                                                } if (Block.WaterKill(GetTile(x, y, (ushort)(z + 1)))) {
+                                                }
+                                                if (Block.WaterKill(GetTile(x, y, (ushort)(z + 1))))
+                                                {
                                                     AddUpdate(PosToInt(x, y, (ushort)(z + 1)), Block.geyser);
                                                     InnerChange = true;
-                                                } if (Block.WaterKill(GetTile(x, y, (ushort)(z - 1)))) {
+                                                }
+                                                if (Block.WaterKill(GetTile(x, y, (ushort)(z - 1))))
+                                                {
                                                     AddUpdate(PosToInt(x, y, (ushort)(z - 1)), Block.geyser);
                                                     InnerChange = true;
-                                                } if (Block.WaterKill(GetTile(x, (ushort)(y - 1), z))) {
+                                                }
+                                                if (Block.WaterKill(GetTile(x, (ushort)(y - 1), z)))
+                                                {
                                                     AddUpdate(PosToInt(x, (ushort)(y - 1), z), Block.geyser);
                                                     InnerChange = true;
                                                 }
 
-                                                if (InnerChange == true) {
+                                                if (InnerChange == true)
+                                                {
                                                     if (Block.WaterKill(GetTile(x, (ushort)(y + 1), z)))
                                                         AddUpdate(PosToInt(x, (ushort)(y + 1), z), Block.geyser);
                                                 }
@@ -1512,7 +1776,8 @@ retryTag4:  try { CreateTable.ExecuteNonQuery(); } catch (Exception e) { totalCo
                                     case Block.birdwhite:
                                     case Block.birdlava:
                                     case Block.birdwater:
-                                        switch (rand.Next(1, 15)) {
+                                        switch (rand.Next(1, 15))
+                                        {
                                             case 1:
                                                 if (GetTile(x, (ushort)(y - 1), z) == Block.air)
                                                     AddUpdate(PosToInt(x, (ushort)(y - 1), z), blocks[C.b]);
@@ -1564,26 +1829,34 @@ retryTag4:  try { CreateTable.ExecuteNonQuery(); } catch (Exception e) { totalCo
                                     case Block.birdred:
                                     case Block.birdblue:
                                     case Block.birdkill:
-#region HUNTER BIRDS                         
-                                        if (ai)          
-                                        Player.players.ForEach(delegate(Player p) {
-                                            if (p.level == this && !p.invincible) {
-                                                currentNum = Math.Abs((p.pos[0] / 32) - x) + Math.Abs((p.pos[1] / 32) - y) + Math.Abs((p.pos[2] / 32) - z);
-                                                if (currentNum < foundNum) {
-                                                    foundNum = currentNum;
-                                                    foundPlayer = p;
+                                        #region HUNTER BIRDS                         
+                                        if (ai)
+                                            Player.players.ForEach(delegate (Player p)
+                                            {
+                                                if (p.level == this && !p.invincible)
+                                                {
+                                                    currentNum = Math.Abs((p.pos[0] / 32) - x) + Math.Abs((p.pos[1] / 32) - y) + Math.Abs((p.pos[2] / 32) - z);
+                                                    if (currentNum < foundNum)
+                                                    {
+                                                        foundNum = currentNum;
+                                                        foundPlayer = p;
+                                                    }
                                                 }
-                                            }
-                                        });
+                                            });
 
-                        randomMovement:
-                                        if (foundPlayer != null && rand.Next(1, 20) < 19) {
+                                        randomMovement:
+                                        if (foundPlayer != null && rand.Next(1, 20) < 19)
+                                        {
                                             currentNum = rand.Next(1, 10);
                                             foundNum = 0;
 
-                                            switch (currentNum) {
-                                                case 1: case 2: case 3:
-                                                    if ((foundPlayer.pos[0] / 32) - x != 0) {
+                                            switch (currentNum)
+                                            {
+                                                case 1:
+                                                case 2:
+                                                case 3:
+                                                    if ((foundPlayer.pos[0] / 32) - x != 0)
+                                                    {
                                                         newNum = PosToInt((ushort)(x + Math.Sign((foundPlayer.pos[0] / 32) - x)), y, z);
                                                         if (GetTile(newNum) == Block.air)
                                                             if (AddUpdate(newNum, blocks[C.b]))
@@ -1592,9 +1865,12 @@ retryTag4:  try { CreateTable.ExecuteNonQuery(); } catch (Exception e) { totalCo
 
                                                     foundNum++;
                                                     if (foundNum >= 3) goto default; else goto case 4;
-                                                case 4: case 5: case 6:
-                                                    if ((foundPlayer.pos[1] / 32) - y != 0) {
-                                                        newNum = PosToInt(x, (ushort)(y + Math.Sign((foundPlayer.pos[1] / 32) - y)), z);                                                     
+                                                case 4:
+                                                case 5:
+                                                case 6:
+                                                    if ((foundPlayer.pos[1] / 32) - y != 0)
+                                                    {
+                                                        newNum = PosToInt(x, (ushort)(y + Math.Sign((foundPlayer.pos[1] / 32) - y)), z);
                                                         if (GetTile(newNum) == Block.air)
                                                             if (AddUpdate(newNum, blocks[C.b]))
                                                                 goto removeSelf;
@@ -1602,8 +1878,11 @@ retryTag4:  try { CreateTable.ExecuteNonQuery(); } catch (Exception e) { totalCo
 
                                                     foundNum++;
                                                     if (foundNum >= 3) goto default; else goto case 7;
-                                                case 7: case 8: case 9:
-                                                    if ((foundPlayer.pos[2] / 32) - z != 0) {
+                                                case 7:
+                                                case 8:
+                                                case 9:
+                                                    if ((foundPlayer.pos[2] / 32) - z != 0)
+                                                    {
                                                         newNum = PosToInt(x, y, (ushort)(z + Math.Sign((foundPlayer.pos[2] / 32) - z)));
                                                         if (GetTile(newNum) == Block.air)
                                                             if (AddUpdate(newNum, blocks[C.b]))
@@ -1612,11 +1891,14 @@ retryTag4:  try { CreateTable.ExecuteNonQuery(); } catch (Exception e) { totalCo
 
                                                     foundNum++;
                                                     if (foundNum >= 3) goto default; else goto case 1;
-                                                default: 
+                                                default:
                                                     foundPlayer = null; goto randomMovement;
                                             }
-                                        } else {
-                                            switch (rand.Next(1, 15)) {
+                                        }
+                                        else
+                                        {
+                                            switch (rand.Next(1, 15))
+                                            {
                                                 case 1:
                                                     if (GetTile(x, (ushort)(y - 1), z) == Block.air)
                                                         if (AddUpdate(PosToInt(x, (ushort)(y - 1), z), blocks[C.b])) break; else goto case 3;
@@ -1655,43 +1937,51 @@ retryTag4:  try { CreateTable.ExecuteNonQuery(); } catch (Exception e) { totalCo
                                             }
                                         }
 
-                            removeSelf:
+                                    removeSelf:
                                         if (!InnerChange)
                                             AddUpdate(C.b, Block.air);
                                         break;
-#endregion
-                                    
+                                    #endregion
+
                                     case Block.fishbetta:
                                     case Block.fishgold:
                                     case Block.fishsalmon:
                                     case Block.fishshark:
                                     case Block.fishsponge:
-#region FISH                     
+                                        #region FISH                     
                                         if (ai)
-                                        Player.players.ForEach(delegate(Player p) {
-                                            if (p.level == this && !p.invincible) {
-                                                currentNum = Math.Abs((p.pos[0] / 32) - x) + Math.Abs((p.pos[1] / 32) - y) + Math.Abs((p.pos[2] / 32) - z);
-                                                if (currentNum < foundNum) {
-                                                    foundNum = currentNum;
-                                                    foundPlayer = p;
+                                            Player.players.ForEach(delegate (Player p)
+                                            {
+                                                if (p.level == this && !p.invincible)
+                                                {
+                                                    currentNum = Math.Abs((p.pos[0] / 32) - x) + Math.Abs((p.pos[1] / 32) - y) + Math.Abs((p.pos[2] / 32) - z);
+                                                    if (currentNum < foundNum)
+                                                    {
+                                                        foundNum = currentNum;
+                                                        foundPlayer = p;
+                                                    }
                                                 }
-                                            }
-                                        });
+                                            });
 
-            randomMovement_fish:
-                                        if (foundPlayer != null && rand.Next(1, 20) < 19) {
+                                        randomMovement_fish:
+                                        if (foundPlayer != null && rand.Next(1, 20) < 19)
+                                        {
                                             currentNum = rand.Next(1, 10);
                                             foundNum = 0;
 
-                                            switch (currentNum) {
-                                                case 1: case 2: case 3:
-                                                    if ((foundPlayer.pos[0] / 32) - x != 0) {
+                                            switch (currentNum)
+                                            {
+                                                case 1:
+                                                case 2:
+                                                case 3:
+                                                    if ((foundPlayer.pos[0] / 32) - x != 0)
+                                                    {
                                                         if (blocks[C.b] == Block.fishbetta || blocks[C.b] == Block.fishshark)
                                                             newNum = PosToInt((ushort)(x + Math.Sign((foundPlayer.pos[0] / 32) - x)), y, z);
                                                         else
                                                             newNum = PosToInt((ushort)(x - Math.Sign((foundPlayer.pos[0] / 32) - x)), y, z);
-                                                        
-                                                        
+
+
                                                         if (GetTile(newNum) == Block.water)
                                                             if (AddUpdate(newNum, blocks[C.b]))
                                                                 goto removeSelf_fish;
@@ -1699,8 +1989,11 @@ retryTag4:  try { CreateTable.ExecuteNonQuery(); } catch (Exception e) { totalCo
 
                                                     foundNum++;
                                                     if (foundNum >= 3) goto default; else goto case 4;
-                                                case 4: case 5: case 6:
-                                                    if ((foundPlayer.pos[1] / 32) - y != 0) {
+                                                case 4:
+                                                case 5:
+                                                case 6:
+                                                    if ((foundPlayer.pos[1] / 32) - y != 0)
+                                                    {
                                                         if (blocks[C.b] == Block.fishbetta || blocks[C.b] == Block.fishshark)
                                                             newNum = PosToInt(x, (ushort)(y + Math.Sign((foundPlayer.pos[1] / 32) - y)), z);
                                                         else
@@ -1713,8 +2006,11 @@ retryTag4:  try { CreateTable.ExecuteNonQuery(); } catch (Exception e) { totalCo
 
                                                     foundNum++;
                                                     if (foundNum >= 3) goto default; else goto case 7;
-                                                case 7: case 8: case 9:
-                                                    if ((foundPlayer.pos[2] / 32) - z != 0) {
+                                                case 7:
+                                                case 8:
+                                                case 9:
+                                                    if ((foundPlayer.pos[2] / 32) - z != 0)
+                                                    {
                                                         if (blocks[C.b] == Block.fishbetta || blocks[C.b] == Block.fishshark)
                                                             newNum = PosToInt(x, y, (ushort)(z + Math.Sign((foundPlayer.pos[2] / 32) - z)));
                                                         else
@@ -1727,11 +2023,14 @@ retryTag4:  try { CreateTable.ExecuteNonQuery(); } catch (Exception e) { totalCo
 
                                                     foundNum++;
                                                     if (foundNum >= 3) goto default; else goto case 1;
-                                                default: 
+                                                default:
                                                     foundPlayer = null; goto randomMovement_fish;
                                             }
-                                        } else {
-                                            switch (rand.Next(1, 15)) {
+                                        }
+                                        else
+                                        {
+                                            switch (rand.Next(1, 15))
+                                            {
                                                 case 1:
                                                     if (GetTile(x, (ushort)(y - 1), z) == Block.water)
                                                         if (AddUpdate(PosToInt(x, (ushort)(y - 1), z), blocks[C.b])) break; else goto case 3;
@@ -1770,26 +2069,33 @@ retryTag4:  try { CreateTable.ExecuteNonQuery(); } catch (Exception e) { totalCo
                                             }
                                         }
 
-                removeSelf_fish:
+                                    removeSelf_fish:
                                         if (!InnerChange)
                                             AddUpdate(C.b, Block.water);
                                         break;
-#endregion
+                                    #endregion
 
                                     case Block.rockethead:
                                         if (rand.Next(1, 10) <= 5) mx = 1; else mx = -1;
                                         if (rand.Next(1, 10) <= 5) my = 1; else my = -1;
                                         if (rand.Next(1, 10) <= 5) mz = 1; else mz = -1;
 
-                                        for (int cx = (-1 * mx); cx != ((1 * mx) + mx) && InnerChange == false; cx = cx + (1 * mx))
-                                            for (int cy = (-1 * my); cy != ((1 * my) + my) && InnerChange == false; cy = cy + (1 * my))
-                                                for (int cz = (-1 * mz); cz != ((1 * mz) + mz) && InnerChange == false; cz = cz + (1 * mz)) {
-                                                    if (GetTile((ushort)(x + cx), (ushort)(y + cy), (ushort)(z + cz)) == Block.fire) {
-                                                        if (GetTile((ushort)(x - cx), (ushort)(y - cy), (ushort)(z - cz)) == Block.air || GetTile((ushort)(x - cx), (ushort)(y - cy), (ushort)(z - cz)) == Block.rocketstart) {
+                                        for (int cx = -1 * mx; cx != ((1 * mx) + mx) && InnerChange == false; cx += (1 * mx))
+                                            for (int cy = -1 * my; cy != ((1 * my) + my) && InnerChange == false; cy += (1 * my))
+                                                for (int cz = -1 * mz; cz != ((1 * mz) + mz) && InnerChange == false; cz += (1 * mz))
+                                                {
+                                                    if (GetTile((ushort)(x + cx), (ushort)(y + cy), (ushort)(z + cz)) == Block.fire)
+                                                    {
+                                                        if (GetTile((ushort)(x - cx), (ushort)(y - cy), (ushort)(z - cz)) == Block.air || GetTile((ushort)(x - cx), (ushort)(y - cy), (ushort)(z - cz)) == Block.rocketstart)
+                                                        {
                                                             AddUpdate(PosToInt((ushort)(x - cx), (ushort)(y - cy), (ushort)(z - cz)), Block.rockethead);
                                                             AddUpdate(PosToInt(x, y, z), Block.fire);
-                                                        } else if (GetTile((ushort)(x - cx), (ushort)(y - cy), (ushort)(z - cz)) == Block.fire) {
-                                                        } else {
+                                                        }
+                                                        else if (GetTile((ushort)(x - cx), (ushort)(y - cy), (ushort)(z - cz)) == Block.fire)
+                                                        {
+                                                        }
+                                                        else
+                                                        {
                                                             if (physics > 2) MakeExplosion(x, y, z, 2);
                                                             else AddUpdate(PosToInt(x, y, z), Block.fire);
                                                         }
@@ -1799,12 +2105,15 @@ retryTag4:  try { CreateTable.ExecuteNonQuery(); } catch (Exception e) { totalCo
                                         break;
 
                                     case Block.firework:
-                                        if (GetTile(x, (ushort)(y - 1), z) == Block.lavastill) {
-                                            if (GetTile(x, (ushort)(y + 1), z) == Block.air) {
-                                                if ((depth / 100) * 80 < y) mx = rand.Next(1, 20);
+                                        if (GetTile(x, (ushort)(y - 1), z) == Block.lavastill)
+                                        {
+                                            if (GetTile(x, (ushort)(y + 1), z) == Block.air)
+                                            {
+                                                if (depth / 100 * 80 < y) mx = rand.Next(1, 20);
                                                 else mx = 5;
 
-                                                if (mx > 1) { 
+                                                if (mx > 1)
+                                                {
                                                     AddUpdate(PosToInt(x, (ushort)(y + 1), z), Block.firework);
                                                     AddUpdate(PosToInt(x, y, z), Block.lavastill);
                                                     C.extraInfo = "wait 1 dissipate 100";
@@ -1821,33 +2130,42 @@ retryTag4:  try { CreateTable.ExecuteNonQuery(); } catch (Exception e) { totalCo
                                         break;
                                     case Block.zombiebody:
                                     case Block.creeper:
-#region ZOMBIE
-                                        if (GetTile(x, (ushort)(y - 1), z) == Block.air) {
+                                        #region ZOMBIE
+                                        if (GetTile(x, (ushort)(y - 1), z) == Block.air)
+                                        {
                                             AddUpdate(C.b, Block.zombiehead);
                                             AddUpdate(IntOffset(C.b, 0, -1, 0), blocks[C.b]);
                                             AddUpdate(IntOffset(C.b, 0, 1, 0), Block.air);
                                             break;
                                         }
-                                        
+
                                         if (ai)
-                                        Player.players.ForEach(delegate(Player p) {
-                                            if (p.level == this && !p.invincible) {
-                                                currentNum = Math.Abs((p.pos[0] / 32) - x) + Math.Abs((p.pos[1] / 32) - y) + Math.Abs((p.pos[2] / 32) - z);
-                                                if (currentNum < foundNum) {
-                                                    foundNum = currentNum;
-                                                    foundPlayer = p;
+                                            Player.players.ForEach(delegate (Player p)
+                                            {
+                                                if (p.level == this && !p.invincible)
+                                                {
+                                                    currentNum = Math.Abs((p.pos[0] / 32) - x) + Math.Abs((p.pos[1] / 32) - y) + Math.Abs((p.pos[2] / 32) - z);
+                                                    if (currentNum < foundNum)
+                                                    {
+                                                        foundNum = currentNum;
+                                                        foundPlayer = p;
+                                                    }
                                                 }
-                                            }
-                                        });
-                                        
-            randomMovement_zomb:
-                                        if (foundPlayer != null && rand.Next(1, 20) < 18) {
+                                            });
+
+                                        randomMovement_zomb:
+                                        if (foundPlayer != null && rand.Next(1, 20) < 18)
+                                        {
                                             currentNum = rand.Next(1, 7);
                                             foundNum = 0;
 
-                                            switch (currentNum) {
-                                                case 1: case 2: case 3:
-                                                    if ((foundPlayer.pos[0] / 32) - x != 0) {
+                                            switch (currentNum)
+                                            {
+                                                case 1:
+                                                case 2:
+                                                case 3:
+                                                    if ((foundPlayer.pos[0] / 32) - x != 0)
+                                                    {
                                                         skip = false;
                                                         newNum = PosToInt((ushort)(x + Math.Sign((foundPlayer.pos[0] / 32) - x)), y, z);
 
@@ -1860,16 +2178,20 @@ retryTag4:  try { CreateTable.ExecuteNonQuery(); } catch (Exception e) { totalCo
                                                         else skip = true;
 
                                                         if (!skip)
-                                                        if (AddUpdate(newNum, blocks[C.b])) {
-                                                            AddUpdate(IntOffset(newNum, 0, 1, 0), Block.zombiehead);
-                                                            goto removeSelf_zomb;
-                                                        }
+                                                            if (AddUpdate(newNum, blocks[C.b]))
+                                                            {
+                                                                AddUpdate(IntOffset(newNum, 0, 1, 0), Block.zombiehead);
+                                                                goto removeSelf_zomb;
+                                                            }
                                                     }
 
                                                     foundNum++;
                                                     if (foundNum >= 2) goto default; else goto case 4;
-                                                case 4: case 5: case 6:
-                                                    if ((foundPlayer.pos[2] / 32) - z != 0) {
+                                                case 4:
+                                                case 5:
+                                                case 6:
+                                                    if ((foundPlayer.pos[2] / 32) - z != 0)
+                                                    {
                                                         skip = false;
                                                         newNum = PosToInt(x, y, (ushort)(z + Math.Sign((foundPlayer.pos[2] / 32) - z)));
 
@@ -1882,23 +2204,29 @@ retryTag4:  try { CreateTable.ExecuteNonQuery(); } catch (Exception e) { totalCo
                                                         else skip = true;
 
                                                         if (!skip)
-                                                        if (AddUpdate(newNum, blocks[C.b])) {
-                                                            AddUpdate(IntOffset(newNum, 0, 1, 0), Block.zombiehead);
-                                                            goto removeSelf_zomb;
-                                                        }
+                                                            if (AddUpdate(newNum, blocks[C.b]))
+                                                            {
+                                                                AddUpdate(IntOffset(newNum, 0, 1, 0), Block.zombiehead);
+                                                                goto removeSelf_zomb;
+                                                            }
                                                     }
 
                                                     foundNum++;
                                                     if (foundNum >= 2) goto default; else goto case 1;
-                                                default: 
+                                                default:
                                                     foundPlayer = null; skip = true; goto randomMovement_zomb;
                                             }
-                                        } else {
+                                        }
+                                        else
+                                        {
                                             if (!skip) if (C.time < 3) { C.time++; break; }
 
                                             foundNum = 0;
-                                            switch (rand.Next(1, 13)) {
-                                                case 1: case 2: case 3:
+                                            switch (rand.Next(1, 13))
+                                            {
+                                                case 1:
+                                                case 2:
+                                                case 3:
                                                     skip = false;
                                                     newNum = IntOffset(C.b, -1, 0, 0);
 
@@ -1911,16 +2239,19 @@ retryTag4:  try { CreateTable.ExecuteNonQuery(); } catch (Exception e) { totalCo
                                                     else skip = true;
 
                                                     if (!skip)
-                                                    if (AddUpdate(newNum, blocks[C.b])) {
-                                                        AddUpdate(IntOffset(newNum, 0, 1, 0), Block.zombiehead);
-                                                        goto removeSelf_zomb;
-                                                    }
+                                                        if (AddUpdate(newNum, blocks[C.b]))
+                                                        {
+                                                            AddUpdate(IntOffset(newNum, 0, 1, 0), Block.zombiehead);
+                                                            goto removeSelf_zomb;
+                                                        }
 
                                                     foundNum++;
                                                     if (foundNum >= 4) InnerChange = true; else goto case 4;
                                                     break;
-                                                    
-                                                case 4: case 5: case 6:
+
+                                                case 4:
+                                                case 5:
+                                                case 6:
                                                     skip = false;
                                                     newNum = IntOffset(C.b, 1, 0, 0);
 
@@ -1933,16 +2264,19 @@ retryTag4:  try { CreateTable.ExecuteNonQuery(); } catch (Exception e) { totalCo
                                                     else skip = true;
 
                                                     if (!skip)
-                                                    if (AddUpdate(newNum, blocks[C.b])) {
-                                                        AddUpdate(IntOffset(newNum, 0, 1, 0), Block.zombiehead);
-                                                        goto removeSelf_zomb;
-                                                    }
-                                                    
+                                                        if (AddUpdate(newNum, blocks[C.b]))
+                                                        {
+                                                            AddUpdate(IntOffset(newNum, 0, 1, 0), Block.zombiehead);
+                                                            goto removeSelf_zomb;
+                                                        }
+
                                                     foundNum++;
                                                     if (foundNum >= 4) InnerChange = true; else goto case 7;
                                                     break;
-                                                    
-                                                case 7: case 8: case 9:
+
+                                                case 7:
+                                                case 8:
+                                                case 9:
                                                     skip = false;
                                                     newNum = IntOffset(C.b, 0, 0, 1);
 
@@ -1953,17 +2287,21 @@ retryTag4:  try { CreateTable.ExecuteNonQuery(); } catch (Exception e) { totalCo
                                                     else if (GetTile(IntOffset(newNum, 0, 2, 0)) == Block.air && GetTile(IntOffset(newNum, 0, 1, 0)) == Block.air)
                                                         newNum = IntOffset(newNum, 0, 1, 0);
                                                     else skip = true;
-                                                    
+
                                                     if (!skip)
-                                                    if (AddUpdate(newNum, blocks[C.b])) {
-                                                        AddUpdate(IntOffset(newNum, 0, 1, 0), Block.zombiehead);
-                                                        goto removeSelf_zomb;
-                                                    }
-                                                    
+                                                        if (AddUpdate(newNum, blocks[C.b]))
+                                                        {
+                                                            AddUpdate(IntOffset(newNum, 0, 1, 0), Block.zombiehead);
+                                                            goto removeSelf_zomb;
+                                                        }
+
                                                     foundNum++;
                                                     if (foundNum >= 4) InnerChange = true; else goto case 10;
                                                     break;
-                                                case 10: case 11: case 12: default:
+                                                case 10:
+                                                case 11:
+                                                case 12:
+                                                default:
                                                     skip = false;
                                                     newNum = IntOffset(C.b, 0, 0, -1);
 
@@ -1976,31 +2314,34 @@ retryTag4:  try { CreateTable.ExecuteNonQuery(); } catch (Exception e) { totalCo
                                                     else skip = true;
 
                                                     if (!skip)
-                                                    if (AddUpdate(newNum, blocks[C.b])) {
-                                                        AddUpdate(IntOffset(newNum, 0, 1, 0), Block.zombiehead);
-                                                        goto removeSelf_zomb;
-                                                    }
-                                                   
+                                                        if (AddUpdate(newNum, blocks[C.b]))
+                                                        {
+                                                            AddUpdate(IntOffset(newNum, 0, 1, 0), Block.zombiehead);
+                                                            goto removeSelf_zomb;
+                                                        }
+
                                                     foundNum++;
                                                     if (foundNum >= 4) InnerChange = true; else goto case 1;
                                                     break;
                                             }
                                         }
 
-                removeSelf_zomb:
-                                        if (!InnerChange) {
+                                    removeSelf_zomb:
+                                        if (!InnerChange)
+                                        {
                                             AddUpdate(C.b, Block.air);
                                             AddUpdate(IntOffset(C.b, 0, 1, 0), Block.air);
                                         }
                                         break;
-#endregion
+                                    #endregion
                                     default:    //non special blocks are then ignored, maybe it would be better to avoid getting here and cutting down the list
                                         if (!C.extraInfo.Contains("wait")) C.time = 255;
                                         break;
                                 }
                             }
                         }
-                        catch {
+                        catch
+                        {
                             ListCheck.Remove(C);
                             //Server.s.Log(e.Message);
                         }
@@ -2010,8 +2351,10 @@ retryTag4:  try { CreateTable.ExecuteNonQuery(); } catch (Exception e) { totalCo
                     ListCheck.RemoveAll(Check => Check.time == 255);  //Remove all that are finished with 255 time
 
                     lastUpdate = ListUpdate.Count;
-                    ListUpdate.ForEach(delegate(Update C) {
-                        try {
+                    ListUpdate.ForEach(delegate (Update C)
+                    {
+                        try
+                        {
                             IntToPos(C.b, out x, out y, out z);
                             Blockchange(x, y, z, C.type, false, C.extraInfo);
                         }
@@ -2030,39 +2373,55 @@ retryTag4:  try { CreateTable.ExecuteNonQuery(); } catch (Exception e) { totalCo
                 Server.s.Log("Level physics error");
             }
         }
-        public void AddCheck(int b, string extraInfo = "", bool overRide = false) {
-            try {
-                if (!ListCheck.Exists(Check => Check.b == b)) {
+        public void AddCheck(int b, string extraInfo = "", bool overRide = false)
+        {
+            try
+            {
+                if (!ListCheck.Exists(Check => Check.b == b))
+                {
                     ListCheck.Add(new Check(b, extraInfo));    //Adds block to list to be updated
-                } else {
-                    if (overRide) { 
-                        foreach (Check C2 in ListCheck) {
-                            if (C2.b == b) {
+                }
+                else
+                {
+                    if (overRide)
+                    {
+                        foreach (Check C2 in ListCheck)
+                        {
+                            if (C2.b == b)
+                            {
                                 C2.extraInfo = extraInfo;
                                 return;
                             }
                         }
                     }
                 }
-            } catch {
+            }
+            catch
+            {
                 //s.Log("Warning-PhysicsCheck");
                 //ListCheck.Add(new Check(b));    //Lousy back up plan
-            }            
+            }
         }
-        private bool AddUpdate(int b, int type, bool overRide = false, string extraInfo = "") {
-            try {
-                if (overRide == true) {
-                    ushort x, y, z;
-                    IntToPos(b, out x, out y, out z);
+        private bool AddUpdate(int b, int type, bool overRide = false, string extraInfo = "")
+        {
+            try
+            {
+                if (overRide == true)
+                {
+                    IntToPos(b, out ushort x, out ushort y, out ushort z);
                     AddCheck(b, extraInfo); Blockchange(x, y, z, (byte)type, true);
                     return true;
                 }
 
-                if (!ListUpdate.Exists(Update => Update.b == b)) {
+                if (!ListUpdate.Exists(Update => Update.b == b))
+                {
                     ListUpdate.Add(new Update(b, (byte)type, extraInfo));
                     return true;
-                } else {
-                    if (type == 12 || type == 13) {
+                }
+                else
+                {
+                    if (type == 12 || type == 13)
+                    {
                         ListUpdate.RemoveAll(Update => Update.b == b);
                         ListUpdate.Add(new Update(b, (byte)type, extraInfo));
                         return true;
@@ -2070,19 +2429,23 @@ retryTag4:  try { CreateTable.ExecuteNonQuery(); } catch (Exception e) { totalCo
                 }
 
                 return false;
-            } catch {
+            }
+            catch
+            {
                 //s.Log("Warning-PhysicsUpdate");
                 //ListUpdate.Add(new Update(b, (byte)type));    //Lousy back up plan
                 return false;
             }
         }
 
-        public void ClearPhysics() {
-            ushort x, y, z;
-            ListCheck.ForEach(delegate(Check C) {
-                IntToPos(C.b, out x, out y, out z);
+        public void ClearPhysics()
+        {
+            ListCheck.ForEach(delegate (Check C)
+            {
+                IntToPos(C.b, out ushort x, out ushort y, out ushort z);
                 //attemps on shutdown to change blocks back into normal selves that are active, hopefully without needing to send into to clients.
-                switch (blocks[C.b]) {
+                switch (blocks[C.b])
+                {
                     case 200:
                     case 202:
                     case 203:
@@ -2090,15 +2453,15 @@ retryTag4:  try { CreateTable.ExecuteNonQuery(); } catch (Exception e) { totalCo
                         break;
                     case 201:
                         //blocks[C.b] = 111;
-                        Blockchange( x, y, z, 111);
+                        Blockchange(x, y, z, 111);
                         break;
                     case 205:
                         //blocks[C.b] = 113;
-                        Blockchange( x, y, z, 113);
+                        Blockchange(x, y, z, 113);
                         break;
                     case 206:
                         //blocks[C.b] = 114;
-                        Blockchange( x, y, z, 114);
+                        Blockchange(x, y, z, 114);
                         break;
                     case 207:
                         //blocks[C.b] = 115;
@@ -2106,18 +2469,24 @@ retryTag4:  try { CreateTable.ExecuteNonQuery(); } catch (Exception e) { totalCo
                         break;
                 }
 
-                try {
-                    if (C.extraInfo.Contains("revert")) {
+                try
+                {
+                    if (C.extraInfo.Contains("revert"))
+                    {
                         int i = 0;
-                        foreach (string s in C.extraInfo.Split(' ')) {
-                            if (s == "revert") {
-                                Blockchange(x, y, z, Byte.Parse(C.extraInfo.Split(' ')[i + 1]));
+                        foreach (string s in C.extraInfo.Split(' '))
+                        {
+                            if (s == "revert")
+                            {
+                                Blockchange(x, y, z, byte.Parse(C.extraInfo.Split(' ')[i + 1]));
                                 break;
                             }
                             i++;
                         }
                     }
-                } catch (Exception e) {
+                }
+                catch (Exception e)
+                {
                     Server.ErrorLog(e);
                 }
             });
@@ -2129,9 +2498,11 @@ retryTag4:  try { CreateTable.ExecuteNonQuery(); } catch (Exception e) { totalCo
         private void PhysWater(int b, byte type)
         {
             if (b == -1) { return; }
-            switch (blocks[b]) {
+            switch (blocks[b])
+            {
                 case 0:
-                    if (!PhysSpongeCheck(b))  {
+                    if (!PhysSpongeCheck(b))
+                    {
                         AddUpdate(b, type);
                     }
                     break;
@@ -2215,19 +2586,20 @@ retryTag4:  try { CreateTable.ExecuteNonQuery(); } catch (Exception e) { totalCo
             if (b == -1) { return; }
             if (Block.Convert(blocks[b]) == Block.water || Block.Convert(blocks[b]) == Block.lava) { AddCheck(b); return; }
 
-            switch (blocks[b]) {
+            switch (blocks[b])
+            {
                 //case 8:     //active water
                 //case 10:    //active_lava
                 case 12:    //sand
                 case 13:    //gravel
                 case 110:   //wood_float
-                /*case 112:   //lava_fast
-                case Block.WaterDown:
-                case Block.LavaDown:
-                case Block.deathlava:
-                case Block.deathwater:
-                case Block.geyser:
-                case Block.magma:*/
+                    /*case 112:   //lava_fast
+                    case Block.WaterDown:
+                    case Block.LavaDown:
+                    case Block.deathlava:
+                    case Block.deathwater:
+                    case Block.geyser:
+                    case Block.magma:*/
                     AddCheck(b);
                     break;
 
@@ -2238,7 +2610,7 @@ retryTag4:  try { CreateTable.ExecuteNonQuery(); } catch (Exception e) { totalCo
         //================================================================================================================
         private bool PhysSand(int b, byte type)   //also does gravel
         {
-            if (b == -1 || physics == 0) return false; 
+            if (b == -1 || physics == 0) return false;
 
             int tempb = b;
             bool blocked = false;
@@ -2247,7 +2619,7 @@ retryTag4:  try { CreateTable.ExecuteNonQuery(); } catch (Exception e) { totalCo
             do
             {
                 tempb = IntOffset(tempb, 0, -1, 0);     //Get block below each loop
-				if (GetTile(tempb) != Block.Zero) 
+                if (GetTile(tempb) != Block.Zero)
                 {
                     switch (blocks[tempb])
                     {
@@ -2263,29 +2635,29 @@ retryTag4:  try { CreateTable.ExecuteNonQuery(); } catch (Exception e) { totalCo
                         case 39:
                         case 40:
                             if (physics > 1)   //Adv physics crushes plants with sand
-                            {moved = true;}
+                            { moved = true; }
                             else
-                            {blocked = true;}
+                            { blocked = true; }
                             break;
 
                         default:
                             blocked = true;
                             break;
                     }
-                    if (physics > 1){blocked = true;}
-                } 
-                else                    
-                {blocked = true;}
-            }    
+                    if (physics > 1) { blocked = true; }
+                }
+                else
+                { blocked = true; }
+            }
             while (!blocked);
 
             if (moved)
             {
                 AddUpdate(b, 0);
                 if (physics > 1)
-                {AddUpdate(tempb, type);}
+                { AddUpdate(tempb, type); }
                 else
-                {AddUpdate(IntOffset(tempb,0,1,0), type);}
+                { AddUpdate(IntOffset(tempb, 0, 1, 0), type); }
             }
 
             return moved;
@@ -2309,25 +2681,28 @@ retryTag4:  try { CreateTable.ExecuteNonQuery(); } catch (Exception e) { totalCo
         //================================================================================================================
         private void PhysStair(int b)
         {
-           int tempb = IntOffset(b, 0, -1, 0);     //Get block below
-		   if (GetTile(tempb) != Block.Zero)
-           {
-               if (GetTile(tempb) == Block.staircasestep)
-               {
-                   AddUpdate(b, 0);
-                   AddUpdate(tempb, 43);
-               }
-           }
+            int tempb = IntOffset(b, 0, -1, 0);     //Get block below
+            if (GetTile(tempb) != Block.Zero)
+            {
+                if (GetTile(tempb) == Block.staircasestep)
+                {
+                    AddUpdate(b, 0);
+                    AddUpdate(tempb, 43);
+                }
+            }
         }
         //================================================================================================================
         private bool PhysSpongeCheck(int b)         //return true if sponge is near
         {
-            int temp = 0;
-            for (int x = -2; x <= +2; ++x){
-                for (int y = -2; y <= +2; ++y){
-                    for (int z = -2; z <= +2; ++z){
+            int temp;
+            for (int x = -2; x <= +2; ++x)
+            {
+                for (int y = -2; y <= +2; ++y)
+                {
+                    for (int z = -2; z <= +2; ++z)
+                    {
                         temp = IntOffset(b, x, y, z);
-						if (GetTile(temp) != Block.Zero)
+                        if (GetTile(temp) != Block.Zero)
                         {
                             if (GetTile(temp) == 19) { return true; }
                         }
@@ -2339,7 +2714,7 @@ retryTag4:  try { CreateTable.ExecuteNonQuery(); } catch (Exception e) { totalCo
         //================================================================================================================
         private void PhysSponge(int b)         //turn near water into air when placed
         {
-            int temp = 0;
+            int temp;
             for (int x = -2; x <= +2; ++x)
             {
                 for (int y = -2; y <= +2; ++y)
@@ -2347,7 +2722,7 @@ retryTag4:  try { CreateTable.ExecuteNonQuery(); } catch (Exception e) { totalCo
                     for (int z = -2; z <= +2; ++z)
                     {
                         temp = IntOffset(b, x, y, z);
-						if (GetTile(temp) != Block.Zero)
+                        if (GetTile(temp) != Block.Zero)
                         {
                             if (GetTile(temp) == 8) { AddUpdate(temp, 0); }
                         }
@@ -2360,7 +2735,7 @@ retryTag4:  try { CreateTable.ExecuteNonQuery(); } catch (Exception e) { totalCo
         public void PhysSpongeRemoved(int b)         //Reactivates near water
         {
             //TODO Calc only edge
-            int temp = 0;
+            int temp;
             for (int x = -3; x <= +3; ++x)
             {
                 for (int y = -3; y <= +3; ++y)
@@ -2368,7 +2743,7 @@ retryTag4:  try { CreateTable.ExecuteNonQuery(); } catch (Exception e) { totalCo
                     for (int z = -3; z <= +3; ++z)
                     {
                         temp = IntOffset(b, x, y, z);
-						if (GetTile(temp) != Block.Zero)
+                        if (GetTile(temp) != Block.Zero)
                         {
                             if (GetTile(temp) == 8) { AddCheck(temp); }
                         }
@@ -2381,7 +2756,7 @@ retryTag4:  try { CreateTable.ExecuteNonQuery(); } catch (Exception e) { totalCo
         private void PhysFloatwood(int b)
         {
             int tempb = IntOffset(b, 0, -1, 0);     //Get block below
-			if (GetTile(tempb) != Block.Zero)
+            if (GetTile(tempb) != Block.Zero)
             {
                 if (GetTile(tempb) == 0)
                 {
@@ -2392,7 +2767,7 @@ retryTag4:  try { CreateTable.ExecuteNonQuery(); } catch (Exception e) { totalCo
             }
 
             tempb = IntOffset(b, 0, 1, 0);     //Get block above
-			if (GetTile(tempb) != Block.Zero)
+            if (GetTile(tempb) != Block.Zero)
             {
                 if (GetTile(tempb) == 8)
                 {
@@ -2403,176 +2778,187 @@ retryTag4:  try { CreateTable.ExecuteNonQuery(); } catch (Exception e) { totalCo
             }
         }
         //================================================================================================================
-        private void PhysAirFlood(int b, byte type) {
+        private void PhysAirFlood(int b, byte type)
+        {
             if (b == -1) { return; }
             if (Block.Convert(blocks[b]) == Block.water || Block.Convert(blocks[b]) == Block.lava) AddUpdate(b, type);
         }
         //================================================================================================================
-        private void PhysFall(byte newBlock, ushort x, ushort y, ushort z, bool random) {
-            Random randNum = new Random(); byte b;
-            if (random == false) {
-                b = GetTile((ushort)(x + 1), y, z);
-                if (b == Block.air || b == Block.waterstill) Blockchange((ushort)(x + 1), y, z, newBlock);
-                b = GetTile((ushort)(x - 1), y, z);
-                if (b == Block.air || b == Block.waterstill) Blockchange((ushort)(x - 1), y, z, newBlock);
-                b = GetTile(x, y, (ushort)(z + 1));
-                if (b == Block.air || b == Block.waterstill) Blockchange(x, y, (ushort)(z + 1), newBlock);
-                b = GetTile(x, y, (ushort)(z - 1));
-                if (b == Block.air || b == Block.waterstill) Blockchange(x, y, (ushort)(z - 1), newBlock);
-            } else {
-                if (GetTile((ushort)(x + 1), y, z) == Block.air && randNum.Next(1, 10) < 3) Blockchange((ushort)(x + 1), y, z, newBlock);
-                if (GetTile((ushort)(x - 1), y, z) == Block.air && randNum.Next(1, 10) < 3) Blockchange((ushort)(x - 1), y, z, newBlock);
-                if (GetTile(x, y, (ushort)(z + 1)) == Block.air && randNum.Next(1, 10) < 3) Blockchange(x, y, (ushort)(z + 1), newBlock);
-                if (GetTile(x, y, (ushort)(z - 1)) == Block.air && randNum.Next(1, 10) < 3) Blockchange(x, y, (ushort)(z - 1), newBlock);
-            }
-        }
-        //================================================================================================================
-        private void PhysReplace(int b, byte typeA, byte typeB)     //replace any typeA with typeB
+
+        public void Odoor(Check C)
         {
-            if (b == -1) { return; }
-            if (blocks[b] == typeA)
+            if (C.time == 0)
             {
-                AddUpdate(b, typeB);
-            }
-        }
-        //================================================================================================================
-
-        
-
-        public void odoor(Check C) {
-            if (C.time == 0) {
                 byte foundBlock;
 
-                foundBlock = Block.odoor(GetTile(IntOffset(C.b, -1, 0, 0)));
+                foundBlock = Block.Odoor(GetTile(IntOffset(C.b, -1, 0, 0)));
                 if (foundBlock == blocks[C.b]) { AddUpdate(IntOffset(C.b, -1, 0, 0), foundBlock, true); }
-                foundBlock = Block.odoor(GetTile(IntOffset(C.b, 1, 0, 0)));
+                foundBlock = Block.Odoor(GetTile(IntOffset(C.b, 1, 0, 0)));
                 if (foundBlock == blocks[C.b]) { AddUpdate(IntOffset(C.b, 1, 0, 0), foundBlock, true); }
-                foundBlock = Block.odoor(GetTile(IntOffset(C.b, 0, -1, 0)));
+                foundBlock = Block.Odoor(GetTile(IntOffset(C.b, 0, -1, 0)));
                 if (foundBlock == blocks[C.b]) { AddUpdate(IntOffset(C.b, 0, -1, 0), foundBlock, true); }
-                foundBlock = Block.odoor(GetTile(IntOffset(C.b, 0, 1, 0)));
+                foundBlock = Block.Odoor(GetTile(IntOffset(C.b, 0, 1, 0)));
                 if (foundBlock == blocks[C.b]) { AddUpdate(IntOffset(C.b, 0, 1, 0), foundBlock, true); }
-                foundBlock = Block.odoor(GetTile(IntOffset(C.b, 0, 0, -1)));
+                foundBlock = Block.Odoor(GetTile(IntOffset(C.b, 0, 0, -1)));
                 if (foundBlock == blocks[C.b]) { AddUpdate(IntOffset(C.b, 0, 0, -1), foundBlock, true); }
-                foundBlock = Block.odoor(GetTile(IntOffset(C.b, 0, 0, 1)));
+                foundBlock = Block.Odoor(GetTile(IntOffset(C.b, 0, 0, 1)));
                 if (foundBlock == blocks[C.b]) { AddUpdate(IntOffset(C.b, 0, 0, 1), foundBlock, true); }
-            } else {
+            }
+            else
+            {
                 C.time = 255;
             }
             C.time++;
         }
 
-        public void AnyDoor(Check C, ushort x, ushort y, ushort z, int timer, bool instaUpdate = false) {
-            if (C.time == 0) {
+        public void AnyDoor(Check C, ushort x, ushort y, ushort z, int timer, bool instaUpdate = false)
+        {
+            if (C.time == 0)
+            {
                 try { PhysDoor((ushort)(x + 1), y, z, instaUpdate); } catch { }
                 try { PhysDoor((ushort)(x - 1), y, z, instaUpdate); } catch { }
                 try { PhysDoor(x, y, (ushort)(z + 1), instaUpdate); } catch { }
                 try { PhysDoor(x, y, (ushort)(z - 1), instaUpdate); } catch { }
                 try { PhysDoor(x, (ushort)(y - 1), z, instaUpdate); } catch { }
                 try { PhysDoor(x, (ushort)(y + 1), z, instaUpdate); } catch { }
-                
-                try {
-                    if (blocks[C.b] == Block.door8_air) {
-                        for (int xx = -1; xx <= 1; xx++) {
-                            for (int yy = -1; yy <= 1; yy++) {
-                                for (int zz = -1; zz <= 1; zz++) {
+
+                try
+                {
+                    if (blocks[C.b] == Block.door8_air)
+                    {
+                        for (int xx = -1; xx <= 1; xx++)
+                        {
+                            for (int yy = -1; yy <= 1; yy++)
+                            {
+                                for (int zz = -1; zz <= 1; zz++)
+                                {
                                     byte b = GetTile(IntOffset(C.b, xx, yy, zz));
-                                    if (b == Block.rocketstart) {
+                                    if (b == Block.rocketstart)
+                                    {
                                         AddUpdate(IntOffset(C.b, xx * 3, yy * 3, zz * 3), Block.rockethead);
                                         AddUpdate(IntOffset(C.b, xx * 2, yy * 2, zz * 2), Block.fire);
-                                    } else if (b == Block.firework) {
+                                    }
+                                    else if (b == Block.firework)
+                                    {
                                         AddUpdate(IntOffset(C.b, xx, yy + 1, zz), Block.lavastill, false, "dissipate 100");
                                         AddUpdate(IntOffset(C.b, xx, yy + 2, zz), Block.firework);
-                                    } else if (b == Block.tnt) {
+                                    }
+                                    else if (b == Block.tnt)
+                                    {
                                         MakeExplosion((ushort)(x + xx), (ushort)(y + yy), (ushort)(z + zz), 0);
                                     }
                                 }
                             }
                         }
                     }
-                } catch { }
-            } 
+                }
+                catch { }
+            }
             if (C.time < timer) C.time++;
-            else {
+            else
+            {
                 AddUpdate(C.b, Block.SaveConvert(blocks[C.b]));    //turn back into door
                 C.time = 255;
             }
         }
 
-        public void PhysDoor(ushort x, ushort y, ushort z, bool instaUpdate) {
+        public void PhysDoor(ushort x, ushort y, ushort z, bool instaUpdate)
+        {
             int foundInt = PosToInt(x, y, z);
             byte FoundAir = Block.DoorAirs(blocks[foundInt]);
 
-            if (FoundAir != 0) {
-                if (!instaUpdate) AddUpdate(foundInt, FoundAir); 
+            if (FoundAir != 0)
+            {
+                if (!instaUpdate) AddUpdate(foundInt, FoundAir);
                 else Blockchange(x, y, z, FoundAir);
                 return;
             }
 
-            if (Block.tDoor(blocks[foundInt])) {
+            if (Block.TDoor(blocks[foundInt]))
+            {
                 AddUpdate(foundInt, Block.air, false, "wait 16 door 1 revert " + blocks[foundInt].ToString());
             }
 
-            if (Block.odoor(blocks[foundInt]) != Block.Zero) AddUpdate(foundInt, Block.odoor(blocks[foundInt]), true);
+            if (Block.Odoor(blocks[foundInt]) != Block.Zero) AddUpdate(foundInt, Block.Odoor(blocks[foundInt]), true);
         }
 
-        public void MakeExplosion(ushort x, ushort y, ushort z, int size) {
+        public void MakeExplosion(ushort x, ushort y, ushort z, int size)
+        {
             int xx, yy, zz; Random rand = new Random(); byte b;
 
             if (physics < 2) return;
             AddUpdate(PosToInt(x, y, z), Block.tntexplosion, true);
-            
-            for (xx = (x - (size + 1));xx <= (x + (size + 1)); ++xx)
-                for (yy = (y - (size + 1));yy <= (y + (size + 1)); ++yy)
-                    for (zz = (z - (size + 1));zz <= (z + (size + 1)); ++zz)
-                        try {
+
+            for (xx = x - (size + 1); xx <= (x + (size + 1)); ++xx)
+                for (yy = y - (size + 1); yy <= (y + (size + 1)); ++yy)
+                    for (zz = z - (size + 1); zz <= (z + (size + 1)); ++zz)
+                        try
+                        {
                             b = GetTile((ushort)xx, (ushort)yy, (ushort)zz);
-                            if (b == Block.tnt) {
+                            if (b == Block.tnt)
+                            {
                                 AddUpdate(PosToInt((ushort)xx, (ushort)yy, (ushort)zz), Block.smalltnt);
-                            } else if (b != Block.smalltnt && b != Block.bigtnt) {
+                            }
+                            else if (b != Block.smalltnt && b != Block.bigtnt)
+                            {
                                 if (rand.Next(1, 11) <= 4) AddUpdate(PosToInt((ushort)xx, (ushort)yy, (ushort)zz), Block.tntexplosion);
                                 else if (rand.Next(1, 11) <= 8) AddUpdate(PosToInt((ushort)xx, (ushort)yy, (ushort)zz), Block.air);
                                 else AddCheck(PosToInt((ushort)xx, (ushort)yy, (ushort)zz), "drop 50 dissipate 8");
-                            } else {
+                            }
+                            else
+                            {
                                 AddCheck(PosToInt((ushort)xx, (ushort)yy, (ushort)zz));
                             }
-                        } catch { }
+                        }
+                        catch { }
 
-            for (xx = (x - (size + 2));xx <= (x + (size + 2)); ++xx)
-                for (yy = (y - (size + 2));yy <= (y + (size + 2)); ++yy)
-                    for (zz = (z - (size + 2));zz <= (z + (size + 2)); ++zz) {
+            for (xx = x - (size + 2); xx <= (x + (size + 2)); ++xx)
+                for (yy = y - (size + 2); yy <= (y + (size + 2)); ++yy)
+                    for (zz = z - (size + 2); zz <= (z + (size + 2)); ++zz)
+                    {
                         b = GetTile((ushort)xx, (ushort)yy, (ushort)zz);
-                        if (rand.Next(1, 10) < 7) 
-                            if (Block.Convert(b) != Block.tnt) {
+                        if (rand.Next(1, 10) < 7)
+                            if (Block.Convert(b) != Block.tnt)
+                            {
                                 if (rand.Next(1, 11) <= 4) AddUpdate(PosToInt((ushort)xx, (ushort)yy, (ushort)zz), Block.tntexplosion);
                                 else if (rand.Next(1, 11) <= 8) AddUpdate(PosToInt((ushort)xx, (ushort)yy, (ushort)zz), Block.air);
                                 else AddCheck(PosToInt((ushort)xx, (ushort)yy, (ushort)zz), "drop 50 dissipate 8");
                             }
-                        if (b == Block.tnt) {
+                        if (b == Block.tnt)
+                        {
                             AddUpdate(PosToInt((ushort)xx, (ushort)yy, (ushort)zz), Block.smalltnt);
-                        } else if (b == Block.smalltnt || b == Block.bigtnt) {
+                        }
+                        else if (b == Block.smalltnt || b == Block.bigtnt)
+                        {
                             AddCheck(PosToInt((ushort)xx, (ushort)yy, (ushort)zz));
                         }
                     }
 
-            for (xx = (x - (size + 3));xx <= (x + (size + 3)); ++xx)
-                for (yy = (y - (size + 3));yy <= (y + (size + 3)); ++yy)
-                    for (zz = (z - (size + 3)); zz <= (z + (size + 3)); ++zz) {
+            for (xx = x - (size + 3); xx <= (x + (size + 3)); ++xx)
+                for (yy = y - (size + 3); yy <= (y + (size + 3)); ++yy)
+                    for (zz = z - (size + 3); zz <= (z + (size + 3)); ++zz)
+                    {
                         b = GetTile((ushort)xx, (ushort)yy, (ushort)zz);
-                        if (rand.Next(1, 10) < 3) 
-                            if (Block.Convert(b) != Block.tnt) {
+                        if (rand.Next(1, 10) < 3)
+                            if (Block.Convert(b) != Block.tnt)
+                            {
                                 if (rand.Next(1, 11) <= 4) AddUpdate(PosToInt((ushort)xx, (ushort)yy, (ushort)zz), Block.tntexplosion);
                                 else if (rand.Next(1, 11) <= 8) AddUpdate(PosToInt((ushort)xx, (ushort)yy, (ushort)zz), Block.air);
                                 else AddCheck(PosToInt((ushort)xx, (ushort)yy, (ushort)zz), "drop 50 dissipate 8");
                             }
-                        if (b == Block.tnt) {
+                        if (b == Block.tnt)
+                        {
                             AddUpdate(PosToInt((ushort)xx, (ushort)yy, (ushort)zz), Block.smalltnt);
-                        } else if (b == Block.smalltnt || b == Block.bigtnt) {
+                        }
+                        else if (b == Block.smalltnt || b == Block.bigtnt)
+                        {
                             AddCheck(PosToInt((ushort)xx, (ushort)yy, (ushort)zz));
                         }
                     }
         }
-        
-        public void Firework(ushort x, ushort y, ushort z, int size) {
+
+        public void Firework(ushort x, ushort y, ushort z, int size)
+        {
             ushort xx, yy, zz; Random rand = new Random(); int storedRand1, storedRand2;
 
             if (physics < 1) return;
@@ -2586,47 +2972,58 @@ retryTag4:  try { CreateTable.ExecuteNonQuery(); } catch (Exception e) { totalCo
                         if (GetTile(xx, yy, zz) == Block.air)
                             if (rand.Next(1, 40) < 2)
                                 AddUpdate(PosToInt(xx, yy, zz), (byte)rand.Next(Math.Min(storedRand1, storedRand2), Math.Max(storedRand1, storedRand2)), false, "drop 100 dissipate 25");
-                            
+
         }
 
-        public void finiteMovement(Check C, ushort x, ushort y, ushort z) {
+        public void FiniteMovement(Check C, ushort x, ushort y, ushort z)
+        {
             Random rand = new Random();
 
             List<int> bufferfiniteWater = new List<int>();
             List<Pos> bufferfiniteWaterList = new List<Pos>();
-            
-            if (GetTile(x, (ushort)(y - 1), z) == Block.air) {
+
+            if (GetTile(x, (ushort)(y - 1), z) == Block.air)
+            {
                 AddUpdate(PosToInt(x, (ushort)(y - 1), z), blocks[C.b], false, C.extraInfo);
                 AddUpdate(C.b, Block.air); C.extraInfo = "";
-            } else if (GetTile(x, (ushort)(y - 1), z) == Block.waterstill || GetTile(x, (ushort)(y - 1), z) == Block.lavastill) {
+            }
+            else if (GetTile(x, (ushort)(y - 1), z) == Block.waterstill || GetTile(x, (ushort)(y - 1), z) == Block.lavastill)
+            {
                 AddUpdate(C.b, Block.air); C.extraInfo = "";
-            } else {
+            }
+            else
+            {
                 for (int i = 0; i < 25; ++i) bufferfiniteWater.Add(i);
 
-                for (int k = bufferfiniteWater.Count - 1; k > 1; --k) {
+                for (int k = bufferfiniteWater.Count - 1; k > 1; --k)
+                {
                     int randIndx = rand.Next(k); //
-                    int temp = bufferfiniteWater[k];
-                    bufferfiniteWater[k] = bufferfiniteWater[randIndx]; // move random num to end of list.
-                    bufferfiniteWater[randIndx] = temp;
+                    (bufferfiniteWater[randIndx], bufferfiniteWater[k]) = (bufferfiniteWater[k], bufferfiniteWater[randIndx]);
                 }
 
                 Pos pos;
 
-                for (ushort xx = (ushort)(x - 2); xx <= x + 2; ++xx) {
-                    for (ushort zz = (ushort)(z - 2); zz <= z + 2; ++zz) {
+                for (ushort xx = (ushort)(x - 2); xx <= x + 2; ++xx)
+                {
+                    for (ushort zz = (ushort)(z - 2); zz <= z + 2; ++zz)
+                    {
                         pos.x = xx; pos.z = zz;
                         bufferfiniteWaterList.Add(pos);
                     }
                 }
-                                            
-                foreach (int i in bufferfiniteWater) {
-                    pos = bufferfiniteWaterList[i];
-                    if (GetTile(pos.x, (ushort)(y - 1), pos.z) == Block.air && GetTile(pos.x, y, pos.z) == Block.air) {
-                        if (pos.x < x) pos.x = (ushort)(Math.Floor((double)(pos.x + x) / 2)); else pos.x = (ushort)(Math.Ceiling((double)(pos.x + x) / 2));
-                        if (pos.z < z) pos.z = (ushort)(Math.Floor((double)(pos.z + z) / 2)); else pos.z = (ushort)(Math.Ceiling((double)(pos.z + z) / 2));
 
-                        if (GetTile(pos.x, y, pos.z) == Block.air) {
-                            if (AddUpdate(PosToInt(pos.x, y, pos.z), blocks[C.b], false, C.extraInfo)) {
+                foreach (int i in bufferfiniteWater)
+                {
+                    pos = bufferfiniteWaterList[i];
+                    if (GetTile(pos.x, (ushort)(y - 1), pos.z) == Block.air && GetTile(pos.x, y, pos.z) == Block.air)
+                    {
+                        if (pos.x < x) pos.x = (ushort)Math.Floor((double)(pos.x + x) / 2); else pos.x = (ushort)Math.Ceiling((double)(pos.x + x) / 2);
+                        if (pos.z < z) pos.z = (ushort)Math.Floor((double)(pos.z + z) / 2); else pos.z = (ushort)Math.Ceiling((double)(pos.z + z) / 2);
+
+                        if (GetTile(pos.x, y, pos.z) == Block.air)
+                        {
+                            if (AddUpdate(PosToInt(pos.x, y, pos.z), blocks[C.b], false, C.extraInfo))
+                            {
                                 AddUpdate(C.b, Block.air); C.extraInfo = "";
                                 break;
                             }
@@ -2689,28 +3086,29 @@ retryTag4:  try { CreateTable.ExecuteNonQuery(); } catch (Exception e) { totalCo
         }
     }
 }
-    //-------------------------------------------------------------------------------------------------------------------------------------------------------
-    public class Check
+//-------------------------------------------------------------------------------------------------------------------------------------------------------
+public class Check
+{
+    public int b;
+    public byte time;
+    public string extraInfo = "";
+    public Check(int b, string extraInfo = "")
     {
-        public int b;
-        public byte time;
-        public string extraInfo = "";
-        public Check(int b, string extraInfo = "") {
-            this.b = b;
-            time = 0;
-            this.extraInfo = extraInfo;
-        }
+        this.b = b;
+        time = 0;
+        this.extraInfo = extraInfo;
     }
-    //-------------------------------------------------------------------------------------------------------------------------------------------------------
-    public class Update
+}
+//-------------------------------------------------------------------------------------------------------------------------------------------------------
+public class Update
+{
+    public int b;
+    public byte type;
+    public string extraInfo = "";
+    public Update(int b, byte type, string extraInfo = "")
     {
-        public int b;
-        public byte type;
-        public string extraInfo = "";
-        public Update(int b, byte type, string extraInfo = "")
-        {
-            this.b = b;
-            this.type = type;
-            this.extraInfo = extraInfo;
-        }
+        this.b = b;
+        this.type = type;
+        this.extraInfo = extraInfo;
     }
+}

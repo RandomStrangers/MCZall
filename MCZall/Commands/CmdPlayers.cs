@@ -12,18 +12,14 @@
 	or implied. See the License for the specific language governing
 	permissions and limitations under the License.
 */
-using System;
-using System.Collections.Generic;
-using System.Text;
-
 namespace MCZall
 {
     class CmdPlayers : Command
     {
 
-        public override string name { get { return "players"; } }
-        public override string shortcut { get { return ""; } }
-        public override string type { get { return "information"; } }
+        public override string Name { get { return "players"; } }
+        public override string Shortcut { get { return ""; } }
+        public override string Type { get { return "information"; } }
         public override void Use(Player p, string message)
         {
             string superops = "";
@@ -40,11 +36,13 @@ namespace MCZall
                     totalPlayers++;
                     string foundName = pl.name;
 
-                    if (Server.afkset.Contains(pl.name)) {
+                    if (Server.afkset.Contains(pl.name))
+                    {
                         foundName = pl.name + "-afk";
                     }
 
-                    switch (pl.group.name.ToLower()) {
+                    switch (pl.group.Name.ToLower())
+                    {
                         case "superop":
                             superops += " " + foundName + " (" + pl.level.name + ")" + ",";
                             break;
@@ -67,12 +65,12 @@ namespace MCZall
                 }
             }
             p.SendMessage("There are " + totalPlayers + " players online.");
-            p.SendMessage(":" + Group.Find("superop").color + "SuperOPs:" + Server.DefaultColor + superops.Trim(','));
-            p.SendMessage(":" + Group.Find("op").color + "OPs:" + Server.DefaultColor + ops.Trim(','));
-            p.SendMessage(":" + Group.Find("adv").color + "AdvBuilders:" + Server.DefaultColor + advbuilders.Trim(',')); ;
-            p.SendMessage(":" + Group.Find("builder").color + "Builders:" + Server.DefaultColor + builders.Trim(',')); ;
-            p.SendMessage(":" + Group.Find("guest").color + "Guests:" + Server.DefaultColor + guests.Trim(','));
-            p.SendMessage(":" + Group.Find("banned").color + "Banned:" + Server.DefaultColor + banned.Trim(','));
+            p.SendMessage(":" + Group.Find("superop").Color + "SuperOPs:" + Server.DefaultColor + superops.Trim(','));
+            p.SendMessage(":" + Group.Find("op").Color + "OPs:" + Server.DefaultColor + ops.Trim(','));
+            p.SendMessage(":" + Group.Find("adv").Color + "AdvBuilders:" + Server.DefaultColor + advbuilders.Trim(',')); ;
+            p.SendMessage(":" + Group.Find("builder").Color + "Builders:" + Server.DefaultColor + builders.Trim(',')); ;
+            p.SendMessage(":" + Group.Find("guest").Color + "Guests:" + Server.DefaultColor + guests.Trim(','));
+            p.SendMessage(":" + Group.Find("banned").Color + "Banned:" + Server.DefaultColor + banned.Trim(','));
         }
 
         public override void Help(Player p)

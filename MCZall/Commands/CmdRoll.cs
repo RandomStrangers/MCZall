@@ -14,20 +14,25 @@
 */
 using System;
 
-namespace MCZall {
-	public class CmdRoll : Command {
-        public override string name { get { return "roll"; } }
-        public override string shortcut { get { return ""; } }
-        public override string type { get { return "other"; } }
+namespace MCZall
+{
+    public class CmdRoll : Command
+    {
+        public override string Name { get { return "roll"; } }
+        public override string Shortcut { get { return ""; } }
+        public override string Type { get { return "other"; } }
         public CmdRoll() { }
-		public override void Use(Player p,string message)  {
+        public override void Use(Player p, string message)
+        {
             int min, max; Random rand = new Random();
             try { min = int.Parse(message.Split(' ')[0]); } catch { min = 1; }
             try { max = int.Parse(message.Split(' ')[1]); } catch { max = 7; }
 
             Player.GlobalMessage(p.color + p.name + Server.DefaultColor + " rolled a &a" + rand.Next(Math.Min(min, max), Math.Max(min, max) + 1).ToString() + Server.DefaultColor + " (" + Math.Min(min, max) + "|" + Math.Max(min, max) + ")");
-		} public override void Help(Player p)  {
+        }
+        public override void Help(Player p)
+        {
             p.SendMessage("/roll [min] [max] - Rolls a random number between [min] and [max].");
-		}
-	}
+        }
+    }
 }

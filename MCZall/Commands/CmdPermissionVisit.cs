@@ -12,15 +12,13 @@
 	or implied. See the License for the specific language governing
 	permissions and limitations under the License.
 */
-using System;
-
 namespace MCZall
 {
     public class CmdPermissionVisit : Command
     {
-        public override string name { get { return "pervisit"; } }
-        public override string shortcut { get { return ""; } }
-        public override string type { get { return "mod"; } }
+        public override string Name { get { return "pervisit"; } }
+        public override string Shortcut { get { return ""; } }
+        public override string Type { get { return "mod"; } }
         public CmdPermissionVisit() { }
         public override void Use(Player p, string message)
         {
@@ -42,16 +40,18 @@ namespace MCZall
                 string s = message.Substring(pos + 1).ToLower();
                 LevelPermission Perm = Level.PermissionFromName(s);
                 if (Perm == LevelPermission.Null) { p.SendMessage("Not a valid rank"); return; }
-                
+
                 Level level = Level.Find(t);
-                if (level != null) {
+                if (level != null)
+                {
                     level.permissionvisit = Perm;
                     Server.s.Log(level.name + " visit permission changed to " + s + ".");
                     Player.GlobalMessageLevel(level, "visit permission changed to " + s + ".");
                     if (p != null)
-                    if (p.level != level) { p.SendMessage("visit permission changed to " + s + " on " + level.name + "."); }
+                        if (p.level != level) { p.SendMessage("visit permission changed to " + s + " on " + level.name + "."); }
                     return;
-                } else
+                }
+                else
                     p.SendMessage("There is no level \"" + s + "\" loaded.");
             }
         }

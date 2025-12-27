@@ -18,9 +18,9 @@ namespace MCZall
 {
     public class CmdTime : Command
     {
-        public override string name { get { return "time"; } }
-        public override string shortcut { get { return ""; } }
-        public override string type { get { return "information"; } }
+        public override string Name { get { return "time"; } }
+        public override string Shortcut { get { return ""; } }
+        public override string Type { get { return "information"; } }
         public CmdTime() { }
         public override void Use(Player p, string message)
         {

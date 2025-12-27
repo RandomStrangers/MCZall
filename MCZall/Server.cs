@@ -12,24 +12,15 @@
 	or implied. See the License for the specific language governing
 	permissions and limitations under the License.
 */
+using MonoTorrent.Client;
+using MySql.Data.MySqlClient;
 using System;
-using System.Threading;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Net;
 using System.Net.Sockets;
-using System.IO;
-using System.Text.RegularExpressions;
-using System.Collections.Generic;
-using System.Windows.Forms;
-using System.Text;
-using System.ComponentModel;
-using System.Collections.Specialized;
-using System.Diagnostics;
-using System.Data;
-
-using MySql.Data.MySqlClient;
-using MySql.Data.Types;
-
-using MonoTorrent.Client;
+using System.Threading;
 
 namespace MCZall
 {
@@ -55,13 +46,14 @@ namespace MCZall
 
         public static int speedPhysics = 250;
 
-        public static string Version { get { return System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString(); } }
+        public static string Version { get { return InternalVersion; } }
+        public const string InternalVersion = "35.0.0.0";
 
         public static Socket listen;
-        public static System.Diagnostics.Process process = System.Diagnostics.Process.GetCurrentProcess();
+        public static Process process = Process.GetCurrentProcess();
         public static System.Timers.Timer updateTimer = new System.Timers.Timer(100);
         //static System.Timers.Timer heartbeatTimer = new System.Timers.Timer(60000);     //Every 45 seconds
-        static System.Timers.Timer messageTimer = new System.Timers.Timer(60000 * 5);   //Every 5 mins
+        static readonly System.Timers.Timer messageTimer = new System.Timers.Timer(60000 * 5);   //Every 5 mins
         public static System.Timers.Timer cloneTimer = new System.Timers.Timer(5000);
 
         public static Thread physThread;
@@ -172,26 +164,30 @@ namespace MCZall
         {
             //lua = new Lua();
             //lua["server"] = this;
-            ml = new MainLoop("server");
-            Server.s = this;
+            ml = new MainLoop();
+            s = this;
 
         }
-        public void Start() {
+        public void Start()
+        {
             Log("Starting Server");
-            try {
+            try
+            {
                 if (!Directory.Exists("properties"))
                     Directory.CreateDirectory("properties");
-                if (File.Exists("rank.properties")) 
+                if (File.Exists("rank.properties"))
                     File.Move("rank.properties", "properties/command.properties");
                 if (File.Exists("server.properties"))
                     File.Move("server.properties", "properties/server.properties");
-            } catch { }
+            }
+            catch { }
             Properties.Load("properties/server.properties");
             Properties.Load("properties/rank.properties", true);
 
             Block.SetBlocks();
 
-            try {
+            try
+            {
                 if (!Directory.Exists("bots")) Directory.CreateDirectory("bots");
                 if (!Directory.Exists("text files")) Directory.CreateDirectory("text");
                 if (File.Exists("rules.txt")) File.Move("rules.txt", "text/rules.txt");
@@ -200,13 +196,17 @@ namespace MCZall
                 if (File.Exists("externalurl.txt")) File.Move("externalurl.txt", "text/externalurl.txt");
                 if (File.Exists("autoload.txt")) File.Move("autoload.txt", "text/autoload.txt");
                 if (File.Exists("IRC_Controllers.txt")) File.Move("IRC_Controllers.txt", "ranks/IRC_Controllers.txt");
-            } catch { }
+            }
+            catch { }
 
-    retry:  if (File.Exists("text/motd.txt")) {
+        retry: if (File.Exists("text/motd.txt"))
+            {
                 userMOTD = File.ReadAllLines("text/motd.txt");
                 string storeName = "", storeMOTD = "";
-                for (int i = 0; i < userMOTD.Length; i++) {
-                    try {
+                for (int i = 0; i < userMOTD.Length; i++)
+                {
+                    try
+                    {
                         storeName = userMOTD[i].Substring(userMOTD[i].IndexOf("NAME: ") + 5, userMOTD[i].IndexOf("MOTD: ") - 5);
                         storeMOTD = userMOTD[i].Substring(userMOTD[i].IndexOf("MOTD: ") + 5);
 
@@ -217,18 +217,25 @@ namespace MCZall
                         else if (storeMOTD.Length > 64) storeMOTD = storeMOTD.Substring(0, 63);
 
                         userMOTD[i] = storeName + storeMOTD;
-                    } catch { }
+                    }
+                    catch { }
                 }
-            } else {
+            }
+            else
+            {
                 File.WriteAllText("text/motd.txt", "NAME: " + name + "MOTD: " + motd);
                 goto retry;
             }
 
-            if (File.Exists("text/emotelist.txt")) {
-                foreach (string s in File.ReadAllLines("text/emotelist.txt")) {
+            if (File.Exists("text/emotelist.txt"))
+            {
+                foreach (string s in File.ReadAllLines("text/emotelist.txt"))
+                {
                     Player.emoteList.Add(s);
                 }
-            } else {
+            }
+            else
+            {
                 File.Create("text/emotelist.txt");
             }
 
@@ -236,50 +243,53 @@ namespace MCZall
 
             mysqlCon = new MySqlConnection("Data Source=" + MySQLHost + ";User ID=" + MySQLUsername + ";Password=" + MySQLPassword + ";");
             try { mysqlCon.Open(); }
-            catch (Exception e) {
-                Server.s.Log("MySQL settings have not been set! Please reference the MySQL_Setup.txt file on setting up MySQL!");
-                Server.ErrorLog(e);
+            catch (Exception e)
+            {
+                s.Log("MySQL settings have not been set! Please reference the MySQL_Setup.txt file on setting up MySQL!");
+                ErrorLog(e);
                 //process.Kill();
                 return;
             }
 
             MySqlCommand cmdDatabaseCreate = new MySqlCommand("CREATE DATABASE if not exists " + MySQLDatabaseName, mysqlCon);
-retryTag1:  try { cmdDatabaseCreate.ExecuteNonQuery(); } catch (Exception e) { Server.ErrorLog(e); goto retryTag1; }
+        retryTag1: try { cmdDatabaseCreate.ExecuteNonQuery(); } catch (Exception e) { ErrorLog(e); goto retryTag1; }
             mysqlCon.Close();
 
             mysqlCon = new MySqlConnection("Data Source=" + MySQLHost + ";Database=" + MySQLDatabaseName + ";User ID=" + MySQLUsername + ";Password=" + MySQLPassword + ";Pooling=false");
             mysqlCon.Open();
 
             cmdDatabaseCreate = new MySqlCommand("CREATE TABLE if not exists Players (ID MEDIUMINT not null auto_increment, Name VARCHAR(20), IP CHAR(15), FirstLogin DATETIME, LastLogin DATETIME, totalLogin MEDIUMINT, Title CHAR(20), TotalDeaths SMALLINT, Money MEDIUMINT UNSIGNED, totalBlocks BIGINT, totalKicked MEDIUMINT, PRIMARY KEY (ID));", mysqlCon);
-retryTag:   try { cmdDatabaseCreate.ExecuteNonQuery(); } catch (Exception e) { Server.ErrorLog(e); goto retryTag; }
+        retryTag: try { cmdDatabaseCreate.ExecuteNonQuery(); } catch (Exception e) { ErrorLog(e); goto retryTag; }
             cmdDatabaseCreate.Dispose();
 
             ml.Queue(delegate
             {
-                levels = new List<Level>(Server.maps);
+                levels = new List<Level>(maps);
                 MapGen = new MapGenerator();
 
                 Random random = new Random();
 
-                if (File.Exists("levels/" + Server.level + ".lvl"))
+                if (File.Exists("levels/" + level + ".lvl"))
                 {
                     mainLevel = new Level("temp", 16, 16, 16, "flat");
-                    mainLevel = mainLevel.Load(Server.level);
+                    mainLevel = mainLevel.Load(level);
                     mainLevel.unload = false;
                     mainLevel.physThread.Start();
                     if (mainLevel == null)
                     {
-                        if (File.Exists("levels/" + Server.level + ".lvl.backup"))
+                        if (File.Exists("levels/" + level + ".lvl.backup"))
                         {
                             Log("Attempting to load backup.");
-                            File.Copy("levels/" + Server.level + ".lvl.backup", "levels/" + Server.level + ".lvl", true);
-                            mainLevel = mainLevel.Load(Server.level);
+                            File.Copy("levels/" + level + ".lvl.backup", "levels/" + level + ".lvl", true);
+                            mainLevel = mainLevel.Load(level);
                             if (mainLevel == null)
                             {
                                 Log("BACKUP FAILED!");
                                 Console.ReadKey(); return;
                             }
-                        } else {
+                        }
+                        else
+                        {
                             Log("BACKUP NOT FOUND!");
                             Console.ReadKey(); return;
                         }
@@ -289,10 +299,11 @@ retryTag:   try { cmdDatabaseCreate.ExecuteNonQuery(); } catch (Exception e) { S
                 else
                 {
                     Log("mainlevel not found");
-                    mainLevel = new Level(Server.level, 128, 64, 128, "flat");
-
-                    mainLevel.permissionvisit = LevelPermission.Guest;
-                    mainLevel.permissionbuild = LevelPermission.Guest;
+                    mainLevel = new Level(level, 128, 64, 128, "flat")
+                    {
+                        permissionvisit = LevelPermission.Guest,
+                        permissionbuild = LevelPermission.Guest
+                    };
                     mainLevel.Save();
                 }
                 levels.Add(mainLevel);
@@ -325,7 +336,7 @@ retryTag:   try { cmdDatabaseCreate.ExecuteNonQuery(); } catch (Exception e) { S
                     bot.Save("bots.txt", false);
                 }
                 Command.InitAll();
-                GrpCommands.fillRanks();
+                GrpCommands.FillRanks();
                 Group.InitAll();
             });
 
@@ -341,32 +352,41 @@ retryTag:   try { cmdDatabaseCreate.ExecuteNonQuery(); } catch (Exception e) { S
                         {
                             //int temp = 0;
                             string _line = line.Trim();
-                            try {
+                            try
+                            {
                                 if (_line == "") { continue; }
                                 if (_line[0] == '#') { continue; }
                                 int index = _line.IndexOf("=");
 
                                 string key = line.Split('=')[0].Trim();
                                 string value;
-                                try {
+                                try
+                                {
                                     value = line.Split('=')[1].Trim();
-                                } catch {
+                                }
+                                catch
+                                {
                                     value = "0";
                                 }
 
-                                if (!key.Equals("main")) {
+                                if (!key.Equals("main"))
+                                {
                                     Command.all.Find("load").Use(null, key + " " + value);
                                     Level l = Level.Find(key);
-                                } else {
-                                    try {
+                                }
+                                else
+                                {
+                                    try
+                                    {
                                         int temp = int.Parse(value);
-                                        if (temp >= 0 && temp <= 3) {
-                                            mainLevel.setPhysics(temp);
+                                        if (temp >= 0 && temp <= 3)
+                                        {
+                                            mainLevel.SetPhysics(temp);
                                         }
                                     }
                                     catch
                                     {
-                                        Server.s.Log("Physics variable invalid");
+                                        s.Log("Physics variable invalid");
                                     }
                                 }
 
@@ -374,13 +394,13 @@ retryTag:   try { cmdDatabaseCreate.ExecuteNonQuery(); } catch (Exception e) { S
                             }
                             catch
                             {
-                                Server.s.Log(_line + " failed.");
+                                s.Log(_line + " failed.");
                             }
                         }
                     }
                     catch
                     {
-                        Server.s.Log("autoload.txt error");
+                        s.Log("autoload.txt error");
                     }
                     GC.Collect();
                     GC.WaitForPendingFinalizers();
@@ -393,7 +413,7 @@ retryTag:   try { cmdDatabaseCreate.ExecuteNonQuery(); } catch (Exception e) { S
 
             ml.Queue(delegate
             {
-                s.Log("Creating listening socket on port " + Server.port + "... ");
+                s.Log("Creating listening socket on port " + port + "... ");
                 if (Setup())
                 {
                     s.Log("Done.");
@@ -425,24 +445,30 @@ retryTag:   try { cmdDatabaseCreate.ExecuteNonQuery(); } catch (Exception e) { S
 
             PCCounter = new PerformanceCounter("Processor", "% Processor Time", "_Total");
             ProcessCounter = new PerformanceCounter("Process", "% Processor Time", Process.GetCurrentProcess().ProcessName);
-            Server.PCCounter.BeginInit();
+            PCCounter.BeginInit();
             ProcessCounter.BeginInit();
             PCCounter.NextValue();
             ProcessCounter.NextValue();
             //physThread = new Thread(new ThreadStart(Physics));
             //physThread.Start();
 
-            ml.Queue(delegate {
-                messageTimer.Elapsed += delegate {
+            ml.Queue(delegate
+            {
+                messageTimer.Elapsed += delegate
+                {
                     RandomMessage();
                 };
                 messageTimer.Start();
 
-                cloneTimer.Elapsed += delegate {
+                cloneTimer.Elapsed += delegate
+                {
                     List<Player> foundClones = new List<Player>();
-                    foreach (Player p in Player.players) {
-                        foreach (Player pl in Player.players) {
-                            if (p.name == pl.name && p != pl) {
+                    foreach (Player p in Player.players)
+                    {
+                        foreach (Player pl in Player.players)
+                        {
+                            if (p.name == pl.name && p != pl)
+                            {
                                 if (!foundClones.Contains(p)) foundClones.Add(p);
                                 if (!foundClones.Contains(pl)) foundClones.Add(pl);
                             }
@@ -450,27 +476,30 @@ retryTag:   try { cmdDatabaseCreate.ExecuteNonQuery(); } catch (Exception e) { S
                     }
 
                     if (foundClones.Count != 0)
-                        foreach (Player p in foundClones) {
+                        foreach (Player p in foundClones)
+                        {
                             p.Kick("Clone!");
                             Player.players.Remove(p);
                         }
                 };
 
-                process = System.Diagnostics.Process.GetCurrentProcess();
+                process = Process.GetCurrentProcess();
 
-                if (File.Exists("text/messages.txt")) {
+                if (File.Exists("text/messages.txt"))
+                {
                     StreamReader r = File.OpenText("text/messages.txt");
                     while (!r.EndOfStream)
                         messages.Add(r.ReadLine());
                     r.Dispose();
-                } else File.Create("text/messages.txt").Close();
+                }
+                else File.Create("text/messages.txt").Close();
 
-                if (Server.irc)
+                if (irc)
                 {
                     new IRCBot();
                 }
 
-                new AutoSaver(Server.backupInterval);     //2 and a half mins
+                new AutoSaver(backupInterval);     //2 and a half mins
                 //Thread physThread = new Thread(new ThreadStart(Physics));
                 //physThread.Start();
                 /*if (Server.console)
@@ -485,7 +514,7 @@ retryTag:   try { cmdDatabaseCreate.ExecuteNonQuery(); } catch (Exception e) { S
         {
             try
             {
-                IPEndPoint endpoint = new IPEndPoint(IPAddress.Any, Server.port);
+                IPEndPoint endpoint = new IPEndPoint(IPAddress.Any, port);
                 listen = new Socket(endpoint.Address.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
                 listen.Bind(endpoint);
                 listen.Listen((int)SocketOptionName.MaxConnections);
@@ -497,70 +526,79 @@ retryTag:   try { cmdDatabaseCreate.ExecuteNonQuery(); } catch (Exception e) { S
             catch (Exception e) { ErrorLog(e); return false; }
         }
 
-        static void Accept(IAsyncResult result) {
-            if (shuttingDown == false) {
+        static void Accept(IAsyncResult result)
+        {
+            if (shuttingDown == false)
+            {
                 // found information: http://www.codeguru.com/csharp/csharp/cs_network/sockets/article.php/c7695
                 // -Descention
-                try {
+                try
+                {
                     new Player(listen.EndAccept(result));
                     s.Log("New Connection");
                     listen.BeginAccept(new AsyncCallback(Accept), null);
-                } catch (SocketException e)  {
+                }
+                catch (SocketException e)
+                {
                     //s.Close();
                     ErrorLog(e);
-                } catch (Exception e) {
+                }
+                catch (Exception e)
+                {
                     //s.Close(); 
                     ErrorLog(e);
                 }
             }
         }
 
-        public static void Exit() {
+        public static void Exit()
+        {
             List<string> players = new List<string>();
-            foreach (Player p in Player.players) { p.save(); players.Add(p.name); }
+            foreach (Player p in Player.players) { p.Save(); players.Add(p.name); }
             foreach (string p in players) { Player.Find(p).Kick("Server shutdown. Rejoin in 10 seconds."); }
 
             //Player.players.ForEach(delegate(Player p) { p.Kick("Server shutdown. Rejoin in 10 seconds."); });
-            Player.connections.ForEach(delegate(Player p) { p.Kick("Server shutdown. Rejoin in 10 seconds."); });
+            Player.connections.ForEach(delegate (Player p) { p.Kick("Server shutdown. Rejoin in 10 seconds."); });
             shuttingDown = true;
             listen.Close();
 
             mysqlCon.Close();
         }
 
-        public void PlayerListUpdate() {
-            if (Server.s.OnPlayerListChange != null) Server.s.OnPlayerListChange(Player.players);
-        }        
+        public void PlayerListUpdate()
+        {
+            s.OnPlayerListChange?.Invoke(Player.players);
+        }
 
         public void FailBeat()
         {
-            if (HeartBeatFail != null) HeartBeatFail();
+            HeartBeatFail?.Invoke();
         }
 
         public void UpdateUrl(string url)
         {
-            if (OnURLChange != null) OnURLChange(url);
+            OnURLChange?.Invoke(url);
         }
 
         public void Log(string message)
         {
-            if (OnLog != null) OnLog(DateTime.Now.ToString("(HH:mm:ss) ") + message);
+            OnLog?.Invoke(DateTime.Now.ToString("(HH:mm:ss) ") + message);
             Logger.Write(DateTime.Now.ToString("(HH:mm:ss) ") + message + Environment.NewLine);
         }
 
         public void CommandUsed(string message)
         {
-            if (OnCommand != null) OnCommand(DateTime.Now.ToString("(HH:mm:ss) ") + message);
+            OnCommand?.Invoke(DateTime.Now.ToString("(HH:mm:ss) ") + message);
             Logger.Write(DateTime.Now.ToString("(HH:mm:ss) ") + message + Environment.NewLine);
         }
 
         public static void ErrorLog(string message)
         {
-            if (Server.errlog == "") { Console.WriteLine(DateTime.Now.ToString("(HH:mm:ss) ") + "ERROR!"); }
+            if (errlog == "") { Console.WriteLine(DateTime.Now.ToString("(HH:mm:ss) ") + "ERROR!"); }
             else
             {
-                Console.WriteLine(DateTime.Now.ToString("(HH:mm:ss) ") + "ERROR! See \"" + Server.errlog + "\" for more information.");
-                StreamWriter sw = File.AppendText(Server.errlog);
+                Console.WriteLine(DateTime.Now.ToString("(HH:mm:ss) ") + "ERROR! See \"" + errlog + "\" for more information.");
+                StreamWriter sw = File.AppendText(errlog);
                 sw.WriteLine(DateTime.Now.ToString("(HH:mm:ss)"));
                 sw.WriteLine(message); sw.Close();
             }
@@ -571,20 +609,20 @@ retryTag:   try { cmdDatabaseCreate.ExecuteNonQuery(); } catch (Exception e) { S
             Logger.WriteError(ex);
         }
 
-        public static void ParseInput(Boolean console = true, string sentCMD = null, string sentMsg = null)        //Handle console commands
+        public static void ParseInput(bool console = true, string sentCMD = null, string sentMsg = null)        //Handle console commands
         {
             string cmd;
             string msg;
             while (true)
             {
-                string input = null;
+                string input;
                 if (console == true) { input = Console.ReadLine(); } else { input = sentCMD + sentMsg; }
                 if (input == null)
                     continue;
                 cmd = input.Split(' ')[0];
                 if (input.Split(' ').Length > 1)
                 {
-                    msg = input.Substring(input.IndexOf(' ')).Trim();
+                    //msg = input.Substring(input.IndexOf(' ')).Trim();
                 }
                 else
                 {
@@ -635,22 +673,23 @@ retryTag:   try { cmdDatabaseCreate.ExecuteNonQuery(); } catch (Exception e) { S
 
         public static void RandomMessage()
         {
-            if (Player.number != 0 && messages.Count > 0)
+            if (Player.Number != 0 && messages.Count > 0)
                 Player.GlobalMessage(messages[new Random().Next(0, messages.Count)]);
         }
 
         internal void SettingsUpdate()
         {
-            if (OnSettingsUpdate != null) OnSettingsUpdate();
+            OnSettingsUpdate?.Invoke();
         }
 
-        public static string FindColor(string Username) {
-            if (banned.Contains(Username)) return Group.Find("banned").color;
-            else if (builders.Contains(Username)) return Group.Find("builder").color;
-            else if (advbuilders.Contains(Username)) return Group.Find("advbuilder").color;
-            else if (operators.Contains(Username)) return Group.Find("operator").color;
-            else if (superOps.Contains(Username)) return Group.Find("superop").color;
-            return Group.Find("guest").color;
+        public static string FindColor(string Username)
+        {
+            if (banned.Contains(Username)) return Group.Find("banned").Color;
+            else if (builders.Contains(Username)) return Group.Find("builder").Color;
+            else if (advbuilders.Contains(Username)) return Group.Find("advbuilder").Color;
+            else if (operators.Contains(Username)) return Group.Find("operator").Color;
+            else if (superOps.Contains(Username)) return Group.Find("superop").Color;
+            return Group.Find("guest").Color;
         }
     }
 }

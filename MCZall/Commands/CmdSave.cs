@@ -12,32 +12,32 @@
 	or implied. See the License for the specific language governing
 	permissions and limitations under the License.
 */
-using System;
-using System.IO;
-using System.Data;
-
 namespace MCZall
 {
     public class CmdSave : Command
     {
-        public override string name { get { return "save"; } }
-        public override string shortcut { get { return ""; } }
-        public override string type { get { return "mod"; } }
+        public override string Name { get { return "save"; } }
+        public override string Shortcut { get { return ""; } }
+        public override string Type { get { return "mod"; } }
         public CmdSave() { }
-        public override void Use(Player p, string message) {
-            if (p != null) {
+        public override void Use(Player p, string message)
+        {
+            if (p != null)
+            {
                 if (message != "") { Help(p); return; }
                 p.level.Save(true);
                 p.SendMessage("Level \"" + p.level.name + "\" saved.");
 
                 int backupNumber = p.level.Backup(true);
-				if (backupNumber != -1) {
-					Player.GlobalChatLevel(p, "Backup " + backupNumber + " saved.", false);
-					Server.s.Log("Backup " + backupNumber + " saved for " + p.level.name);
-				}
+                if (backupNumber != -1)
+                {
+                    Player.GlobalChatLevel(p, "Backup " + backupNumber + " saved.", false);
+                    Server.s.Log("Backup " + backupNumber + " saved for " + p.level.name);
+                }
             }
         }
-        public override void Help(Player p) {
+        public override void Help(Player p)
+        {
             p.SendMessage("/save - Saves the level, not an actual backup.");
         }
     }

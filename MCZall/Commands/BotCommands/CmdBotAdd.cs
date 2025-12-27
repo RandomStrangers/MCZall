@@ -12,16 +12,13 @@
 	or implied. See the License for the specific language governing
 	permissions and limitations under the License.
 */
-using System;
-using System.IO;
-
 namespace MCZall
 {
     public class CmdBotAdd : Command
     {
-        public override string name { get { return "botadd"; } }
-        public override string shortcut { get { return ""; } }
-        public override string type { get { return "mod"; } }
+        public override string Name { get { return "botadd"; } }
+        public override string Shortcut { get { return ""; } }
+        public override string Type { get { return "mod"; } }
         public CmdBotAdd() { }
         public override void Use(Player p, string message)
         {

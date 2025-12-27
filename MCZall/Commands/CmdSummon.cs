@@ -12,24 +12,26 @@
 	or implied. See the License for the specific language governing
 	permissions and limitations under the License.
 */
-using System;
-using System.IO;
-
-namespace MCZall {
-	public class CmdSummon : Command {
-        public override string name { get { return "summon"; } }
-        public override string shortcut { get { return "s"; } }
-        public override string type { get { return "other"; } }
-		public CmdSummon() {  }
-		public override void Use(Player p,string message)  {
-			if (message == "") { Help(p); return; }
-			Player who = Player.Find(message);
-			if (who == null || who.hidden) { p.SendMessage("There is no player \""+message+"\"!"); return; }
-			if (p.level != who.level) { p.SendMessage(who.name+" is in a different level."); return; }
-				unchecked { who.SendPos((byte)-1,p.pos[0],p.pos[1],p.pos[2],p.rot[0],0); }
-				who.SendMessage("You were summoned by "+p.color+p.name+Server.DefaultColor + ".");
-			} public override void Help(Player p)  {
-				p.SendMessage("/summon <player> - Summons a player to your position.");
-			}
-		}
-	}
+namespace MCZall
+{
+    public class CmdSummon : Command
+    {
+        public override string Name { get { return "summon"; } }
+        public override string Shortcut { get { return "s"; } }
+        public override string Type { get { return "other"; } }
+        public CmdSummon() { }
+        public override void Use(Player p, string message)
+        {
+            if (message == "") { Help(p); return; }
+            Player who = Player.Find(message);
+            if (who == null || who.hidden) { p.SendMessage("There is no player \"" + message + "\"!"); return; }
+            if (p.level != who.level) { p.SendMessage(who.name + " is in a different level."); return; }
+            unchecked { who.SendPos((byte)-1, p.pos[0], p.pos[1], p.pos[2], p.rot[0], 0); }
+            who.SendMessage("You were summoned by " + p.color + p.name + Server.DefaultColor + ".");
+        }
+        public override void Help(Player p)
+        {
+            p.SendMessage("/summon <player> - Summons a player to your position.");
+        }
+    }
+}

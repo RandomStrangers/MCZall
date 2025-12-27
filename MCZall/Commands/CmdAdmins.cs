@@ -12,17 +12,13 @@
 	or implied. See the License for the specific language governing
 	permissions and limitations under the License.
 */
-using System;
-using System.Collections.Generic;
-using System.Text;
-
 namespace MCZall
 {
     public class CmdAdmins : Command
     {
-        public override string name { get { return "admins"; } }
-        public override string shortcut { get { return ""; } }
-        public override string type { get { return "information"; } }
+        public override string Name { get { return "admins"; } }
+        public override string Shortcut { get { return ""; } }
+        public override string Type { get { return "information"; } }
         public CmdAdmins() { }
 
         public override void Use(Player p, string message)
@@ -30,8 +26,8 @@ namespace MCZall
             if (message != "") { Help(p); return; }
             if (Server.operators.All().Count > 0)
             {
-                Server.superOps.All().ForEach(delegate(string name) { message += ", " + name; });
-                p.SendMessage(Server.superOps.All().Count + Group.Find("superop").color + " Admin" + ((Server.superOps.All().Count != 1) ? "s" : "") + "&e: " + message.Remove(0, 2) + ".");
+                Server.superOps.All().ForEach(delegate (string name) { message += ", " + name; });
+                p.SendMessage(Server.superOps.All().Count + Group.Find("superop").Color + " Admin" + ((Server.superOps.All().Count != 1) ? "s" : "") + "&e: " + message.Remove(0, 2) + ".");
             }
             else { p.SendMessage("Nobody is admin. What's wrong with this server?"); }
         }

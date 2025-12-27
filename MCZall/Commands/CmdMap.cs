@@ -1,22 +1,26 @@
-using System; 
-using System.IO;
-
-namespace MCZall {
-    public class CmdMap : Command {
-        public override string name { get { return "map"; } }
-        public override string shortcut { get { return ""; } }
-        public override string type { get { return "mod"; } }
+namespace MCZall
+{
+    public class CmdMap : Command
+    {
+        public override string Name { get { return "map"; } }
+        public override string Shortcut { get { return ""; } }
+        public override string Type { get { return "mod"; } }
         public CmdMap() { }
-        public override void Use(Player p, string message) {
+        public override void Use(Player p, string message)
+        {
             if (message == "") message = p.level.name;
-            
+
             Level foundLevel;
 
-            if (message.IndexOf(' ') == -1) {
+            if (message.IndexOf(' ') == -1)
+            {
                 foundLevel = Level.Find(message);
-                if (foundLevel == null) {
+                if (foundLevel == null)
+                {
                     foundLevel = p.level;
-                } else {
+                }
+                else
+                {
                     p.SendMessage("Theme: &b" + foundLevel.theme);
                     p.SendMessage("Finite mode: " + FoundCheck(foundLevel.finite));
                     p.SendMessage("Animal AI: " + FoundCheck(foundLevel.ai));
@@ -32,7 +36,9 @@ namespace MCZall {
                     p.SendMessage("RP chat: " + FoundCheck(!foundLevel.worldChat));
                     return;
                 }
-            } else {
+            }
+            else
+            {
                 foundLevel = Level.Find(message.Split(' ')[0]);
 
                 if (foundLevel == null || message.Split(' ')[0].ToLower() == "ps" || message.Split(' ')[0].ToLower() == "rp") foundLevel = p.level;
@@ -46,16 +52,18 @@ namespace MCZall {
             if (message.IndexOf(' ') == -1) foundStart = message.ToLower();
             else foundStart = message.Split(' ')[0].ToLower();
 
-            try {
-                switch (foundStart) {
+            try
+            {
+                switch (foundStart)
+                {
                     case "theme": foundLevel.theme = message.Substring(message.IndexOf(' ') + 1); Player.GlobalChatLevel(p, "Map theme: &b" + foundLevel.theme, false); break;
                     case "finite": foundLevel.finite = !foundLevel.finite; Player.GlobalChatLevel(p, "Finite mode: " + FoundCheck(foundLevel.finite), false); break;
                     case "ai": foundLevel.ai = !foundLevel.ai; Player.GlobalChatLevel(p, "Animal AI: " + FoundCheck(foundLevel.ai), false); break;
                     case "edge": foundLevel.edgeWater = !foundLevel.edgeWater; Player.GlobalChatLevel(p, "Edge water: " + FoundCheck(foundLevel.edgeWater), false); break;
-                    case "ps": 
+                    case "ps":
                     case "physicspeed":
                         if (int.Parse(message.Split(' ')[1]) < 10) { p.SendMessage("Cannot go below 10"); return; }
-                        foundLevel.speedPhysics = int.Parse(message.Split(' ')[1]); 
+                        foundLevel.speedPhysics = int.Parse(message.Split(' ')[1]);
                         Player.GlobalChatLevel(p, "Physics speed: &b" + foundLevel.speedPhysics, false);
                         break;
                     case "overload":
@@ -66,8 +74,8 @@ namespace MCZall {
                         break;
                     case "motd":
                         if (message.Split(' ').Length == 1) foundLevel.motd = "ignore";
-                        else foundLevel.motd = message.Substring(message.IndexOf(' ') + 1); 
-                        Player.GlobalChatLevel(p, "Map MOTD: &b" + foundLevel.motd, false); 
+                        else foundLevel.motd = message.Substring(message.IndexOf(' ') + 1);
+                        Player.GlobalChatLevel(p, "Map MOTD: &b" + foundLevel.motd, false);
                         break;
                     case "death": foundLevel.Death = !foundLevel.Death; Player.GlobalChatLevel(p, "Survival death: " + FoundCheck(foundLevel.Death), false); break;
                     case "killer": foundLevel.Killer = !foundLevel.Killer; Player.GlobalChatLevel(p, "Killer blocks: " + FoundCheck(foundLevel.Killer), false); break;
@@ -84,14 +92,17 @@ namespace MCZall {
                     default: p.SendMessage("Could not find option entered."); return;
                 }
                 foundLevel.Save(true);
-            } catch { p.SendMessage("INVALID INPUT"); }
+            }
+            catch { p.SendMessage("INVALID INPUT"); }
         }
-        public string FoundCheck(bool check) {
+        public string FoundCheck(bool check)
+        {
             if (check) return "&aON";
             else return "&cOFF";
         }
 
-        public override void Help(Player p) {
+        public override void Help(Player p)
+        {
             p.SendMessage("/map [level] [toggle] - Sets [toggle] on [map]");
             p.SendMessage("Possible toggles: theme, finite, ai, edge, ps, overload, motd, death, fall, drown, unload, rp, instant, killer, chat");
             p.SendMessage("Theme will set the map's theme.");

@@ -12,33 +12,33 @@
 	or implied. See the License for the specific language governing
 	permissions and limitations under the License.
 */
-using System;
-using System.Collections.Generic;
-using System.Text;
 using System.IO;
-using System.Threading;
 
 namespace MCZall
 {
     class CmdRestore : Command
     {
-        public override string name { get { return "restore"; } }
-        public override string shortcut { get { return ""; } }
-        public override string type { get { return "mod"; } }
+        public override string Name { get { return "restore"; } }
+        public override string Shortcut { get { return ""; } }
+        public override string Type { get { return "mod"; } }
 
         public override void Use(Player p, string message)
         {
             //Thread CrossThread;
 
-            if (message != "") {
+            if (message != "")
+            {
                 Server.s.Log("levels/backups/" + p.level.name + "/" + message + "/" + p.level.name + ".lvl");
-                if (File.Exists("levels/backups/" + p.level.name + "/" + message + "/" + p.level.name + ".lvl")) {
-                    try {
+                if (File.Exists("levels/backups/" + p.level.name + "/" + message + "/" + p.level.name + ".lvl"))
+                {
+                    try
+                    {
                         File.Copy("levels/backups/" + p.level.name + "/" + message + "/" + p.level.name + ".lvl", "levels/" + p.level.name + ".lvl", true);
                         Level temp = new Level("temp", 16, 16, 16, "flat");
                         temp = temp.Load(p.level.name);
                         temp.physThread.Start();
-                        if (temp != null) {
+                        if (temp != null)
+                        {
                             p.level.spawnx = temp.spawnx;
                             p.level.spawny = temp.spawny;
                             p.level.spawnz = temp.spawnz;
@@ -48,28 +48,38 @@ namespace MCZall
                             p.level.depth = temp.depth;
 
                             p.level.blocks = temp.blocks;
-                            p.level.setPhysics(0);
+                            p.level.SetPhysics(0);
                             p.level.ClearPhysics();
 
-                            Command.all.Find("reveal").Use(p, "all");
-                        } else {
+                            all.Find("reveal").Use(p, "all");
+                        }
+                        else
+                        {
                             Server.s.Log("Restore nulled");
-                            File.Copy("levels/" + p.level.name + ".lvl.backup","levels/" + p.level.name + ".lvl", true);
+                            File.Copy("levels/" + p.level.name + ".lvl.backup", "levels/" + p.level.name + ".lvl", true);
                         }
 
-                    } catch { Server.s.Log("Restore fail"); }
-                } else { p.SendMessage("Backup " + message + " does not exist."); }
-            } else {
-                if (Directory.Exists("levels/backups/" + p.level.name)) {
+                    }
+                    catch { Server.s.Log("Restore fail"); }
+                }
+                else { p.SendMessage("Backup " + message + " does not exist."); }
+            }
+            else
+            {
+                if (Directory.Exists("levels/backups/" + p.level.name))
+                {
                     int backupNumber = Directory.GetDirectories("levels/backups/" + p.level.name).Length;
                     p.SendMessage(p.level.name + " has " + backupNumber.ToString() + " backups .");
-                } else {
+                }
+                else
+                {
                     p.SendMessage(p.level.name + " has no backups yet.");
                 }
             }
         }
 
-        public override void Help(Player p) {
+        public override void Help(Player p)
+        {
             p.SendMessage("/restore <number> - restores a previous backup of the current map");
         }
     }

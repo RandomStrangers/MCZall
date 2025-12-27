@@ -12,26 +12,26 @@
 	or implied. See the License for the specific language governing
 	permissions and limitations under the License.
 */
-using System;
-using System.IO;
-
 namespace MCZall
 {
     public class CmdOps : Command
     {
-        public override string name { get { return "ops"; } }
-        public override string shortcut { get { return ""; } }
-        public override string type { get { return "information"; } }
+        public override string Name { get { return "ops"; } }
+        public override string Shortcut { get { return ""; } }
+        public override string Type { get { return "information"; } }
         public CmdOps() { }
-        public override void Use(Player p, string message) {
+        public override void Use(Player p, string message)
+        {
             if (message != "") { Help(p); return; }
-            if (Server.operators.All().Count > 0) {
-                Server.operators.All().ForEach(delegate(string name) { message += ", " + name; });
-                p.SendMessage(Server.operators.All().Count + Group.Find("op").color + " operator" + ((Server.operators.All().Count != 1) ? "s" : "") + Server.DefaultColor + ": " + message.Remove(0, 2) + ".");
+            if (Server.operators.All().Count > 0)
+            {
+                Server.operators.All().ForEach(delegate (string name) { message += ", " + name; });
+                p.SendMessage(Server.operators.All().Count + Group.Find("op").Color + " operator" + ((Server.operators.All().Count != 1) ? "s" : "") + Server.DefaultColor + ": " + message.Remove(0, 2) + ".");
             }
             else { p.SendMessage("Nobody is operator."); }
         }
-        public override void Help(Player p) {
+        public override void Help(Player p)
+        {
             p.SendMessage("/ops - Lists all operators.");
         }
     }

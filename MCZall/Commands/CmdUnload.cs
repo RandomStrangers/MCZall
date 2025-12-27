@@ -13,28 +13,33 @@
 	permissions and limitations under the License.
 */
 using System;
-using System.IO;
-using System.Collections.Generic;
 
-namespace MCZall {
-	public class CmdUnload : Command {
-        public override string name { get { return "unload"; } }
-        public override string shortcut { get { return ""; } }
-        public override string type { get { return "mod"; } }
-		public CmdUnload() {  }
-		public override void Use(Player p,string message)  {
-            if (message.ToLower() == "empty") {
-                Boolean Empty = true;
+namespace MCZall
+{
+    public class CmdUnload : Command
+    {
+        public override string Name { get { return "unload"; } }
+        public override string Shortcut { get { return ""; } }
+        public override string Type { get { return "mod"; } }
+        public CmdUnload() { }
+        public override void Use(Player p, string message)
+        {
+            if (message.ToLower() == "empty")
+            {
+                bool Empty = true;
 
-                foreach (Level l in Server.levels) {
+                foreach (Level l in Server.levels)
+                {
                     Empty = true;
-                    Player.players.ForEach(delegate(Player pl) {
+                    Player.players.ForEach(delegate (Player pl)
+                    {
                         if (pl.level == l) Empty = false;
                     });
-                    if (Empty == true && l.unload) {
+                    if (Empty == true && l.unload)
+                    {
                         l.Save();
                         l.physThread.Abort();
-				        Server.levels.Remove(l);
+                        Server.levels.Remove(l);
                         GC.Collect();
                         GC.WaitForPendingFinalizers();
 
@@ -47,32 +52,38 @@ namespace MCZall {
             }
 
             Level level = Level.Find(message);
-            
-            if (level != null) {
-			    if (level == Server.mainLevel) { p.SendMessage("You can't unload the main level."); return; }
-                    
-                Player.players.ForEach(delegate(Player pl) {
+
+            if (level != null)
+            {
+                if (level == Server.mainLevel) { p.SendMessage("You can't unload the main level."); return; }
+
+                Player.players.ForEach(delegate (Player pl)
+                {
                     if (pl.level == level)
-                        if (p != null) {
-                            if (pl != p) Command.all.Find("goto").Use(pl, "main");
-                        } else Command.all.Find("goto").Use(pl, "main");
+                        if (p != null)
+                        {
+                            if (pl != p) all.Find("goto").Use(pl, "main");
+                        }
+                        else all.Find("goto").Use(pl, "main");
                 });
 
-                if (p != null) if (p.level == level) { Command.all.Find("goto").Use(p, "main"); }
+                if (p != null) if (p.level == level) { all.Find("goto").Use(p, "main"); }
                 level.Save();
                 level.physThread.Abort();
-			    Server.levels.Remove(level);
+                Server.levels.Remove(level);
                 GC.Collect();
                 GC.WaitForPendingFinalizers();
 
                 Player.GlobalMessageOps("&3" + level.name + Server.DefaultColor + " was unloaded.");
-			    return;
+                return;
             }
 
             p.SendMessage("There is no level \"" + message + "\" loaded.");
-		} public override void Help(Player p)  {
-			p.SendMessage("/unload [level] - Unloads a level.");
+        }
+        public override void Help(Player p)
+        {
+            p.SendMessage("/unload [level] - Unloads a level.");
             p.SendMessage("/unload empty - Unloads an empty level.");
-		}
-	}
+        }
+    }
 }

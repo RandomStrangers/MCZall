@@ -1,52 +1,70 @@
 using System;
 using System.Collections.Generic;
-using System.Threading;
 
 namespace MCZall
 {
     public class CmdLine : Command
     {
-        public override string name { get { return "line"; } }
-        public override string shortcut { get { return ""; } }
-        public override string type { get { return "build"; } }
+        public override string Name { get { return "line"; } }
+        public override string Shortcut { get { return ""; } }
+        public override string Type { get { return "build"; } }
         public CmdLine() { }
-        public override void Use(Player p, string message) {
+        public override void Use(Player p, string message)
+        {
             CatchPos cpos;
 
-            if (message == "") {
+            if (message == "")
+            {
                 cpos.maxNum = 0;
                 cpos.wall = false;
                 cpos.type = Block.Zero;
-            } else if (message.IndexOf(' ') == -1) {
-                try { 
+            }
+            else if (message.IndexOf(' ') == -1)
+            {
+                try
+                {
                     cpos.maxNum = int.Parse(message);
                     cpos.wall = false;
                     cpos.type = Block.Zero;
-                } catch {
+                }
+                catch
+                {
                     cpos.maxNum = 0;
-                    if (message == "wall") { 
+                    if (message == "wall")
+                    {
                         cpos.wall = true;
                         cpos.type = Block.Zero;
-                    } else { 
+                    }
+                    else
+                    {
                         cpos.wall = false;
                         cpos.type = Block.Byte(message);
-                        if (cpos.type == Block.Zero) {
+                        if (cpos.type == Block.Zero)
+                        {
                             Help(p); return;
                         }
                     }
                 }
-            } else {
-                if (message.Split(' ').Length == 2) {
-                    try {
+            }
+            else
+            {
+                if (message.Split(' ').Length == 2)
+                {
+                    try
+                    {
                         cpos.maxNum = int.Parse(message.Split(' ')[0]);
                         cpos.type = Block.Byte(message.Split(' ')[1]);
-                        if (cpos.type == Block.Zero) if (message.Split(' ')[1] == "wall") cpos.wall = true; else cpos.wall = false; else cpos.wall = false;                    
-                    } catch {
+                        if (cpos.type == Block.Zero) if (message.Split(' ')[1] == "wall") cpos.wall = true; else cpos.wall = false; else cpos.wall = false;
+                    }
+                    catch
+                    {
                         cpos.maxNum = 0;
                         cpos.type = Block.Byte(message.Split(' ')[0]); if (cpos.type == Block.Zero) { Help(p); return; }
                         if (message.Split(' ')[1] == "wall") cpos.wall = true; else cpos.wall = false;
                     }
-                } else {
+                }
+                else
+                {
                     try { cpos.maxNum = int.Parse(message.Split(' ')[0]); } catch { Help(p); return; }
                     cpos.type = Block.Byte(message.Split(' ')[1]); if (cpos.type == Block.Zero) { Help(p); return; }
                     if (message.Split(' ')[2] == "wall") cpos.wall = true; else cpos.wall = false;
@@ -63,7 +81,8 @@ namespace MCZall
             p.SendMessage("/line [num] <block> [wall] - Creates a line between two blocks [num] long.");
             p.SendMessage("If \"wall\" is added, a cuboid-like wall will be made");
         }
-        public void Blockchange1(Player p, ushort x, ushort y, ushort z, byte type) {
+        public void Blockchange1(Player p, ushort x, ushort y, ushort z, byte type)
+        {
             p.ClearBlockchange();
             byte b = p.level.GetTile(x, y, z);
             p.SendBlockchange(x, y, z, b);
@@ -72,7 +91,8 @@ namespace MCZall
             p.Blockchange += new Player.BlockchangeEventHandler(Blockchange2);
         }
 
-        public void Blockchange2(Player p, ushort x, ushort y, ushort z, byte type) {
+        public void Blockchange2(Player p, ushort x, ushort y, ushort z, byte type)
+        {
             p.ClearBlockchange();
             byte b = p.level.GetTile(x, y, z);
             p.SendBlockchange(x, y, z, b);
@@ -95,20 +115,24 @@ namespace MCZall
 
             dx2 = l << 1; dy2 = m << 1; dz2 = n << 1;
 
-            if ((l >= m) && (l >= n)) {
+            if ((l >= m) && (l >= n))
+            {
                 err_1 = dy2 - l;
                 err_2 = dz2 - l;
-                for (i = 0; i < l; i++) {
+                for (i = 0; i < l; i++)
+                {
                     pos.x = (ushort)pixel[0];
                     pos.y = (ushort)pixel[1];
                     pos.z = (ushort)pixel[2];
                     buffer.Add(pos);
 
-                    if (err_1 > 0) {
+                    if (err_1 > 0)
+                    {
                         pixel[1] += y_inc;
                         err_1 -= dx2;
                     }
-                    if (err_2 > 0) {
+                    if (err_2 > 0)
+                    {
                         pixel[2] += z_inc;
                         err_2 -= dx2;
                     }
@@ -116,20 +140,25 @@ namespace MCZall
                     err_2 += dz2;
                     pixel[0] += x_inc;
                 }
-            } else if ((m >= l) && (m >= n)) {
+            }
+            else if ((m >= l) && (m >= n))
+            {
                 err_1 = dx2 - m;
                 err_2 = dz2 - m;
-                for (i = 0; i < m; i++) {
+                for (i = 0; i < m; i++)
+                {
                     pos.x = (ushort)pixel[0];
                     pos.y = (ushort)pixel[1];
                     pos.z = (ushort)pixel[2];
                     buffer.Add(pos);
 
-                    if (err_1 > 0) {
+                    if (err_1 > 0)
+                    {
                         pixel[0] += x_inc;
                         err_1 -= dy2;
                     }
-                    if (err_2 > 0) {
+                    if (err_2 > 0)
+                    {
                         pixel[2] += z_inc;
                         err_2 -= dy2;
                     }
@@ -137,20 +166,25 @@ namespace MCZall
                     err_2 += dz2;
                     pixel[1] += y_inc;
                 }
-            } else {
+            }
+            else
+            {
                 err_1 = dy2 - n;
                 err_2 = dx2 - n;
-                for (i = 0; i < n; i++) {
+                for (i = 0; i < n; i++)
+                {
                     pos.x = (ushort)pixel[0];
                     pos.y = (ushort)pixel[1];
                     pos.z = (ushort)pixel[2];
                     buffer.Add(pos);
 
-                    if (err_1 > 0) {
+                    if (err_1 > 0)
+                    {
                         pixel[1] += y_inc;
                         err_1 -= dz2;
                     }
-                    if (err_2 > 0) {
+                    if (err_2 > 0)
+                    {
                         pixel[0] += x_inc;
                         err_2 -= dz2;
                     }
@@ -167,19 +201,25 @@ namespace MCZall
 
             int count;
             count = Math.Min(buffer.Count, cpos.maxNum);
-            if (cpos.wall) count = count * Math.Abs(cpos.y - y);
+            if (cpos.wall) count *= Math.Abs(cpos.y - y);
 
-            if (count > p.group.maxBlocks) {
+            if (count > p.group.MaxBlocks)
+            {
                 p.SendMessage("You tried to fill " + count + " blocks at once.");
-                p.SendMessage("You are limited to " + p.group.maxBlocks);
+                p.SendMessage("You are limited to " + p.group.MaxBlocks);
                 return;
             }
 
-            for (count = 0; count < cpos.maxNum && count < buffer.Count; count++) {
-                if (!cpos.wall) {
+            for (count = 0; count < cpos.maxNum && count < buffer.Count; count++)
+            {
+                if (!cpos.wall)
+                {
                     p.level.Blockchange(p, buffer[count].x, buffer[count].y, buffer[count].z, type);
-                } else {
-                    for (ushort yy = Math.Min(cpos.y, y); yy <= Math.Max(cpos.y, y); yy++) {
+                }
+                else
+                {
+                    for (ushort yy = Math.Min(cpos.y, y); yy <= Math.Max(cpos.y, y); yy++)
+                    {
                         p.level.Blockchange(p, buffer[count].x, yy, buffer[count].z, type);
                     }
                 }

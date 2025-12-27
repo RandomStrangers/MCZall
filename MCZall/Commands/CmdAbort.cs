@@ -12,23 +12,26 @@
 	or implied. See the License for the specific language governing
 	permissions and limitations under the License.
 */
-using System;
-
-namespace MCZall {
-	public class CmdAbort : Command {
-        public override string name { get { return "abort"; } }
-        public override string shortcut { get { return "a"; } }
-        public override string type { get { return "build"; } }
-		public CmdAbort() {  }
-		public override void Use(Player p,string message)  {
-            p.ClearBlockchange(); p.painting = false; 
+namespace MCZall
+{
+    public class CmdAbort : Command
+    {
+        public override string Name { get { return "abort"; } }
+        public override string Shortcut { get { return "a"; } }
+        public override string Type { get { return "build"; } }
+        public CmdAbort() { }
+        public override void Use(Player p, string message)
+        {
+            p.ClearBlockchange(); p.painting = false;
             p.BlockAction = 0; //p.exitPortal = false;
             p.megaBoid = false; p.cmdTimer = false;
             p.staticCommands = false; p.deleteMode = false;
             p.ZoneCheck = false; p.modeType = 0;
             p.SendMessage("Every toggle or action was aborted.");
-		} public override void Help(Player p)  {
-			p.SendMessage("/abort - Cancels an action.");
-		}
-	}
+        }
+        public override void Help(Player p)
+        {
+            p.SendMessage("/abort - Cancels an action.");
+        }
+    }
 }

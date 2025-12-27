@@ -12,15 +12,14 @@
 	or implied. See the License for the specific language governing
 	permissions and limitations under the License.
 */
-using System;
-using System.IO;
 using System.Collections.Generic;
+using System.IO;
 
 namespace MCZall
 {
     public sealed class PlayerList
     {
-        List<string> players = new List<string>();
+        readonly List<string> players = new List<string>();
         public PlayerList() { }
         public void Add(string p) { players.Add(p.ToLower()); }
         public bool Remove(string p) { return players.Remove(p.ToLower()); }
@@ -30,7 +29,7 @@ namespace MCZall
         public void Save(string path, bool console)
         {
             StreamWriter file = File.CreateText("ranks/" + path);
-            players.ForEach(delegate(string p) { file.WriteLine(p); });
+            players.ForEach(delegate (string p) { file.WriteLine(p); });
             file.Close(); if (console) { Server.s.Log("SAVED: " + path); }
         }
         public static PlayerList Load(string path)
@@ -47,7 +46,8 @@ namespace MCZall
             {
                 File.Create(path).Close();
                 Server.s.Log("CREATED NEW: " + path);
-            } return list;
+            }
+            return list;
         }
     }
 }

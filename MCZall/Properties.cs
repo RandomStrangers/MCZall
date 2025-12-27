@@ -21,76 +21,98 @@ namespace MCZall
     {
         public static void Load(string givenPath, bool skipsalt = false)
         {
-            if (!skipsalt) {
+            if (!skipsalt)
+            {
                 Server.salt = "";
                 string rndchars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
                 Random rnd = new Random();
                 for (int i = 0; i < 16; ++i) { Server.salt += rndchars[rnd.Next(rndchars.Length)]; }
             }
 
-            if (File.Exists(givenPath)) {
+            if (File.Exists(givenPath))
+            {
                 string[] lines = File.ReadAllLines(givenPath);
 
-                foreach (string line in lines) {
-                    if (line != "" && line[0] != '#') {
+                foreach (string line in lines)
+                {
+                    if (line != "" && line[0] != '#')
+                    {
                         //int index = line.IndexOf('=') + 1; // not needed if we use Split('=')
                         string key = line.Split('=')[0].Trim();
                         string value = line.Split('=')[1].Trim();
-                        string color = "";
+                        string color;
 
-                        int foundLimit = 0;
+                        int foundLimit;
 
-                        switch (key.ToLower()) {
+                        switch (key.ToLower())
+                        {
                             case "server-name":
-                                if (ValidString(value, "![]:.,{}~-+()?_/\\ ")) { Server.name = value;
-                                } else { Server.s.Log("server-name invalid! setting to default."); }
+                                if (ValidString(value, "![]:.,{}~-+()?_/\\ "))
+                                {
+                                    Server.name = value;
+                                }
+                                else { Server.s.Log("server-name invalid! setting to default."); }
                                 break;
                             case "motd":
-                                if (ValidString(value, "![]&:.,{}~-+()?_/\\ ")) { Server.motd = value;
-                                } else { Server.s.Log("motd invalid! setting to default."); }
+                                if (ValidString(value, "![]&:.,{}~-+()?_/\\ "))
+                                {
+                                    Server.motd = value;
+                                }
+                                else { Server.s.Log("motd invalid! setting to default."); }
                                 break;
                             case "port":
                                 try { Server.port = Convert.ToInt32(value); }
                                 catch { Server.s.Log("port invalid! setting to default."); }
                                 break;
                             case "verify-names":
-                                Server.verify = (value.ToLower() == "true") ? true : false;
+                                Server.verify = value.ToLower() == "true";
                                 break;
                             case "public":
-                                Server.pub = (value.ToLower() == "true") ? true : false;
+                                Server.pub = value.ToLower() == "true";
                                 break;
                             case "world-chat":
-                                Server.worldChat = (value.ToLower() == "true") ? true : false;
+                                Server.worldChat = value.ToLower() == "true";
                                 break;
                             case "guest-goto":
-                                Server.guestGoto = (value.ToLower() == "true") ? true : false;
+                                Server.guestGoto = value.ToLower() == "true";
                                 break;
                             case "max-players":
-                                try {
-                                    if (Convert.ToByte(value) > 64) {
+                                try
+                                {
+                                    if (Convert.ToByte(value) > 64)
+                                    {
                                         value = "64"; Server.s.Log("Max players has been lowered to 64.");
-                                    } else if (Convert.ToByte(value) < 1) {
+                                    }
+                                    else if (Convert.ToByte(value) < 1)
+                                    {
                                         value = "1"; Server.s.Log("Max players has been increased to 1.");
                                     }
                                     Server.players = Convert.ToByte(value);
-                                } catch { Server.s.Log("max-players invalid! setting to default."); }
+                                }
+                                catch { Server.s.Log("max-players invalid! setting to default."); }
                                 break;
                             case "max-maps":
-                                try {
-                                    if (Convert.ToByte(value) > 35) {
+                                try
+                                {
+                                    if (Convert.ToByte(value) > 35)
+                                    {
                                         value = "35";
                                         Server.s.Log("Max maps has been lowered to 35.");
-                                    } else if (Convert.ToByte(value) < 1) {
+                                    }
+                                    else if (Convert.ToByte(value) < 1)
+                                    {
                                         value = "1";
                                         Server.s.Log("Max maps has been increased to 1.");
                                     }
                                     Server.maps = Convert.ToByte(value);
-                                } catch {
+                                }
+                                catch
+                                {
                                     Server.s.Log("max-maps invalid! setting to default.");
                                 }
                                 break;
                             case "irc":
-                                Server.irc = (value.ToLower() == "true") ? true : false;
+                                Server.irc = value.ToLower() == "true";
                                 break;
                             case "irc-server":
                                 Server.ircServer = value;
@@ -102,16 +124,22 @@ namespace MCZall
                                 Server.ircChannel = value;
                                 break;
                             case "irc-port":
-                                try {
+                                try
+                                {
                                     Server.ircPort = Convert.ToInt32(value);
-                                } catch {
+                                }
+                                catch
+                                {
                                     Server.s.Log("irc-port invalid! setting to default.");
                                 }
                                 break;
                             case "irc-identify":
-                                try {
+                                try
+                                {
                                     Server.ircIdentify = Convert.ToBoolean(value);
-                                } catch {
+                                }
+                                catch
+                                {
                                     Server.s.Log("irc-identify boolean value invalid! Setting to the default of: " + Server.ircIdentify + ".");
                                 }
                                 break;
@@ -119,27 +147,36 @@ namespace MCZall
                                 Server.ircPassword = value;
                                 break;
                             case "anti-tunnels":
-                                Server.antiTunnel = (value.ToLower() == "true") ? true : false;
+                                Server.antiTunnel = value.ToLower() == "true";
                                 break;
                             case "max-depth":
-                                try {
+                                try
+                                {
                                     Server.maxDepth = Convert.ToByte(value);
-                                } catch {
+                                }
+                                catch
+                                {
                                     Server.s.Log("maxDepth invalid! setting to default.");
                                 }
                                 break;
 
                             case "overload":
-                                try {
-                                    if (Convert.ToInt16(value) > 5000) {
+                                try
+                                {
+                                    if (Convert.ToInt16(value) > 5000)
+                                    {
                                         value = "4000";
                                         Server.s.Log("Max overload is 5000.");
-                                    } else if (Convert.ToInt16(value) < 500) {
+                                    }
+                                    else if (Convert.ToInt16(value) < 500)
+                                    {
                                         value = "500";
                                         Server.s.Log("Min overload is 500");
                                     }
                                     Server.Overload = Convert.ToInt16(value);
-                                } catch {
+                                }
+                                catch
+                                {
                                     Server.s.Log("Overload invalid! setting to default.");
                                 }
                                 break;
@@ -152,20 +189,20 @@ namespace MCZall
                                 break;
 
                             case "report-back":
-                                Server.reportBack = (value.ToLower() == "true") ? true : false;
+                                Server.reportBack = value.ToLower() == "true";
                                 break;
                             case "backup-time":
-                                if (Convert.ToInt32(value)>1) { Server.backupInterval = Convert.ToInt32(value); }
+                                if (Convert.ToInt32(value) > 1) { Server.backupInterval = Convert.ToInt32(value); }
                                 break;
                             case "console-only":
-                                Server.console = (value.ToLower() == "true") ? true : false;
+                                Server.console = value.ToLower() == "true";
                                 break;
 
                             case "physicsrestart":
-                                Server.physicsRestart = (value.ToLower() == "true") ? true : false;
+                                Server.physicsRestart = value.ToLower() == "true";
                                 break;
                             case "deathcount":
-                                Server.physicsRestart = (value.ToLower() == "true") ? true : false;
+                                Server.physicsRestart = value.ToLower() == "true";
                                 break;
 
                             case "host":
@@ -181,15 +218,17 @@ namespace MCZall
                                 Server.MySQLDatabaseName = value;
                                 break;
                             case "defaultcolor":
-                                color = c.Parse(value);
-                                if (color == "") {
-                                    color = c.Name(value); if (color != "") color = value; else { Server.s.Log("Could not find " + value); return; }
+                                color = C.Parse(value);
+                                if (color == "")
+                                {
+                                    color = C.Name(value); if (color != "") color = value; else { Server.s.Log("Could not find " + value); return; }
                                 }
                                 Server.DefaultColor = color; break;
                             case "irc-color":
-                                color = c.Parse(value);
-                                if (color == "") {
-                                    color = c.Name(value); if (color != "") color = value; else { Server.s.Log("Could not find " + value); return; }
+                                color = C.Parse(value);
+                                if (color == "")
+                                {
+                                    color = C.Name(value); if (color != "") color = value; else { Server.s.Log("Could not find " + value); return; }
                                 }
                                 Server.IRCColour = color; break;
                             case "super-limit":
@@ -209,39 +248,45 @@ namespace MCZall
                                 Server.maxBuild = foundLimit;
                                 break;
                             case "super-color":
-                                color = c.Parse(value);
-                                if (color == "") {
-                                    color = c.Name(value); if (color != "") color = value; else { Server.s.Log("Could not find " + value); return; }
+                                color = C.Parse(value);
+                                if (color == "")
+                                {
+                                    color = C.Name(value); if (color != "") color = value; else { Server.s.Log("Could not find " + value); return; }
                                 }
                                 Server.colSuper = color; break;
                             case "op-color":
-                                color = c.Parse(value);
-                                if (color == "") {
-                                    color = c.Name(value); if (color != "") color = value; else { Server.s.Log("Could not find " + value); return; }
+                                color = C.Parse(value);
+                                if (color == "")
+                                {
+                                    color = C.Name(value); if (color != "") color = value; else { Server.s.Log("Could not find " + value); return; }
                                 }
                                 Server.colOp = color; break;
                             case "adv-color":
-                                color = c.Parse(value);
-                                if (color == "") {
-                                    color = c.Name(value); if (color != "") color = value; else { Server.s.Log("Could not find " + value); return; }
+                                color = C.Parse(value);
+                                if (color == "")
+                                {
+                                    color = C.Name(value); if (color != "") color = value; else { Server.s.Log("Could not find " + value); return; }
                                 }
                                 Server.colAdv = color; break;
                             case "builder-color":
-                                color = c.Parse(value);
-                                if (color == "") {
-                                    color = c.Name(value); if (color != "") color = value; else { Server.s.Log("Could not find " + value); return; }
+                                color = C.Parse(value);
+                                if (color == "")
+                                {
+                                    color = C.Name(value); if (color != "") color = value; else { Server.s.Log("Could not find " + value); return; }
                                 }
                                 Server.colBuild = color; break;
                             case "guest-color":
-                                color = c.Parse(value);
-                                if (color == "") {
-                                    color = c.Name(value); if (color != "") color = value; else { Server.s.Log("Could not find " + value); return; }
+                                color = C.Parse(value);
+                                if (color == "")
+                                {
+                                    color = C.Name(value); if (color != "") color = value; else { Server.s.Log("Could not find " + value); return; }
                                 }
                                 Server.colGuest = color; break;
                             case "banned-color":
-                                color = c.Parse(value);
-                                if (color == "") {
-                                    color = c.Name(value); if (color != "") color = value; else { Server.s.Log("Could not find " + value); return; }
+                                color = C.Parse(value);
+                                if (color == "")
+                                {
+                                    color = C.Name(value); if (color != "") color = value; else { Server.s.Log("Could not find " + value); return; }
                                 }
                                 Server.colBanned = color; break;
                             case "old-help":
@@ -258,15 +303,18 @@ namespace MCZall
                                 try { Group.standard = Group.Find(value); } catch { }
                                 break;*/
 
-                            case "afk-minutes":                                
-                                try {
+                            case "afk-minutes":
+                                try
+                                {
                                     Server.afkminutes = Convert.ToInt32(value);
-                                } catch {
+                                }
+                                catch
+                                {
                                     Server.s.Log("irc-port invalid! setting to default.");
                                 }
                                 break;
 
-                            case "afk-kick":                                
+                            case "afk-kick":
                                 try { Server.afkkick = Convert.ToInt32(value); } catch { Server.s.Log("irc-port invalid! setting to default."); }
                                 break;
                             case "check-updates":
@@ -288,7 +336,8 @@ namespace MCZall
                 Server.s.Log("LOADED: " + givenPath);
                 Server.s.SettingsUpdate();
                 Save(givenPath);
-            } else Save(givenPath);
+            }
+            else Save(givenPath);
         }
         public static bool ValidString(string str, string allowed)
         {
@@ -299,11 +348,14 @@ namespace MCZall
                 {
                     return false;
                 }
-            } return true;
+            }
+            return true;
         }
 
-        static void Save(string givenPath) {
-            try {
+        static void Save(string givenPath)
+        {
+            try
+            {
                 StreamWriter w = new StreamWriter(File.Create(givenPath));
                 if (givenPath.IndexOf("server") != -1)
                 {
@@ -393,7 +445,9 @@ namespace MCZall
                     w.WriteLine("#Colors");
                     w.WriteLine("defaultColor = " + Server.DefaultColor);
                     w.WriteLine("irc-color = " + Server.IRCColour);
-                } else if (givenPath.IndexOf("rank") != -1) {
+                }
+                else if (givenPath.IndexOf("rank") != -1)
+                {
                     w.WriteLine("#Building command limits");
                     w.WriteLine("super-limit = " + Server.maxSuper);
                     w.WriteLine("op-limit = " + Server.maxOp);

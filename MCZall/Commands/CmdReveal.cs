@@ -1,22 +1,23 @@
-using System;
-using System.IO;
-
 namespace MCZall
 {
     public class CmdReveal : Command
     {
-        public override string name { get { return "reveal"; } }
-        public override string shortcut { get { return ""; } }
-        public override string type { get { return "mod"; } }
+        public override string Name { get { return "reveal"; } }
+        public override string Shortcut { get { return ""; } }
+        public override string Type { get { return "mod"; } }
         public CmdReveal() { }
-        public override void Use(Player p, string message) {
+        public override void Use(Player p, string message)
+        {
             if (message == "") { Help(p); return; }
 
-            if (message.ToLower() == "all") {
+            if (message.ToLower() == "all")
+            {
                 if (p.group.Permission < LevelPermission.Operator) { p.SendMessage("Reserved for OP+"); return; }
 
-                foreach (Player who in Player.players) {
-                    if (who.level == p.level) {
+                foreach (Player who in Player.players)
+                {
+                    if (who.level == p.level)
+                    {
                         foreach (Player pl in Player.players) if (who.level == pl.level && who != pl) who.SendDie(pl.id);
                         foreach (PlayerBot b in PlayerBot.playerbots) if (who.level == b.level) who.SendDie(b.id);
                         Player.GlobalDie(who, true);
@@ -40,7 +41,9 @@ namespace MCZall
                         who.SendMessage("Map reloaded.");
                     }
                 }
-            } else {
+            }
+            else
+            {
                 Player who = Player.Find(message);
                 if (who == null) { p.SendMessage("Could not find player."); return; }
                 else if (who.group.Permission > p.group.Permission && p != who) { p.SendMessage("Cannot reload the map of someone higher than you."); return; }

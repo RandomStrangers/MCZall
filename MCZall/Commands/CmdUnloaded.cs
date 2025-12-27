@@ -1,17 +1,16 @@
-﻿using System;
+﻿using System.Collections.Generic;
 using System.IO;
-using System.Collections.Generic;
 
 namespace MCZall
 {
     public class CmdUnloaded : Command
     {
-        public override string name { get { return "unloaded"; } }
-        public override string shortcut { get { return ""; } }
-        public override string type { get { return "information"; } }
+        public override string Name { get { return "unloaded"; } }
+        public override string Shortcut { get { return ""; } }
+        public override string Type { get { return "information"; } }
         public CmdUnloaded() { }
         public override void Use(Player p, string message)
-        { 
+        {
             if (message != "") { Help(p); return; }
 
             List<string> levels = new List<string>(Server.levels.Count);

@@ -12,28 +12,25 @@
 	or implied. See the License for the specific language governing
 	permissions and limitations under the License.
 */
-using System;
-using System.Collections.Generic;
-using System.Text;
-
 namespace MCZall
 {
     class CmdSay : Command
     {
-        public override string name { get { return "say"; } }
-        public override string shortcut { get { return ""; } }
-        public override string type { get { return "other"; } }
+        public override string Name { get { return "say"; } }
+        public override string Shortcut { get { return ""; } }
+        public override string Type { get { return "other"; } }
         public CmdSay() { }
 
         public override void Use(Player p, string message)
         {
             if (message == "") { Help(p); return; }
             message = message.Replace("%", "&"); // Alow colors in global messages
-            Player.GlobalChat(p,message,false);
+            Player.GlobalChat(p, message, false);
             message = message.Replace("&", ""); // converts the MC color codes to IRC. Doesn't seem to work with multiple colors
             IRCBot.Say(message);
         }
-        public override void Help(Player p) {
+        public override void Help(Player p)
+        {
             p.SendMessage("/say - broadcasts a global message to everyone in the server.");
         }
     }

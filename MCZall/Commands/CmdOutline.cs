@@ -5,14 +5,15 @@ namespace MCZall
 {
     public class CmdOutline : Command
     {
-        public override string name { get { return "outline"; } }
-        public override string shortcut { get { return ""; } }
-        public override string type { get { return "build"; } }
+        public override string Name { get { return "outline"; } }
+        public override string Shortcut { get { return ""; } }
+        public override string Type { get { return "build"; } }
         public CmdOutline() { }
-        public override void Use(Player p, string message) {
+        public override void Use(Player p, string message)
+        {
             int number = message.Split(' ').Length;
             if (number != 2) { Help(p); return; }
-            
+
             int pos = message.IndexOf(' ');
             string t = message.Substring(0, pos).ToLower();
             string t2 = message.Substring(pos + 1).ToLower();
@@ -20,7 +21,7 @@ namespace MCZall
             if (type == 255) { p.SendMessage("There is no block \"" + t + "\"."); return; }
             byte type2 = Block.Byte(t2);
             if (type2 == 255) { p.SendMessage("There is no block \"" + t2 + "\"."); return; }
-            if (Block.allowPlace(type2) > p.group.Permission) { p.SendMessage("Cannot place that."); return; }
+            if (Block.AllowPlace(type2) > p.group.Permission) { p.SendMessage("Cannot place that."); return; }
 
             CatchPos cpos; cpos.type2 = type2; cpos.type = type;
             cpos.x = 0; cpos.y = 0; cpos.z = 0; p.blockchangeObject = cpos;
@@ -50,12 +51,13 @@ namespace MCZall
             unchecked { if (cpos.type != (byte)-1) { type = cpos.type; } }
             List<Pos> buffer = new List<Pos>();
             Pos pos;
-            
+
             bool AddMe = false;
 
             for (ushort xx = Math.Min(cpos.x, x); xx <= Math.Max(cpos.x, x); ++xx)
                 for (ushort yy = Math.Min(cpos.y, y); yy <= Math.Max(cpos.y, y); ++yy)
-                    for (ushort zz = Math.Min(cpos.z, z); zz <= Math.Max(cpos.z, z); ++zz) {
+                    for (ushort zz = Math.Min(cpos.z, z); zz <= Math.Max(cpos.z, z); ++zz)
+                    {
                         AddMe = false;
 
                         if (p.level.GetTile((ushort)(xx - 1), yy, zz) == cpos.type) AddMe = true;
@@ -68,13 +70,15 @@ namespace MCZall
                         if (AddMe && p.level.GetTile(xx, yy, zz) != cpos.type) { pos.x = xx; pos.y = yy; pos.z = zz; buffer.Add(pos); }
                     }
 
-            if (buffer.Count > p.group.maxBlocks) {
+            if (buffer.Count > p.group.MaxBlocks)
+            {
                 p.SendMessage("You tried to outline more than " + buffer.Count + " blocks.");
-                p.SendMessage("You cannot outline more than " + p.group.maxBlocks + ".");
+                p.SendMessage("You cannot outline more than " + p.group.MaxBlocks + ".");
                 return;
             }
 
-            buffer.ForEach(delegate(Pos pos1) {
+            buffer.ForEach(delegate (Pos pos1)
+            {
                 p.level.Blockchange(p, pos1.x, pos1.y, pos1.z, cpos.type2);
             });
 
@@ -82,7 +86,8 @@ namespace MCZall
 
             if (p.staticCommands) p.Blockchange += new Player.BlockchangeEventHandler(Blockchange1);
         }
-        void BufferAdd(List<Pos> list, ushort x, ushort y, ushort z) {
+        void BufferAdd(List<Pos> list, ushort x, ushort y, ushort z)
+        {
             Pos pos; pos.x = x; pos.y = y; pos.z = z; list.Add(pos);
         }
 
@@ -96,6 +101,6 @@ namespace MCZall
             public byte type2;
             public ushort x, y, z;
         }
-        
+
     }
 }
